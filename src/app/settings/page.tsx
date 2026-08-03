@@ -3,6 +3,8 @@ import { isDemoMode } from "@/lib/demo-data";
 import { getTrainingProfile } from "@/lib/training-profile";
 import { getHeartRateZones, getPowerZones } from "@/lib/training-zones";
 import { saveTrainingSettings } from "./actions";
+import { HealthShortcutSetup } from "@/components/health-shortcut-setup";
+import { getHealthShortcutStatus } from "@/lib/apple-health/shortcut-connection";
 
 export const metadata = { title: "Einstellungen" };
 export const dynamic = "force-dynamic";
@@ -13,7 +15,7 @@ const inputClass = "mt-1.5 w-full rounded-xl border border-[var(--line)] bg-whit
 
 export default async function SettingsPage({ searchParams }: SettingsPageProps) {
   const query = await searchParams;
-  const { profile, databaseReady } = await getTrainingProfile();
+  const [{ profile, databaseReady }, shortcutStatus] = await Promise.all([getTrainingProfile(), getHealthShortcutStatus()]);
   const heartRateZones = getHeartRateZones(profile);
   const powerZones = getPowerZones(profile);
   return (
@@ -59,6 +61,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
         <button className="mt-7 rounded-xl bg-[var(--accent)] px-5 py-3 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:cursor-not-allowed disabled:opacity-50" type="submit" disabled={isDemoMode || !databaseReady}>Einstellungen speichern</button>
         {isDemoMode && <p className="mt-3 text-sm text-[var(--muted)]">Im Demo-Modus werden persönliche Einstellungen nicht gespeichert.</p>}
       </form>
+      <HealthShortcutSetup status={shortcutStatus} endpointUrl={`${(process.env.NEXT_PUBLIC_APP_URL ?? "https://ultra-pilot.vercel.app").replace(/\/$/, "")}/api/health/shortcut`} />
       <section className="card mt-6 max-w-4xl p-6"><div className="flex items-center justify-between gap-4"><div><h2 className="font-bold">Supabase</h2><p className="mt-1 text-sm text-[var(--muted)]">Authentifizierung, Datenbank und Dateispeicher</p></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${isDemoMode ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-900"}`}>{isDemoMode ? "Demo-Modus" : "Konfiguriert"}</span></div></section>
     </>
   );

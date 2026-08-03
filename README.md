@@ -30,6 +30,7 @@ Technisches Fundament und GPX-Prototyp einer Web-App für Rad- und Ultracycling-
 - Supabase-Schema für Profile, Aktivitäten, Dateien, Metriken, Feedback, Ernährung und spätere KI-Analysen
 - Row Level Security und privater Storage-Bucket
 - Unit-Tests mit kleiner GPX-Fixture
+- Kostenlose Apple-Health-Automation per iPhone-Kurzbefehl mit widerrufbarem Verbindungsschlüssel
 
 Noch nicht enthalten sind TCX-Parsing, Diagramme, Ernährungs-/Feedback-Formulare und KI-Funktionen.
 
@@ -56,7 +57,20 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-Der Anon-Key darf im Browser verwendet werden, weil alle Tabellen durch Row Level Security geschützt sind. Ein Service-Role-Key ist für diesen Prototyp nicht nötig und darf weder mit `NEXT_PUBLIC_` versehen noch committed werden. Der Storage-Bucket erwartet Pfade der Form `<user-id>/<file-id>.gpx`.
+Der Anon-Key darf im Browser verwendet werden, weil alle Tabellen durch Row Level Security geschützt sind. Der Storage-Bucket erwartet Pfade der Form `<user-id>/<file-id>.gpx`.
+
+Nur für die optionale Apple-Health-Kurzbefehl-Automation wird zusätzlich ein Supabase Secret Key benötigt. Er wird ausschließlich im serverseitigen API-Endpunkt verwendet und muss lokal sowie in Vercel als `SUPABASE_SECRET_KEY` hinterlegt werden. Der alte `service_role`-Key funktioniert als `SUPABASE_SERVICE_ROLE_KEY` weiterhin als Fallback. Beide dürfen niemals `NEXT_PUBLIC_` heißen oder committed werden.
+
+## Apple Health täglich per Kurzbefehl synchronisieren
+
+1. Migration `supabase/migrations/202608030013_health_shortcut_sync.sql` im Supabase SQL Editor ausführen.
+2. In Supabase unter **Project Settings → API Keys** einen serverseitigen Secret Key (`sb_secret_…`) kopieren oder neu anlegen.
+3. Lokal und in Vercel als `SUPABASE_SECRET_KEY` eintragen. In Vercel anschließend neu deployen.
+4. In UltraPilot **Einstellungen → Apple Health · täglich** öffnen und einen Verbindungsschlüssel erzeugen.
+5. Die dort angezeigten Schritte für den Kurzbefehl „UltraPilot Health Sync“ ausführen.
+6. Den Kurzbefehl zunächst manuell testen und danach eine tägliche persönliche Automation einrichten.
+
+Der Endpunkt akzeptiert nur 1 MB beziehungsweise 5.000 Datensätze aus den letzten 14 Tagen. Gespeichert werden abgeleitete Tagesmetriken und unterstützte Workouts. Apple-Health-Radfahrten werden vor dem Speichern immer verworfen; wiederholte Läufe, Gym- und Volleyball-Einheiten werden über eine stabile externe ID erkannt. Der Verbindungsschlüssel wird nur einmal angezeigt und in der Datenbank ausschließlich als SHA-256-Hash gespeichert.
 
 ## Befehle
 

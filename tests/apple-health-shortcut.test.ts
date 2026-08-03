@@ -1,0 +1,52 @@
+import { describe, expect, it } from "vitest";
+import { parseAppleHealthShortcutPayload } from "../src/lib/apple-health/shortcut-payload";
+import { generateHealthShortcutToken, hashHealthShortcutToken, healthShortcutTokenHint, isHealthShortcutToken } from "../src/lib/apple-health/shortcut-token";
+
+const referenceTime = Date.now();
+
+function hoursFromNow(hours: number): string {
+  return new Date(referenceTime + hours * 3_600_000).toISOString();
+}
+
+describe("Apple Health Shortcut payload", () => {
+  it("calculates recovery and attaches heart rate to supported workouts", () => {
+    const result = parseAppleHealthShortcutPayload({ version: 1, records: [
+      { kind: "sleep", start: hoursFromNow(-10), end: hoursFromNow(-3), value: 3 },
+      { kind: "heart_rate", start: hoursFromNow(-8), value: "51 bpm" },
+      { kind: "hrv", start: hoursFromNow(-7), value: "62 ms" },
+      { kind: "resting_heart_rate", start: hoursFromNow(-2), value: "48 bpm" },
+      { kind: "workout", start: hoursFromNow(-2), end: hoursFromNow(-1), value: "Outdoor Running", durationMinutes: "55 min", distanceKm: "9,4 km" },
+      { kind: "heart_rate", start: hoursFromNow(-1.5), value: "142 bpm" },
+    ] });
+    expect(result.recovery).toHaveLength(1);
+    expect(result.recovery[0]).toMatchObject({ asleepMinutes: 420, sleepingAverageHeartRate: 51, hrvSdnnMs: 62 });
+    expect(result.workouts).toHaveLength(1);
+    expect(result.workouts[0]).toMatchObject({ sportType: "running", movingTimeSeconds: 3300, distanceMeters: 9400 });
+    expect(result.workouts[0].heartRateSamples).toEqual([{ timestamp: hoursFromNow(-1.5), value: 142 }]);
+  });
+
+  it("always ignores cycling and unsupported records", () => {
+    const result = parseAppleHealthShortcutPayload({ version: 1, records: [
+      { kind: "workout", start: hoursFromNow(-4), end: hoursFromNow(-3), value: "Radfahren" },
+      { kind: "workout", start: hoursFromNow(-2), end: hoursFromNow(-1), value: "Tennis" },
+    ] });
+    expect(result.workouts).toHaveLength(0);
+    expect(result.ignoredCyclingCount).toBe(1);
+    expect(result.ignoredUnsupportedCount).toBe(1);
+  });
+
+  it("rejects oversized or malformed payloads", () => {
+    expect(() => parseAppleHealthShortcutPayload({ version: 2, records: [{}] })).toThrow("Shortcut-Version");
+    expect(() => parseAppleHealthShortcutPayload({ version: 1, records: [] })).toThrow("1 bis 5.000");
+  });
+});
+
+describe("Apple Health Shortcut token", () => {
+  it("creates a recognizable token while storing only a stable hash", () => {
+    const token = generateHealthShortcutToken();
+    expect(isHealthShortcutToken(token)).toBe(true);
+    expect(hashHealthShortcutToken(token)).toMatch(/^[0-9a-f]{64}$/);
+    expect(hashHealthShortcutToken(token)).toBe(hashHealthShortcutToken(token));
+    expect(healthShortcutTokenHint(token)).toHaveLength(6);
+  });
+});

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { AppleHealthDailyRecovery } from "@/lib/apple-health/recovery-parser";
+import { persistAppleHealthRecovery } from "@/lib/apple-health/recovery-import";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -36,35 +36,18 @@ export async function saveDailyReadiness(formData: FormData) {
   redirect(destination);
 }
 
-function validMetric(value: unknown): value is AppleHealthDailyRecovery {
-  if (!value || typeof value !== "object") return false;
-  const metric = value as Partial<AppleHealthDailyRecovery>;
-  const validMinutes = [metric.asleepMinutes, metric.coreMinutes, metric.deepMinutes, metric.remMinutes, metric.awakeMinutes].every((item) => Number.isInteger(item) && (item ?? -1) >= 0 && (item ?? 1441) <= 1440);
-  const validOptionalNumber = (item: number | null | undefined, maximum: number) => item === null || (typeof item === "number" && Number.isFinite(item) && item > 0 && item <= maximum);
-  return typeof metric.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(metric.date)
-    && typeof metric.sleepStart === "string" && Number.isFinite(new Date(metric.sleepStart).getTime())
-    && typeof metric.sleepEnd === "string" && Number.isFinite(new Date(metric.sleepEnd).getTime()) && new Date(metric.sleepEnd) > new Date(metric.sleepStart)
-    && validMinutes && Number.isInteger(metric.heartRateSampleCount) && (metric.heartRateSampleCount ?? -1) >= 0
-    && Number.isInteger(metric.hrvSampleCount) && (metric.hrvSampleCount ?? -1) >= 0
-    && validOptionalNumber(metric.sleepingAverageHeartRate, 300) && validOptionalNumber(metric.sleepingMinimumHeartRate, 300)
-    && validOptionalNumber(metric.hrvSdnnMs, 1000) && validOptionalNumber(metric.restingHeartRate, 300);
-}
-
 export async function saveAppleHealthRecovery(_previous: RecoveryImportState, formData: FormData): Promise<RecoveryImportState> {
   try {
     const input = formData.get("metricsJson");
     if (typeof input !== "string") throw new Error("Die lokal extrahierten Schlafdaten fehlen.");
     const parsed = JSON.parse(input) as unknown;
-    if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 130 || !parsed.every(validMetric)) throw new Error("Die Schlafdaten sind ungültig oder zu umfangreich.");
     const user = await requireUser();
     const supabase = await createClient();
     if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
-    const records = parsed.map((metric) => ({ user_id: user.id, metric_date: metric.date, sleep_start: metric.sleepStart, sleep_end: metric.sleepEnd, asleep_minutes: metric.asleepMinutes, core_minutes: metric.coreMinutes, deep_minutes: metric.deepMinutes, rem_minutes: metric.remMinutes, awake_minutes: metric.awakeMinutes, sleeping_average_heart_rate: metric.sleepingAverageHeartRate, sleeping_minimum_heart_rate: metric.sleepingMinimumHeartRate, heart_rate_sample_count: metric.heartRateSampleCount, hrv_sdnn_ms: metric.hrvSdnnMs, hrv_sample_count: metric.hrvSampleCount, resting_heart_rate: metric.restingHeartRate, imported_at: new Date().toISOString() }));
-    const { error } = await supabase.from("apple_health_daily_metrics").upsert(records, { onConflict: "user_id,metric_date" });
-    if (error) throw new Error(error.message);
+    const imported = await persistAppleHealthRecovery(supabase, user.id, parsed, "apple_health_export");
     revalidatePath("/plan");
     revalidatePath("/dashboard");
-    return { status: "success", message: `${records.length} Nächte wurden aktualisiert.`, imported: records.length };
+    return { status: "success", message: `${imported} Nächte wurden aktualisiert.`, imported };
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "Apple Health konnte nicht importiert werden." };
   }

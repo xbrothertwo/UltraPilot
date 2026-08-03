@@ -5,9 +5,16 @@ const HEART_RATE = "HKQuantityTypeIdentifierHeartRate";
 const HRV = "HKQuantityTypeIdentifierHeartRateVariabilitySDNN";
 const RESTING_HEART_RATE = "HKQuantityTypeIdentifierRestingHeartRate";
 
-type SleepStage = "core" | "deep" | "rem" | "awake" | "asleep";
+export type SleepStage = "core" | "deep" | "rem" | "awake" | "asleep";
 type Interval = { start: number; end: number; stage: SleepStage };
 type ValueSample = { timestamp: number; value: number };
+
+export type AppleHealthRecoverySamples = {
+  sleep: Array<{ startTime: string; endTime: string; stage: SleepStage }>;
+  heartRate: Array<{ timestamp: string; value: number }>;
+  hrv: Array<{ timestamp: string; value: number }>;
+  restingHeartRate: Array<{ timestamp: string; value: number }>;
+};
 
 export type AppleHealthDailyRecovery = {
   date: string;
@@ -59,6 +66,43 @@ function isInside(timestamp: number, intervals: Interval[]): boolean {
   return intervals.some((interval) => timestamp >= interval.start && timestamp <= interval.end);
 }
 
+export function calculateAppleHealthRecovery(samples: AppleHealthRecoverySamples): AppleHealthDailyRecovery[] {
+  const sleep: Interval[] = samples.sleep.map((sample) => ({ start: new Date(sample.startTime).getTime(), end: new Date(sample.endTime).getTime(), stage: sample.stage }));
+  const heartRate: ValueSample[] = samples.heartRate.map((sample) => ({ timestamp: new Date(sample.timestamp).getTime(), value: sample.value }));
+  const hrv: ValueSample[] = samples.hrv.map((sample) => ({ timestamp: new Date(sample.timestamp).getTime(), value: sample.value }));
+  const restingHeartRate: ValueSample[] = samples.restingHeartRate.map((sample) => ({ timestamp: new Date(sample.timestamp).getTime(), value: sample.value }));
+  const groups = new Map<string, Interval[]>();
+  for (const interval of sleep) {
+    const key = localDateKey(interval.end);
+    groups.set(key, [...(groups.get(key) ?? []), interval]);
+  }
+  return [...groups.entries()].filter(([, intervals]) => intervals.some((interval) => interval.stage !== "awake")).map(([date, intervals]) => {
+    const detailedAsleep = intervals.filter((interval) => interval.stage === "core" || interval.stage === "deep" || interval.stage === "rem");
+    const asleepIntervals = detailedAsleep.length ? detailedAsleep : intervals.filter((interval) => interval.stage === "asleep");
+    const start = Math.min(...asleepIntervals.map((interval) => interval.start));
+    const end = Math.max(...asleepIntervals.map((interval) => interval.end));
+    const sleepingHeartRate = heartRate.filter((sample) => isInside(sample.timestamp, asleepIntervals));
+    const sleepingHrv = hrv.filter((sample) => isInside(sample.timestamp, asleepIntervals));
+    const dailyResting = restingHeartRate.filter((sample) => localDateKey(sample.timestamp) === date);
+    return {
+      date,
+      sleepStart: new Date(start).toISOString(),
+      sleepEnd: new Date(end).toISOString(),
+      asleepMinutes: mergedMinutes(asleepIntervals),
+      coreMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "core")),
+      deepMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "deep")),
+      remMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "rem")),
+      awakeMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "awake")),
+      sleepingAverageHeartRate: average(sleepingHeartRate),
+      sleepingMinimumHeartRate: sleepingHeartRate.length ? Math.min(...sleepingHeartRate.map((sample) => sample.value)) : null,
+      heartRateSampleCount: sleepingHeartRate.length,
+      hrvSdnnMs: average(sleepingHrv),
+      hrvSampleCount: sleepingHrv.length,
+      restingHeartRate: average(dailyResting),
+    };
+  }).filter((metric) => metric.asleepMinutes > 0).sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export class AppleHealthRecoveryParser {
   private readonly decoder = new TextDecoder();
   private readonly sleep: Interval[] = [];
@@ -97,35 +141,11 @@ export class AppleHealthRecoveryParser {
   }
 
   result(): AppleHealthDailyRecovery[] {
-    const groups = new Map<string, Interval[]>();
-    for (const interval of this.sleep) {
-      const key = localDateKey(interval.end);
-      groups.set(key, [...(groups.get(key) ?? []), interval]);
-    }
-    return [...groups.entries()].filter(([, intervals]) => intervals.some((interval) => interval.stage !== "awake")).map(([date, intervals]) => {
-      const detailedAsleep = intervals.filter((interval) => interval.stage === "core" || interval.stage === "deep" || interval.stage === "rem");
-      const asleepIntervals = detailedAsleep.length ? detailedAsleep : intervals.filter((interval) => interval.stage === "asleep");
-      const start = Math.min(...asleepIntervals.map((interval) => interval.start));
-      const end = Math.max(...asleepIntervals.map((interval) => interval.end));
-      const sleepingHeartRate = this.heartRate.filter((sample) => isInside(sample.timestamp, asleepIntervals));
-      const sleepingHrv = this.hrv.filter((sample) => isInside(sample.timestamp, asleepIntervals));
-      const dailyResting = this.restingHeartRate.filter((sample) => localDateKey(sample.timestamp) === date);
-      return {
-        date,
-        sleepStart: new Date(start).toISOString(),
-        sleepEnd: new Date(end).toISOString(),
-        asleepMinutes: mergedMinutes(asleepIntervals),
-        coreMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "core")),
-        deepMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "deep")),
-        remMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "rem")),
-        awakeMinutes: mergedMinutes(intervals.filter((interval) => interval.stage === "awake")),
-        sleepingAverageHeartRate: average(sleepingHeartRate),
-        sleepingMinimumHeartRate: sleepingHeartRate.length ? Math.min(...sleepingHeartRate.map((sample) => sample.value)) : null,
-        heartRateSampleCount: sleepingHeartRate.length,
-        hrvSdnnMs: average(sleepingHrv),
-        hrvSampleCount: sleepingHrv.length,
-        restingHeartRate: average(dailyResting),
-      };
-    }).filter((metric) => metric.asleepMinutes > 0).sort((a, b) => a.date.localeCompare(b.date));
+    return calculateAppleHealthRecovery({
+      sleep: this.sleep.map((sample) => ({ startTime: new Date(sample.start).toISOString(), endTime: new Date(sample.end).toISOString(), stage: sample.stage })),
+      heartRate: this.heartRate.map((sample) => ({ timestamp: new Date(sample.timestamp).toISOString(), value: sample.value })),
+      hrv: this.hrv.map((sample) => ({ timestamp: new Date(sample.timestamp).toISOString(), value: sample.value })),
+      restingHeartRate: this.restingHeartRate.map((sample) => ({ timestamp: new Date(sample.timestamp).toISOString(), value: sample.value })),
+    });
   }
 }
