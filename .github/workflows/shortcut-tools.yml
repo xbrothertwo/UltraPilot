@@ -60,6 +60,31 @@ jobs:
         run: |
           set +e
           shortcuts sign --mode anyone --input input.shortcut --output UltraPilot-Health-Sync.shortcut > signing.log 2>&1
+          if [ ! -s UltraPilot-Health-Sync.shortcut ]; then
+            plutil -convert xml1 input.shortcut -o input.xml
+            python3 - <<'PY' > signing-payload.json
+          import json
+
+          with open('input.xml', encoding='utf-8') as shortcut_file:
+              shortcut = shortcut_file.read()
+          print(json.dumps({'shortcutName': 'UltraPilot Health Sync', 'shortcut': shortcut}))
+          PY
+            curl --fail-with-body --silent --show-error \
+              --request POST 'https://hubsign.routinehub.services/sign' \
+              --header 'Content-Type: application/json' \
+              --header 'User-Agent: cherri/2.3.0' \
+              --data-binary '@signing-payload.json' \
+              --output UltraPilot-Health-Sync.shortcut >> signing.log 2>&1
+          fi
+          python3 - <<'PY' >> signing.log 2>&1
+          from pathlib import Path
+
+          output = Path('UltraPilot-Health-Sync.shortcut')
+          if not output.exists() or output.read_bytes()[:4] != b'AEA1':
+              output.unlink(missing_ok=True)
+              raise SystemExit('Signing service did not return a signed Shortcut.')
+          print('Signed Shortcut created successfully.')
+          PY
           {
             echo '### Shortcut signing diagnostics'
             echo '```text'
