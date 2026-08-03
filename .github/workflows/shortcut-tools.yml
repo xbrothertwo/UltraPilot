@@ -30,7 +30,21 @@ jobs:
         run: |
           set +e
           mkdir extracted
-          aea decrypt -i input.shortcut -o input.aar > extraction.log 2>&1
+          python3 - <<'PY'
+          import plistlib
+          import struct
+
+          with open('input.shortcut', 'rb') as shortcut_file:
+              shortcut = shortcut_file.read()
+          auth_length = struct.unpack_from('<I', shortcut, 8)[0]
+          auth = plistlib.loads(shortcut[12:12 + auth_length])
+          with open('signing-certificate.der', 'wb') as certificate_file:
+              certificate_file.write(auth['SigningCertificateChain'][0])
+          PY
+          openssl x509 -inform DER -in signing-certificate.der -pubkey -noout > signing-public.pem
+          openssl pkey -pubin -in signing-public.pem -outform DER -out signing-public.der
+          tail -c 65 signing-public.der > signing-public.key
+          aea decrypt -i input.shortcut -o input.aar -sign-pub signing-public.key > extraction.log 2>&1
           decrypt_status=$?
           if [ "$decrypt_status" -eq 0 ]; then
             aa extract -i input.aar -d extracted >> extraction.log 2>&1
