@@ -1,0 +1,53 @@
+import { isDemoMode } from "@/lib/demo-data";
+import { requireUser } from "@/lib/supabase/auth";
+import { createClient } from "@/lib/supabase/server";
+
+export type PlannedWorkout = {
+  id: string;
+  scheduledDate: string;
+  sportType: "cycling" | "strength" | "mobility" | "recovery" | "other";
+  title: string;
+  description: string | null;
+  intensity: "recovery" | "easy" | "endurance" | "tempo" | "threshold" | "vo2" | "strength";
+  plannedDurationMinutes: number | null;
+  plannedDistanceKm: number | null;
+  status: "planned" | "completed" | "skipped";
+  linkedActivityId: string | null;
+  source: "manual" | "automatic";
+  generationId: string | null;
+};
+
+export type PlanGeneration = { summary: string; caution: string | null; createdAt: string };
+
+export async function getPlannedWorkouts(from: string, until: string): Promise<PlannedWorkout[]> {
+  if (isDemoMode) return [];
+  await requireUser();
+  const supabase = await createClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
+  if (error) throw new Error(`Geplante Einheiten konnten nicht geladen werden: ${error.message}`);
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    scheduledDate: row.scheduled_date,
+    sportType: row.sport_type,
+    title: row.title,
+    description: row.description,
+    intensity: row.intensity,
+    plannedDurationMinutes: row.planned_duration_minutes,
+    plannedDistanceKm: row.planned_distance_km === null ? null : Number(row.planned_distance_km),
+    status: row.status,
+    linkedActivityId: row.linked_activity_id,
+    source: row.source,
+    generationId: row.generation_id,
+  }));
+}
+
+export async function getLatestPlanGeneration(week: string): Promise<PlanGeneration | null> {
+  if (isDemoMode) return null;
+  await requireUser();
+  const supabase = await createClient();
+  if (!supabase) return null;
+  const { data, error } = await supabase.from("training_plan_generations").select("summary,caution,created_at").eq("week_start", week).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) throw new Error(`Planbegründung konnte nicht geladen werden: ${error.message}`);
+  return data ? { summary: data.summary, caution: data.caution, createdAt: data.created_at } : null;
+}
