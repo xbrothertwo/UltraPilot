@@ -49,4 +49,10 @@ describe("planned workout reconciliation", () => {
     expect(reconcilePlannedWorkouts([workout()], [activity({ sportType: "volleyball" })])[0].activity).toBeNull();
     expect(reconcilePlannedWorkouts([workout()], [activity({ sportType: "running" })])[0].activity).toBeNull();
   });
+
+  it("matches a planned run only with a running activity", () => {
+    const result = reconcilePlannedWorkouts([workout({ sportType: "running", title: "Dauerlauf", plannedDistanceKm: 10 })], [activity({ sportType: "running", title: "Lauf", distanceMeters: 10_200 })])[0];
+    expect(result.effectiveStatus).toBe("completed");
+    expect(result.comparison?.distanceDeltaKm).toBe(0.2);
+  });
 });

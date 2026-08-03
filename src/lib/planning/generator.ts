@@ -1,8 +1,9 @@
 import { strengthDescription, type StrengthVariant } from "./strength-plan";
+import type { PrimarySport } from "./data";
 
 export type PlanningDay = { date: string; availableMinutes: number; workday: boolean; occupied: boolean; readiness?: "green" | "yellow" | "red" | "unknown"; highIntensityAllowed?: boolean };
-export type GeneratedWorkout = { scheduledDate: string; sportType: "cycling" | "strength"; title: string; description: string; intensity: "easy" | "endurance" | "tempo" | "strength"; plannedDurationMinutes: number; plannedDistanceKm: number | null };
-export type GeneratorInput = { days: PlanningDay[]; weeklyGoalKm: number; recentFourWeekDistanceKm: number; recentAverageSpeedKmh: number | null; workdayMaxMinutes: number; strengthVariants: StrengthVariant[]; longRideTargetKm?: number; longRideCovered?: boolean; tempoSessionTarget?: number; preferredCyclingDate?: string };
+export type GeneratedWorkout = { scheduledDate: string; sportType: PrimarySport | "strength"; title: string; description: string; intensity: "easy" | "endurance" | "tempo" | "strength"; plannedDurationMinutes: number; plannedDistanceKm: number | null };
+export type GeneratorInput = { primarySport?: PrimarySport; days: PlanningDay[]; weeklyGoalKm: number; recentFourWeekDistanceKm: number; recentAverageSpeedKmh: number | null; workdayMaxMinutes: number; strengthVariants: StrengthVariant[]; longRideTargetKm?: number; longRideCovered?: boolean; tempoSessionTarget?: number; preferredCyclingDate?: string };
 
 function rounded(value: number): number { return Math.round(value * 10) / 10; }
 
@@ -19,6 +20,12 @@ export function cyclingDescription(intensity: "easy" | "endurance" | "tempo", du
     return "Einrollen: 10–15 min locker in Z1.\nHauptteil: gleichmäßig in Z2 fahren; an Anstiegen bewusst ruhig bleiben.\nAusrollen: 10 min sehr locker in Z1.\nZiel ist eine kontrollierte, gut verpflegte Ausdauerfahrt ohne Endspurt.";
   }
   return "Durchgehend locker in Z1–Z2 fahren.\nTrittfrequenz angenehm halten und Belastungsspitzen vermeiden.\nDie Einheit soll sich am Ende leichter als am Anfang anfühlen.";
+}
+
+export function runningDescription(intensity: "easy" | "endurance" | "tempo", durationMinutes: number): string {
+  if (intensity === "tempo") return `Einlaufen: 10–15 min sehr locker in Z1–Z2.\nHauptteil: ${durationMinutes >= 60 ? 3 : 2} × 8 min kontrolliert in Z3, dazwischen 4 min lockeres Traben.\nAuslaufen: verbleibende Zeit locker.\nHerzfrequenz und saubere Lauftechnik haben Vorrang vor der Pace.`;
+  if (intensity === "endurance") return "Die ersten 10 min bewusst locker anlaufen.\nHauptteil: gleichmäßig in Z2 laufen; an Anstiegen Tempo reduzieren.\nDie letzten 5–10 min locker auslaufen.\nZiel ist ruhige Ausdauer, kein Endspurt.";
+  return "Durchgehend locker in Z1–Z2 laufen.\nEine Unterhaltung sollte jederzeit möglich sein.\nBei schweren Beinen Gehpausen einbauen oder die Einheit kürzen.";
 }
 
 function dayGap(first: string, second: string): number { return Math.abs(new Date(`${first}T12:00:00Z`).getTime() - new Date(`${second}T12:00:00Z`).getTime()) / 86_400_000; }
@@ -54,33 +61,37 @@ function distributeDistance(targetDistanceKm: number, cyclingCount: number, long
 }
 
 export function generateDeterministicWeek(input: GeneratorInput): { workouts: GeneratedWorkout[]; targetDistanceKm: number; ruleSummary: string } {
-  const available = input.days.filter((day) => !day.occupied && day.readiness !== "red" && day.availableMinutes >= 45);
-  if (!available.length) return { workouts: [], targetDistanceKm: 0, ruleSummary: "Keine freien Zeitfenster von mindestens 45 Minuten." };
+  const primarySport = input.primarySport ?? "cycling";
+  const minimumMinutes = primarySport === "running" ? 30 : 45;
+  const available = input.days.filter((day) => !day.occupied && day.readiness !== "red" && day.availableMinutes >= minimumMinutes);
+  if (!available.length) return { workouts: [], targetDistanceKm: 0, ruleSummary: `Keine freien Zeitfenster von mindestens ${minimumMinutes} Minuten.` };
   const weeklyRecent = input.recentFourWeekDistanceKm / 4;
   const targetDistanceKm = rounded(Math.max(0, input.weeklyGoalKm));
   if (targetDistanceKm === 0) return { workouts: [], targetDistanceKm: 0, ruleSummary: "Das Wochenziel ist durch absolvierte und manuell geplante Kilometer bereits abgedeckt." };
-  const speed = input.recentAverageSpeedKmh && input.recentAverageSpeedKmh > 5 ? input.recentAverageSpeedKmh : null;
+  const speed = input.recentAverageSpeedKmh && input.recentAverageSpeedKmh > (primarySport === "running" ? 3 : 5) ? input.recentAverageSpeedKmh : null;
   const reservedStrengthDays = Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
-  const cyclingCount = Math.min(3, available.length - reservedStrengthDays);
-  const selected = spacedDays(available, cyclingCount, input.preferredCyclingDate);
-  const distances = distributeDistance(targetDistanceKm, cyclingCount, input.longRideTargetKm);
-  const cycling = selected.map((day, index): GeneratedWorkout => {
+  const enduranceCount = Math.min(3, available.length - reservedStrengthDays);
+  const selected = spacedDays(available, enduranceCount, input.preferredCyclingDate);
+  const distances = distributeDistance(targetDistanceKm, enduranceCount, input.longRideTargetKm);
+  const enduranceWorkouts = selected.map((day, index): GeneratedWorkout => {
     const distance = distances[index];
-    const desiredMinutes = speed ? Math.round(distance / speed * 60) : index === 0 ? 150 : index === 1 ? 75 : 60;
+    const desiredMinutes = speed ? Math.round(distance / speed * 60) : primarySport === "running" ? (index === 0 ? 75 : index === 1 ? 50 : 35) : (index === 0 ? 150 : index === 1 ? 75 : 60);
     const cap = day.workday ? Math.min(day.availableMinutes, input.workdayMaxMinutes) : day.availableMinutes;
-    const duration = Math.max(45, Math.min(desiredMinutes, cap));
+    const duration = Math.max(minimumMinutes, Math.min(desiredMinutes, cap));
     const isLong = index === 0 && !input.longRideCovered;
-    const tempoRequested = input.tempoSessionTarget === undefined ? weeklyRecent >= 100 : input.tempoSessionTarget > 0;
+    const tempoRequested = input.tempoSessionTarget === undefined ? weeklyRecent >= (primarySport === "running" ? 15 : 100) : input.tempoSessionTarget > 0;
     const intensity = !isLong && tempoRequested && index === 1 && day.readiness !== "yellow" && day.highIntensityAllowed !== false ? "tempo" : isLong ? "endurance" : "easy";
-    return { scheduledDate: day.date, sportType: "cycling", title: isLong ? "Lange ruhige Ausfahrt" : intensity === "tempo" ? "Kontrollierte Tempoeinheit" : "Lockere Ausdauerfahrt", description: cyclingDescription(intensity, duration), intensity, plannedDurationMinutes: duration, plannedDistanceKm: distance };
+    const description = primarySport === "running" ? runningDescription(intensity, duration) : cyclingDescription(intensity, duration);
+    const title = primarySport === "running" ? (isLong ? "Langer ruhiger Lauf" : intensity === "tempo" ? "Kontrollierter Tempolauf" : "Lockerer Dauerlauf") : (isLong ? "Lange ruhige Ausfahrt" : intensity === "tempo" ? "Kontrollierte Tempoeinheit" : "Lockere Ausdauerfahrt");
+    return { scheduledDate: day.date, sportType: primarySport, title, description, intensity, plannedDurationMinutes: duration, plannedDistanceKm: distance };
   });
-  const usedDates = new Set(cycling.map((workout) => workout.scheduledDate));
+  const usedDates = new Set(enduranceWorkouts.map((workout) => workout.scheduledDate));
   const gymCandidates = available.filter((day) => !usedDates.has(day.date) && day.availableMinutes >= 60);
   const gym = spacedDays(gymCandidates, input.strengthVariants.length).map((day, index): GeneratedWorkout => { const variant = input.strengthVariants[index]; return { scheduledDate: day.date, sportType: "strength", title: `Krafttraining ${variant}`, description: strengthDescription(variant), intensity: "strength", plannedDurationMinutes: 60, plannedDistanceKm: null }; });
-  const adjustedCycling = cycling.map((workout) => {
+  const adjustedEndurance = enduranceWorkouts.map((workout) => {
     const strengthAdjacent = gym.some((strength) => dayGap(strength.scheduledDate, workout.scheduledDate) <= 1);
     if (workout.intensity !== "tempo" || !strengthAdjacent) return workout;
-    return { ...workout, title: "Lockere Ausdauerfahrt", intensity: "easy" as const, description: cyclingDescription("easy", workout.plannedDurationMinutes) };
+    return { ...workout, title: primarySport === "running" ? "Lockerer Dauerlauf" : "Lockere Ausdauerfahrt", intensity: "easy" as const, description: primarySport === "running" ? runningDescription("easy", workout.plannedDurationMinutes) : cyclingDescription("easy", workout.plannedDurationMinutes) };
   });
-  return { workouts: [...adjustedCycling, ...gym].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate)), targetDistanceKm, ruleSummary: `Noch offene ${targetDistanceKm.toLocaleString("de-DE")} km wurden vollständig verteilt: maximal drei Radeinheiten, längste Einheit im größten freien Fenster, Arbeitstage auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Kraft-Nachbartage erhalten keine Tempoeinheit.` };
+  return { workouts: [...adjustedEndurance, ...gym].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate)), targetDistanceKm, ruleSummary: `Noch offene ${targetDistanceKm.toLocaleString("de-DE")} km wurden vollständig verteilt: maximal drei ${primarySport === "running" ? "Laufeinheiten" : "Radeinheiten"}, längste Einheit im größten freien Fenster, Arbeitstage auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Kraft-Nachbartage erhalten keine Tempoeinheit.` };
 }

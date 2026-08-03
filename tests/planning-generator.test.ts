@@ -101,4 +101,14 @@ describe("deterministic weekly planner", () => {
     const result = generateDeterministicWeek({ days, weeklyGoalKm: 90, recentFourWeekDistanceKm: 400, recentAverageSpeedKmh: 25, workdayMaxMinutes: 90, strengthVariants: [], preferredCyclingDate: "2026-08-04" });
     expect(result.workouts.some((workout) => workout.sportType === "cycling" && workout.scheduledDate === "2026-08-04")).toBe(true);
   });
+
+  it("creates a deterministic running week with running instructions", () => {
+    const days = ["03", "04", "05", "06"].map((day) => ({ date: `2026-08-${day}`, availableMinutes: 120, workday: false, occupied: false }));
+    const result = generateDeterministicWeek({ primarySport: "running", days, weeklyGoalKm: 30, recentFourWeekDistanceKm: 100, recentAverageSpeedKmh: 10, workdayMaxMinutes: 75, strengthVariants: [] });
+    const runs = result.workouts.filter((workout) => workout.sportType === "running");
+    expect(runs).toHaveLength(3);
+    expect(runs.reduce((sum, workout) => sum + (workout.plannedDistanceKm ?? 0), 0)).toBe(30);
+    expect(runs.some((workout) => workout.title === "Langer ruhiger Lauf")).toBe(true);
+    expect(runs.every((workout) => !workout.description.includes("fahren"))).toBe(true);
+  });
 });

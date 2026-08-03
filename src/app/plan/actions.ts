@@ -9,7 +9,7 @@ import { zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
 import { getActivities } from "@/lib/activities";
 import { calculateDailyAvailability } from "@/lib/planning/availability";
 import { getPlanningData } from "@/lib/planning/data";
-import { calculateRemainingWeeklyDistance, cyclingDescription, generateDeterministicWeek } from "@/lib/planning/generator";
+import { calculateRemainingWeeklyDistance, cyclingDescription, generateDeterministicWeek, runningDescription } from "@/lib/planning/generator";
 import { reconcilePlannedWorkouts } from "@/lib/planning/reconciliation";
 import { getPlannedWorkouts } from "@/lib/planning/workouts";
 import { strengthSequence, strengthVariantFromTitle, type StrengthVariant } from "@/lib/planning/strength-plan";
@@ -20,7 +20,7 @@ import { blockWeekForDate, getActiveTrainingBlock } from "@/lib/planning/blocks"
 import { recommendWeeklyTarget } from "@/lib/planning/weekly-target";
 
 const kinds = ["work_early", "work_late", "work_night", "work_day", "appointment", "vacation", "free", "other"] as const;
-const sports = ["cycling", "strength", "mobility", "recovery", "other"] as const;
+const sports = ["cycling", "running", "strength", "mobility", "recovery", "other"] as const;
 const intensities = ["recovery", "easy", "endurance", "tempo", "threshold", "vo2", "strength"] as const;
 const strengthPlan = {
   cadence: { summer: "1× pro Woche, A und B abwechselnd", winter: "2× pro Woche, A + B" },
@@ -42,9 +42,10 @@ export async function savePlanningProfile(formData: FormData) {
     if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
     const indoorMonth = integer(formData, "indoorMonth", 1, 12);
     const indoorYear = integer(formData, "indoorYear", 2026, 2100);
+    const primarySport = formData.get("primarySport") === "running" ? "running" : "cycling";
     const [{ error: goalError }, { error: preferenceError }] = await Promise.all([
       supabase.from("training_goals").upsert({ user_id: user.id, event_name: "Race Across Germany Nord–Süd", target_year: integer(formData, "targetYear", 2026, 2100), event_distance_km: 1100, event_elevation_meters: 7500, support_mode: "supported", weekly_distance_goal_km: integer(formData, "weeklyDistance", 0, 2000), updated_at: new Date().toISOString() }),
-      supabase.from("training_preferences").upsert({ user_id: user.id, before_late_shift_allowed: formData.get("beforeLate") === "on", after_night_shift_allowed: formData.get("afterNight") === "on", workday_max_session_minutes: integer(formData, "workdayMax", 15, 360), gym_summer_sessions: integer(formData, "gymSummer", 0, 7), gym_winter_sessions: integer(formData, "gymWinter", 0, 7), indoor_cycling_available_from: `${indoorYear}-${String(indoorMonth).padStart(2, "0")}-01`, strength_plan: strengthPlan, updated_at: new Date().toISOString() }),
+      supabase.from("training_preferences").upsert({ user_id: user.id, primary_sport: primarySport, before_late_shift_allowed: formData.get("beforeLate") === "on", after_night_shift_allowed: formData.get("afterNight") === "on", workday_max_session_minutes: integer(formData, "workdayMax", 15, 360), gym_summer_sessions: integer(formData, "gymSummer", 0, 7), gym_winter_sessions: integer(formData, "gymWinter", 0, 7), indoor_cycling_available_from: `${indoorYear}-${String(indoorMonth).padStart(2, "0")}-01`, strength_plan: strengthPlan, updated_at: new Date().toISOString() }),
     ]);
     if (goalError || preferenceError) throw new Error((goalError ?? preferenceError)?.message);
     revalidatePath("/plan");
@@ -256,9 +257,10 @@ export async function makeTodayWorkoutEasy(formData: FormData) {
     if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
     const { data: workout, error: readError } = await supabase.from("planned_workouts").select("id,sport_type,status,planned_duration_minutes").eq("id", id).eq("user_id", user.id).maybeSingle();
     if (readError || !workout) throw new Error(readError?.message ?? "Einheit wurde nicht gefunden.");
-    if (workout.sport_type !== "cycling" || workout.status !== "planned") throw new Error("Nur eine noch offene Radfahrt kann gelockert werden.");
+    if ((workout.sport_type !== "cycling" && workout.sport_type !== "running") || workout.status !== "planned") throw new Error("Nur eine noch offene Rad- oder Laufeinheit kann gelockert werden.");
     const duration = Number(workout.planned_duration_minutes ?? 60);
-    const { error } = await supabase.from("planned_workouts").update({ title: "Lockere Ausdauerfahrt", intensity: "easy", description: cyclingDescription("easy", duration), updated_at: new Date().toISOString() }).eq("id", id).eq("user_id", user.id);
+    const running = workout.sport_type === "running";
+    const { error } = await supabase.from("planned_workouts").update({ title: running ? "Lockerer Dauerlauf" : "Lockere Ausdauerfahrt", intensity: "easy", description: running ? runningDescription("easy", duration) : cyclingDescription("easy", duration), updated_at: new Date().toISOString() }).eq("id", id).eq("user_id", user.id);
     if (error) throw new Error(error.message);
     revalidatePath("/dashboard");
     revalidatePath("/plan");
@@ -284,16 +286,17 @@ export async function generateWeeklyPlan(formData: FormData) {
     const historyEnd = new Date(start); historyEnd.setDate(historyEnd.getDate() - 1);
     const iso = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const [planning, existing, activities, previousWorkouts, recovery, trainingLoad, trainingBlock] = await Promise.all([getPlanningData({ from: rangeStart, until: rangeEnd }), getPlannedWorkouts(week, until), getActivities(), getPlannedWorkouts(iso(historyStart), iso(historyEnd)), getRecoveryData(week, until), getTrainingLoadSummary(28), getActiveTrainingBlock()]);
+    const primarySport = planning.profile.primarySport;
     const dashboardTarget = dashboardAction && typeof dashboardWorkoutId === "string" ? existing.find((workout) => workout.id === dashboardWorkoutId) : null;
     if (dashboardAction) {
       if (typeof dashboardWorkoutId !== "string" || !dashboardWorkoutId) throw new Error("Einheit fehlt.");
-      if (!dashboardTarget || dashboardTarget.source !== "automatic" || dashboardTarget.status !== "planned" || (dashboardTarget.sportType !== "cycling" && dashboardTarget.sportType !== "strength")) throw new Error("Nur eine offene, automatisch geplante Rad- oder Krafteinheit kann auf diesem Weg umgeplant werden.");
+      if (!dashboardTarget || dashboardTarget.source !== "automatic" || dashboardTarget.status !== "planned" || (dashboardTarget.sportType !== primarySport && dashboardTarget.sportType !== "strength")) throw new Error("Nur eine offene, automatisch geplante Hauptsport- oder Krafteinheit kann auf diesem Weg umgeplant werden.");
       if (dashboardTarget.scheduledDate !== iso(new Date())) throw new Error("Die Schnellaktion ist nur für die heutige Einheit verfügbar.");
       if (dashboardAction === "shift" && dashboardTarget.scheduledDate === until) throw new Error("Am letzten Wochentag kann die Einheit nicht auf morgen verschoben werden.");
     }
     const recentCutoff = start.getTime() - 28 * 86_400_000;
-    const recent = activities.filter((activity) => { const time = new Date(activity.activityDate).getTime(); return activity.sportType === "cycling" && time >= recentCutoff && time < start.getTime(); });
-    const completedThisWeek = activities.filter((activity) => { const time = new Date(activity.activityDate).getTime(); return activity.sportType === "cycling" && time >= rangeStart.getTime() && time <= rangeEnd.getTime(); });
+    const recent = activities.filter((activity) => { const time = new Date(activity.activityDate).getTime(); return activity.sportType === primarySport && time >= recentCutoff && time < start.getTime(); });
+    const completedThisWeek = activities.filter((activity) => { const time = new Date(activity.activityDate).getTime(); return activity.sportType === primarySport && time >= rangeStart.getTime() && time <= rangeEnd.getTime(); });
     const recentDistanceKm = recent.reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
     const recentSeconds = recent.reduce((sum, activity) => sum + activity.movingTimeSeconds, 0);
     const averageSpeedKmh = recentSeconds > 0 ? recentDistanceKm / (recentSeconds / 3600) : null;
@@ -303,9 +306,9 @@ export async function generateWeeklyPlan(formData: FormData) {
     const completedAutomatic = automatic.filter((item) => item.effectiveStatus === "completed").map((item) => item.workout);
     const manual = existing.filter((workout) => workout.source !== "automatic");
     const completedDistanceKm = completedThisWeek.reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
-    const manuallyPlannedDistanceKm = reconciled.filter((item) => item.workout.source !== "automatic" && item.workout.sportType === "cycling" && item.effectiveStatus === "planned").reduce((sum, item) => sum + (item.workout.plannedDistanceKm ?? 0), 0);
-    const blockWeek = blockWeekForDate(trainingBlock, week);
-    const longRideCovered = blockWeek ? completedThisWeek.some((activity) => activity.distanceMeters / 1000 >= blockWeek.longRideTargetKm * .8) || reconciled.some((item) => item.workout.source === "manual" && item.effectiveStatus !== "skipped" && item.workout.sportType === "cycling" && (item.workout.title.toLowerCase().includes("lange") || (item.workout.plannedDistanceKm ?? 0) >= blockWeek.longRideTargetKm * .8)) : false;
+    const manuallyPlannedDistanceKm = reconciled.filter((item) => item.workout.source !== "automatic" && item.workout.sportType === primarySport && item.effectiveStatus === "planned").reduce((sum, item) => sum + (item.workout.plannedDistanceKm ?? 0), 0);
+    const blockWeek = primarySport === "cycling" ? blockWeekForDate(trainingBlock, week) : null;
+    const longRideCovered = blockWeek ? completedThisWeek.some((activity) => activity.distanceMeters / 1000 >= blockWeek.longRideTargetKm * .8) || reconciled.some((item) => item.workout.source === "manual" && item.effectiveStatus !== "skipped" && item.workout.sportType === primarySport && (item.workout.title.toLowerCase().includes("lang") || (item.workout.plannedDistanceKm ?? 0) >= blockWeek.longRideTargetKm * .8)) : false;
     const summer = start.getMonth() >= 3 && start.getMonth() <= 8;
     const configuredStrengthSessions = summer ? planning.profile.gymSummerSessions : planning.profile.gymWinterSessions;
     const currentStrength = manual.filter((workout) => workout.sportType === "strength" && workout.status !== "skipped");
@@ -351,9 +354,9 @@ export async function generateWeeklyPlan(formData: FormData) {
         destination = planDestination(formData, "goal=met");
       }
     } else {
-      const generated = generateDeterministicWeek({ days, weeklyGoalKm: remainingDistanceKm, recentFourWeekDistanceKm: recentDistanceKm, recentAverageSpeedKmh: averageSpeedKmh, workdayMaxMinutes: planning.profile.workdayMaxSessionMinutes, strengthVariants, longRideTargetKm: adaptiveLongRideTargetKm, longRideCovered, tempoSessionTarget: blockWeek?.tempoSessionTarget, preferredCyclingDate: dashboardAction === "shift" ? tomorrow : undefined });
+      const generated = generateDeterministicWeek({ primarySport, days, weeklyGoalKm: remainingDistanceKm, recentFourWeekDistanceKm: recentDistanceKm, recentAverageSpeedKmh: averageSpeedKmh, workdayMaxMinutes: planning.profile.workdayMaxSessionMinutes, strengthVariants, longRideTargetKm: adaptiveLongRideTargetKm, longRideCovered, tempoSessionTarget: blockWeek?.tempoSessionTarget, preferredCyclingDate: dashboardAction === "shift" ? tomorrow : undefined });
       if (!generated.workouts.length) throw new Error("Das offene Wochenziel kann nicht verteilt werden: Es fehlen freie Zeitfenster von mindestens 45 Minuten.");
-      if (dashboardAction === "shift" && !generated.workouts.some((workout) => workout.sportType === "cycling" && workout.scheduledDate === tomorrow)) throw new Error("Morgen gibt es kein geeignetes freies Trainingsfenster. Der bisherige Plan wurde nicht verändert.");
+      if (dashboardAction === "shift" && !generated.workouts.some((workout) => workout.sportType === primarySport && workout.scheduledDate === tomorrow)) throw new Error("Morgen gibt es kein geeignetes freies Trainingsfenster. Der bisherige Plan wurde nicht verändert.");
       const weeklyRecent = recentDistanceKm / 4;
       const increaseWarning = weeklyRecent > 0 && weeklyGoalKm > weeklyRecent * 1.1 ? ` Achtung: Das Ziel liegt mehr als 10 % über deinem Vierwochenschnitt von ${weeklyRecent.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km.` : "";
       const loadProtection = loadProtectedDates.size ? ` Nach hoher persönlicher Vorbelastung wurden ${loadProtectedDates.size} Tag${loadProtectedDates.size === 1 ? "" : "e"} für Tempo gesperrt.` : "";
