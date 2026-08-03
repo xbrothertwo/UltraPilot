@@ -28,10 +28,20 @@ jobs:
       - name: Extract signed shortcut
         if: inputs.mode == 'extract'
         run: |
+          set +e
           mkdir extracted
-          aea decrypt -i input.shortcut -o input.aar
-          aa extract -i input.aar -d extracted
-          find extracted -type f -print
+          aea decrypt -i input.shortcut -o input.aar > extraction.log 2>&1
+          decrypt_status=$?
+          if [ "$decrypt_status" -eq 0 ]; then
+            aa extract -i input.aar -d extracted >> extraction.log 2>&1
+          fi
+          {
+            echo '### Shortcut extraction diagnostics'
+            echo '```text'
+            cat extraction.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          find extracted -type f -print || true
 
       - name: Sign unsigned shortcut
         if: inputs.mode == 'sign'
@@ -43,7 +53,7 @@ jobs:
         with:
           name: shortcut-extracted
           path: extracted
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 1
 
       - name: Upload signed shortcut
