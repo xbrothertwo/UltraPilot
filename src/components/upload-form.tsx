@@ -45,11 +45,13 @@ export function UploadForm() {
       }
 
       const results: UploadResult[] = [];
+      const sportType = formData.get("sportType");
       for (let index = 0; index < primaryFiles.length; index += 1) {
         const file = primaryFiles[index];
         setLocalStatus(`Aktivität ${index + 1} von ${primaryFiles.length} wird gespeichert …`);
         const single = new FormData();
         single.set("activityFile", file);
+        if (typeof sportType === "string") single.set("sportType", sportType);
         if (hasDirectFile) single.set("heartRateFile", directHeartRateFile);
         if (hasHealthExport && healthSamples[index]?.length) {
           single.set("heartRateFile", new File([JSON.stringify({ format: "ultrapilot-heart-rate-v1", samples: healthSamples[index] })], `apple-watch-heart-rate-${index + 1}.json`, { type: "application/json" }));
@@ -79,10 +81,11 @@ export function UploadForm() {
   return <div className="grid min-w-0 gap-6 lg:grid-cols-[1.2fr_.8fr]">
     <form action={formAction} className="card min-w-0 p-6">
       <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Schritt 1</p><h2 className="mt-2 text-xl font-black">Aktivitäten auswählen</h2></div><span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-bold text-[var(--accent-dark)]">bis zu {MAX_BATCH_FILES}</span></div>
-      <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Wähle eine einzelne Fahrt oder direkt mehrere Dateien. Jede Hauptdatei wird als eigene Aktivität gespeichert.</p>
-      <FileField id="activityFiles" name="activityFiles" title="Garmin-, GPX- oder FIT-Dateien" hint="Mehrfachauswahl möglich · FIT empfohlen · jeweils maximal 20 MB" accept=".fit,.gpx,.tcx,application/gpx+xml,application/octet-stream" required multiple />
+      <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Wähle zuerst die Sportart und anschließend eine oder mehrere Dateien. Jede Datei wird als eigene Aktivität in deinem persönlichen Konto gespeichert.</p>
+      <label className="mt-5 block text-sm font-bold">Sportart<select name="sportType" defaultValue="cycling" className="mt-2 w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-[var(--ink)]"><option value="cycling">Radfahren</option><option value="running">Laufen</option></select></label>
+      <FileField id="activityFiles" name="activityFiles" title="GPX- oder FIT-Dateien" hint="Mehrfachauswahl möglich · Herzfrequenz in der GPX-Datei wird automatisch übernommen · jeweils maximal 20 MB" accept=".fit,.gpx,.tcx,application/gpx+xml,application/octet-stream" required multiple />
       <div className="mt-5 rounded-2xl border border-[var(--line)] p-4"><p className="eyebrow">Schritt 2 · optional</p><p className="mt-2 text-sm font-bold">Apple-Watch-Herzfrequenz ergänzen</p><FileField id="appleHealthFile" name="appleHealthFile" title="Apple-Health-Export für alle ausgewählten Fahrten" hint="export.zip oder export.xml · wird nur einmal lokal gelesen · auch 55 MB sind okay" accept=".zip,.xml,application/zip,text/xml,application/xml" /><FileField id="heartRateFile" name="heartRateFile" title="Einzelne Watch-Datei" hint="Nur bei genau einer Hauptdatei · FIT oder GPX · maximal 20 MB" accept=".fit,.gpx,application/gpx+xml,application/octet-stream" /></div>
-      <div className="mt-5 rounded-xl bg-[#eef4fb] px-4 py-3 text-xs leading-5 text-[var(--muted)]">Beim Mehrfachimport ordnet UltraPilot die Apple-Health-Werte jeder Fahrt ausschließlich anhand ihres exakten Zeitraums zu. Aktivitäten ohne passende Watch-Werte werden trotzdem importiert.</div>
+      <div className="mt-5 rounded-xl bg-[#eef4fb] px-4 py-3 text-xs leading-5 text-[var(--muted)]">Enthält die Hauptdatei bereits Herzfrequenzwerte, werden sie direkt für Kurve, Durchschnitt, Maximum, Zonen und Trainingsbelastung verwendet. Eine zusätzliche Watch-Datei ist dann nicht nötig.</div>
       {localStatus && <p role="status" className="mt-4 text-sm font-bold text-[var(--accent-dark)]">{localStatus}</p>}
       <button type="submit" disabled={pending} className="mt-5 w-full rounded-xl bg-[var(--accent)] px-5 py-3 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:cursor-wait disabled:opacity-60">{pending ? "Import läuft …" : "Ausgewählte Aktivitäten importieren"}</button>
       {state.status !== "idle" && <div role="status" className={`mt-5 rounded-xl border px-4 py-3 text-sm ${state.status === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : state.status === "partial" ? "border-amber-200 bg-amber-50 text-amber-950" : "border-red-200 bg-red-50 text-red-900"}`}><strong>{state.message}</strong></div>}

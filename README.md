@@ -31,6 +31,7 @@ Technisches Fundament und GPX-Prototyp einer Web-App für Rad- und Ultracycling-
 - Row Level Security und privater Storage-Bucket
 - Unit-Tests mit kleiner GPX-Fixture
 - Kostenlose Apple-Health-Automation per iPhone-Kurzbefehl mit widerrufbarem Verbindungsschlüssel
+- Mehrbenutzerfähiger GPX-/FIT-Import für Radfahrten und Läufe einschließlich vorhandener Herzfrequenzdaten
 
 Noch nicht enthalten sind TCX-Parsing, Diagramme, Ernährungs-/Feedback-Formulare und KI-Funktionen.
 

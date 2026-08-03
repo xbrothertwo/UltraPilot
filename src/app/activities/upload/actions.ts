@@ -23,6 +23,12 @@ export type UploadState = {
 export type UploadResult = Omit<UploadState, "results">;
 
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
+type UploadSportType = "cycling" | "running";
+
+function uploadSportType(value: FormDataEntryValue | null): UploadSportType {
+  if (value === "cycling" || value === "running") return value;
+  throw new Error("Bitte wähle Radfahren oder Laufen als Sportart aus.");
+}
 
 function fileExtension(file: File): string | undefined {
   return file.name.split(".").at(-1)?.toLowerCase();
@@ -48,7 +54,8 @@ function streamRecord(activityId: string, userId: string, stream: ActivityStream
 export async function inspectActivityFile(_previous: UploadState, formData: FormData): Promise<UploadState> {
   let file: File | null = null;
   try {
-    file = validateFile(formData.get("activityFile"), "eine Garmin- oder GPX-Hauptdatei");
+    const sportType = uploadSportType(formData.get("sportType"));
+    file = validateFile(formData.get("activityFile"), "eine GPX- oder FIT-Hauptdatei");
     const supplement = validateFile(formData.get("heartRateFile"), "Die Apple-Watch-Datei", true, ["gpx", "fit", "json"]);
     if (!file) throw new Error("Die Hauptdatei fehlt.");
     const primary = await parseActivityFile(file, fileExtension(file) === "fit" ? "garmin_edge" : "gpx");
@@ -67,11 +74,11 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     const storagePath = `${user.id}/primary-${activityId}.${primaryExtension}`;
     const storeSupplementFile = supplement && fileExtension(supplement) !== "json" ? supplement : null;
     const supplementPath = storeSupplementFile ? `${user.id}/heart-rate-${activityId}.${fileExtension(storeSupplementFile)}` : null;
-    const title = file.name.replace(/\.(?:gpx|fit)$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 200) || "Radaktivität";
+    const title = file.name.replace(/\.(?:gpx|fit)$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 200) || (sportType === "running" ? "Lauf" : "Radfahrt");
     const activityRecord = {
       id: activityId,
       user_id: user.id,
-      sport_type: "cycling",
+      sport_type: sportType,
       activity_date: metrics.startTime,
       title,
       distance_meters: metrics.distanceMeters,
