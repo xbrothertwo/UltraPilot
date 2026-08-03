@@ -31,7 +31,7 @@ jobs:
           mkdir extracted
           aea decrypt -i input.shortcut -o input.aar
           aa extract -i input.aar -d extracted
-          find extracted -type f -maxdepth 3 -print
+          find extracted -type f -print
 
       - name: Sign unsigned shortcut
         if: inputs.mode == 'sign'
