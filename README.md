@@ -67,8 +67,8 @@ Nur für die optionale Apple-Health-Kurzbefehl-Automation wird zusätzlich ein S
 2. In Supabase unter **Project Settings → API Keys** einen serverseitigen Secret Key (`sb_secret_…`) kopieren oder neu anlegen.
 3. Lokal und in Vercel als `SUPABASE_SECRET_KEY` eintragen. In Vercel anschließend neu deployen.
 4. In UltraPilot **Einstellungen → Apple Health · täglich** öffnen und einen Verbindungsschlüssel erzeugen.
-5. Die dort angezeigten Schritte für den Kurzbefehl „UltraPilot Health Sync“ ausführen.
-6. Den Kurzbefehl zunächst manuell testen und danach eine tägliche persönliche Automation einrichten.
+5. Den fertigen Kurzbefehl dort herunterladen, auf dem iPhone öffnen und den gerade erzeugten Schlüssel in die Importfrage einfügen.
+6. Den Kurzbefehl zunächst manuell ausführen, die Health- und Netzwerkfreigaben erteilen und danach eine tägliche persönliche Automation einrichten.
 
 Der Endpunkt akzeptiert nur 1 MB beziehungsweise 5.000 Datensätze aus den letzten 14 Tagen. Gespeichert werden abgeleitete Tagesmetriken und unterstützte Workouts. Apple-Health-Radfahrten werden vor dem Speichern immer verworfen; wiederholte Läufe, Gym- und Volleyball-Einheiten werden über eine stabile externe ID erkannt. Der Verbindungsschlüssel wird nur einmal angezeigt und in der Datenbank ausschließlich als SHA-256-Hash gespeichert.
 
