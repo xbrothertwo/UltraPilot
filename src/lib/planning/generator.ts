@@ -1,9 +1,9 @@
 import { strengthDescription, type StrengthVariant } from "./strength-plan";
 import type { PrimarySport } from "./data";
 
-export type PlanningDay = { date: string; availableMinutes: number; workday: boolean; occupied: boolean; readiness?: "green" | "yellow" | "red" | "unknown"; highIntensityAllowed?: boolean };
+export type PlanningDay = { date: string; availableMinutes: number; workday: boolean; occupied: boolean; crossTraining?: boolean; readiness?: "green" | "yellow" | "red" | "unknown"; highIntensityAllowed?: boolean };
 export type GeneratedWorkout = { scheduledDate: string; sportType: PrimarySport | "strength"; title: string; description: string; intensity: "easy" | "endurance" | "tempo" | "strength"; plannedDurationMinutes: number; plannedDistanceKm: number | null };
-export type GeneratorInput = { primarySport?: PrimarySport; days: PlanningDay[]; weeklyGoalKm: number; recentFourWeekDistanceKm: number; recentAverageSpeedKmh: number | null; workdayMaxMinutes: number; strengthVariants: StrengthVariant[]; longRideTargetKm?: number; longRideCovered?: boolean; tempoSessionTarget?: number; preferredCyclingDate?: string };
+export type GeneratorInput = { primarySport?: PrimarySport; runningSessionsPerWeek?: number; easyRunWithCrossTraining?: boolean; days: PlanningDay[]; weeklyGoalKm: number; recentFourWeekDistanceKm: number; recentAverageSpeedKmh: number | null; workdayMaxMinutes: number; strengthVariants: StrengthVariant[]; longRideTargetKm?: number; longRideCovered?: boolean; tempoSessionTarget?: number; preferredCyclingDate?: string };
 
 function rounded(value: number): number { return Math.round(value * 10) / 10; }
 
@@ -69,8 +69,10 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   const targetDistanceKm = rounded(Math.max(0, input.weeklyGoalKm));
   if (targetDistanceKm === 0) return { workouts: [], targetDistanceKm: 0, ruleSummary: "Das Wochenziel ist durch absolvierte und manuell geplante Kilometer bereits abgedeckt." };
   const speed = input.recentAverageSpeedKmh && input.recentAverageSpeedKmh > (primarySport === "running" ? 3 : 5) ? input.recentAverageSpeedKmh : null;
-  const reservedStrengthDays = Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
-  const enduranceCount = Math.min(3, available.length - reservedStrengthDays);
+  const pairCrossTraining = primarySport === "running" && input.easyRunWithCrossTraining === true;
+  const reservedStrengthDays = pairCrossTraining ? 0 : Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
+  const requestedEnduranceCount = primarySport === "running" ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3)) : 3;
+  const enduranceCount = Math.min(requestedEnduranceCount, available.length - reservedStrengthDays);
   const selected = spacedDays(available, enduranceCount, input.preferredCyclingDate);
   const distances = distributeDistance(targetDistanceKm, enduranceCount, input.longRideTargetKm);
   const enduranceWorkouts = selected.map((day, index): GeneratedWorkout => {
@@ -80,17 +82,18 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
     const duration = Math.max(minimumMinutes, Math.min(desiredMinutes, cap));
     const isLong = index === 0 && !input.longRideCovered;
     const tempoRequested = input.tempoSessionTarget === undefined ? weeklyRecent >= (primarySport === "running" ? 15 : 100) : input.tempoSessionTarget > 0;
-    const intensity = !isLong && tempoRequested && index === 1 && day.readiness !== "yellow" && day.highIntensityAllowed !== false ? "tempo" : isLong ? "endurance" : "easy";
+    const intensity = pairCrossTraining && day.crossTraining ? "easy" : !isLong && tempoRequested && index === 1 && day.readiness !== "yellow" && day.highIntensityAllowed !== false ? "tempo" : isLong ? "endurance" : "easy";
     const description = primarySport === "running" ? runningDescription(intensity, duration) : cyclingDescription(intensity, duration);
     const title = primarySport === "running" ? (isLong ? "Langer ruhiger Lauf" : intensity === "tempo" ? "Kontrollierter Tempolauf" : "Lockerer Dauerlauf") : (isLong ? "Lange ruhige Ausfahrt" : intensity === "tempo" ? "Kontrollierte Tempoeinheit" : "Lockere Ausdauerfahrt");
     return { scheduledDate: day.date, sportType: primarySport, title, description, intensity, plannedDurationMinutes: duration, plannedDistanceKm: distance };
   });
   const usedDates = new Set(enduranceWorkouts.map((workout) => workout.scheduledDate));
-  const gymCandidates = available.filter((day) => !usedDates.has(day.date) && day.availableMinutes >= 60);
+  const gymCandidates = available.filter((day) => (pairCrossTraining || !usedDates.has(day.date)) && day.availableMinutes >= 60);
   const gym = spacedDays(gymCandidates, input.strengthVariants.length).map((day, index): GeneratedWorkout => { const variant = input.strengthVariants[index]; return { scheduledDate: day.date, sportType: "strength", title: `Krafttraining ${variant}`, description: strengthDescription(variant), intensity: "strength", plannedDurationMinutes: 60, plannedDistanceKm: null }; });
   const adjustedEndurance = enduranceWorkouts.map((workout) => {
+    const sameDayCrossTraining = primarySport === "running" && pairCrossTraining && (gym.some((strength) => strength.scheduledDate === workout.scheduledDate) || available.find((day) => day.date === workout.scheduledDate)?.crossTraining);
     const strengthAdjacent = gym.some((strength) => dayGap(strength.scheduledDate, workout.scheduledDate) <= 1);
-    if (workout.intensity !== "tempo" || !strengthAdjacent) return workout;
+    if (!sameDayCrossTraining && (workout.intensity !== "tempo" || !strengthAdjacent)) return workout;
     return { ...workout, title: primarySport === "running" ? "Lockerer Dauerlauf" : "Lockere Ausdauerfahrt", intensity: "easy" as const, description: primarySport === "running" ? runningDescription("easy", workout.plannedDurationMinutes) : cyclingDescription("easy", workout.plannedDurationMinutes) };
   });
   return { workouts: [...adjustedEndurance, ...gym].sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate)), targetDistanceKm, ruleSummary: `Noch offene ${targetDistanceKm.toLocaleString("de-DE")} km wurden vollständig verteilt: maximal drei ${primarySport === "running" ? "Laufeinheiten" : "Radeinheiten"}, längste Einheit im größten freien Fenster, Arbeitstage auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Kraft-Nachbartage erhalten keine Tempoeinheit.` };

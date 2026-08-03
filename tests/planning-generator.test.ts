@@ -111,4 +111,31 @@ describe("deterministic weekly planner", () => {
     expect(runs.some((workout) => workout.title === "Langer ruhiger Lauf")).toBe(true);
     expect(runs.every((workout) => !workout.description.includes("fahren"))).toBe(true);
   });
+
+  it("respects the configured number of weekly runs", () => {
+    const days = ["03", "04", "05", "06", "07"].map((day) => ({ date: `2026-08-${day}`, availableMinutes: 90, workday: false, occupied: false }));
+    const result = generateDeterministicWeek({ primarySport: "running", runningSessionsPerWeek: 4, days, weeklyGoalKm: 32, recentFourWeekDistanceKm: 120, recentAverageSpeedKmh: 10, workdayMaxMinutes: 75, strengthVariants: [] });
+    expect(result.workouts.filter((workout) => workout.sportType === "running")).toHaveLength(4);
+  });
+
+  it("forces a same-day cross-training run to stay easy", () => {
+    const result = generateDeterministicWeek({
+      primarySport: "running",
+      runningSessionsPerWeek: 3,
+      easyRunWithCrossTraining: true,
+      days: [
+        { date: "2026-08-03", availableMinutes: 180, workday: false, occupied: false, crossTraining: true },
+        { date: "2026-08-04", availableMinutes: 120, workday: false, occupied: false },
+        { date: "2026-08-05", availableMinutes: 120, workday: false, occupied: false },
+      ],
+      weeklyGoalKm: 30,
+      recentFourWeekDistanceKm: 120,
+      recentAverageSpeedKmh: 10,
+      workdayMaxMinutes: 75,
+      strengthVariants: [],
+    });
+    const pairedRun = result.workouts.find((workout) => workout.scheduledDate === "2026-08-03" && workout.sportType === "running");
+    expect(pairedRun?.intensity).toBe("easy");
+    expect(pairedRun?.title).toBe("Lockerer Dauerlauf");
+  });
 });
