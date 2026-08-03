@@ -22,6 +22,10 @@ function relativeDifference(actual: number, planned: number | null): number | nu
   return Math.abs(actual - planned) / planned;
 }
 
+function compatibleSport(workout: MatchableWorkout, activity: MatchableActivity): boolean {
+  return (workout.sportType === "cycling" && activity.sportType === "cycling") || (workout.sportType === "strength" && activity.sportType === "strength");
+}
+
 export function matchPlannedWorkouts(workouts: MatchableWorkout[], activities: MatchableActivity[]): WorkoutActivityMatch[] {
   const usedWorkouts = new Set<string>();
   const usedActivities = new Set<string>();
@@ -37,12 +41,12 @@ export function matchPlannedWorkouts(workouts: MatchableWorkout[], activities: M
   }
 
   const candidates = workouts.flatMap((workout) => {
-    if (usedWorkouts.has(workout.id) || workout.status === "skipped" || workout.sportType !== "cycling") return [];
+    if (usedWorkouts.has(workout.id) || workout.status === "skipped" || (workout.sportType !== "cycling" && workout.sportType !== "strength")) return [];
     return activities.flatMap((activity) => {
-      if (usedActivities.has(activity.id) || activity.sportType !== "cycling") return [];
+      if (usedActivities.has(activity.id) || !compatibleSport(workout, activity)) return [];
       const dayDifference = Math.abs(dayNumber(workout.scheduledDate) - dayNumber(activityDateKey(activity.activityDate)));
       if (dayDifference > 1) return [];
-      const distanceDifference = relativeDifference(activity.distanceMeters / 1000, workout.plannedDistanceKm);
+      const distanceDifference = workout.sportType === "cycling" ? relativeDifference(activity.distanceMeters / 1000, workout.plannedDistanceKm) : null;
       const durationDifference = relativeDifference(activity.movingTimeSeconds / 60, workout.plannedDurationMinutes);
       const hasPlannedMetric = distanceDifference !== null || durationDifference !== null;
       const similarity = (distanceDifference ?? 0) + (durationDifference ?? 0);

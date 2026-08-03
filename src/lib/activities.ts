@@ -3,11 +3,12 @@ import { demoActivity } from "@/lib/demo-data";
 import { requireUser } from "@/lib/supabase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import type { ActivitySportType } from "@/lib/sports";
 
 type ActivityRow = {
   id: string;
   user_id: string;
-  sport_type: "cycling" | "running" | "other";
+  sport_type: ActivitySportType;
   activity_date: string;
   title: string;
   distance_meters: number;

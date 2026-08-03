@@ -1,7 +1,9 @@
+import type { ActivitySportType } from "@/lib/sports";
+
 export type Activity = {
   id: string;
   userId: string;
-  sportType: "cycling" | "running" | "other";
+  sportType: ActivitySportType;
   activityDate: string;
   title: string;
   distanceMeters: number;

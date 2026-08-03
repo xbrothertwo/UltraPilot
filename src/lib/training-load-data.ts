@@ -22,7 +22,7 @@ function todayKey(): string {
 export async function getTrainingLoadSummary(days: 7 | 28 | 90) {
   const allActivities = await getActivities();
   const cutoff = Date.now() - (days + 28) * 86_400_000;
-  const activities = allActivities.filter((activity) => activity.sportType === "cycling" && new Date(activity.activityDate).getTime() >= cutoff);
+  const activities = allActivities.filter((activity) => new Date(activity.activityDate).getTime() >= cutoff);
   const { profile } = await getTrainingProfile();
   if (isDemoMode || activities.length === 0) return summarizeTrainingLoad(calculateActivityLoads(activities, [], [], profile), days, todayKey());
   const supabase = await createClient();

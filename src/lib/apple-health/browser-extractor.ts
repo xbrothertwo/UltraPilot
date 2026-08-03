@@ -1,6 +1,7 @@
 import { Unzip, UnzipInflate } from "fflate";
 import { AppleHealthHeartRateMultiRangeParser, AppleHealthHeartRateParser } from "./xml-parser";
 import { AppleHealthRecoveryParser, type AppleHealthDailyRecovery } from "./recovery-parser";
+import { AppleHealthWorkoutParser, type AppleHealthWorkoutExtraction } from "./workout-parser";
 import type { SensorSample } from "@/lib/activity-files/types";
 
 type StreamingParser = { push(chunk: Uint8Array, final?: boolean): void };
@@ -86,4 +87,13 @@ export async function extractAppleHealthRecovery(file: File, onProgress?: (fract
   const metrics = parser.result();
   if (!metrics.length) throw new Error("Im Apple-Health-Export wurden für die letzten 120 Tage keine Schlafdaten gefunden.");
   return metrics;
+}
+
+export async function extractAppleHealthWorkouts(file: File, onProgress?: (fraction: number) => void): Promise<AppleHealthWorkoutExtraction> {
+  const parser = new AppleHealthWorkoutParser();
+  const progress = (bytes: number) => onProgress?.(file.size ? Math.min(1, bytes / file.size) : 0);
+  if (file.name.toLowerCase().endsWith(".zip")) await readExportXmlFromZip(file, parser, progress);
+  else if (file.name.toLowerCase().endsWith(".xml")) await readXmlStream(file.stream(), parser, progress);
+  else throw new Error("Der Apple-Health-Export muss eine ZIP- oder export.xml-Datei sein.");
+  return parser.result();
 }

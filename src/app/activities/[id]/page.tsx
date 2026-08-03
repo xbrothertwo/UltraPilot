@@ -22,6 +22,7 @@ import { getPlannedWorkouts } from "@/lib/planning/workouts";
 import { reconcilePlannedWorkouts } from "@/lib/planning/reconciliation";
 import { buildRideDebrief } from "@/lib/ride-debrief";
 import { calculateActivityLoads, type LoadStream } from "@/lib/training-load";
+import { activitySportLabels } from "@/lib/sports";
 
 type ActivityPageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; error?: string }> };
 
@@ -40,6 +41,8 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   const activity = await getActivityById(id);
   if (!activity) notFound();
   const activityDay = localDate(new Date(activity.activityDate));
+  const isCycling = activity.sportType === "cycling";
+  const hasDistance = activity.sportType === "cycling" || activity.sportType === "running";
   const [streams, rawStreams, { profile }, journal, planner, nearbyWorkouts] = await Promise.all([
     getActivityChartStreams(activity.id, activity.activityDate, activity.elapsedTimeSeconds),
     getRawActivityStreams(activity.id),
@@ -64,20 +67,20 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   const debrief = buildRideDebrief({ workout: matched?.workout ?? null, comparison: matched?.comparison ?? null, load: activityLoad, nutrition: nutritionSummary, nutritionRecorded: journal.entries.length > 0, feedback: journal.feedback, heartRateDriftPercent: heartRateDrift });
   const actionableDate = [addDays(activityDay, 1), localDate(new Date())].sort().at(-1)!;
   const nextWorkout = nearbyWorkouts.find((workout) => workout.id !== matched?.workout.id && workout.sportType === "cycling" && workout.status === "planned" && workout.scheduledDate >= actionableDate) ?? null;
-  const source = activity.source === "demo" ? "Demo-Aktivität" : activity.source.includes("apple_watch") ? "Garmin Edge + Apple Watch" : activity.source.startsWith("fit") ? "FIT-Upload" : "GPX-Upload";
+  const source = activity.source === "demo" ? "Demo-Aktivität" : activity.source === "apple_health_workout" ? "Apple Health · Apple Watch" : activity.source.includes("apple_watch") ? "Garmin Edge + Apple Watch" : activity.source.startsWith("fit") ? "FIT-Upload" : "GPX-Upload";
 
   return (
     <>
-      <PageHeading eyebrow={formatDate(activity.activityDate)} title={activity.title} description={`Radfahren · ${source}`} action={!isDemoMode ? <div className="flex flex-wrap gap-2"><RenameActivityForm activityId={activity.id} title={activity.title} /><DeleteActivityButton activityId={activity.id} title={activity.title} /></div> : undefined} />
+      <PageHeading eyebrow={formatDate(activity.activityDate)} title={activity.title} description={`${activitySportLabels[activity.sportType]} · ${source}`} action={!isDemoMode ? <div className="flex flex-wrap gap-2"><RenameActivityForm activityId={activity.id} title={activity.title} /><DeleteActivityButton activityId={activity.id} title={activity.title} /></div> : undefined} />
       {query.saved && <p className="mb-5 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-emerald-900">{{ renamed: "Aktivität wurde umbenannt.", deleted: "Eintrag gelöscht.", feedback: "Feedback gespeichert und Debrief aktualisiert.", product: "Produkt gespeichert.", "product-deleted": "Produkt entfernt.", timeline: "Produkt auf der Timeline eingetragen.", "timeline-updated": "Timeline-Eintrag aktualisiert.", bottle: "Flaschenplan erstellt.", "bottle-deleted": "Flaschenplan und abgeleitete Einträge gelöscht.", "next-easy": "Die nächste geplante Fahrt wurde gelockert." }[query.saved] ?? "Ernährungseintrag gespeichert."}</p>}
       {query.error && <p className="mb-5 rounded-xl bg-red-100 px-4 py-3 text-sm font-semibold text-red-900">{query.error}</p>}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Distanz" value={formatDistance(activity.distanceMeters)} detail="GPS-Strecke" />
+        {hasDistance ? <StatCard label="Distanz" value={formatDistance(activity.distanceMeters)} detail="aufgezeichnete Strecke" /> : <StatCard label="Ø Herzfrequenz" value={activity.averageHeartRate === null ? "–" : `${activity.averageHeartRate} bpm`} detail="Apple Watch" />}
         <StatCard label="Bewegungszeit" value={formatDuration(activity.movingTimeSeconds)} detail={`verstrichen ${formatDuration(activity.elapsedTimeSeconds)}`} />
-        <StatCard label="Höhengewinn" value={`${Math.round(activity.elevationGainMeters).toLocaleString("de-DE")} m`} detail="positive Differenzen" />
-        <StatCard label="Ø Geschwindigkeit" value={`${activity.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} detail="Distanz / Bewegungszeit" />
+        {hasDistance ? <StatCard label="Höhengewinn" value={`${Math.round(activity.elevationGainMeters).toLocaleString("de-DE")} m`} detail="positive Differenzen" /> : <StatCard label="Max. Herzfrequenz" value={activity.maximumHeartRate === null ? "–" : `${activity.maximumHeartRate} bpm`} detail="höchster Messwert" />}
+        {hasDistance ? <StatCard label="Ø Geschwindigkeit" value={`${activity.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} detail="Distanz / Bewegungszeit" /> : <StatCard label="Belastung" value={activityLoad?.points === null || activityLoad?.points === undefined ? "–" : `${activityLoad.points} UPL`} detail={activityLoad?.method === "heart_rate" ? "aus deinen HF-Zonen" : "noch nicht berechenbar"} />}
       </section>
-      <RideDebrief activityId={activity.id} result={debrief} matchedWorkout={matched?.workout ?? null} nextWorkout={nextWorkout} editable={!isDemoMode} />
+      {isCycling && <RideDebrief activityId={activity.id} result={debrief} matchedWorkout={matched?.workout ?? null} nextWorkout={nextWorkout} editable={!isDemoMode} />}
       <section className="card mt-6 p-6">
         <h2 className="text-lg font-bold">Leistungsdaten</h2>
         <dl className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,8 +94,8 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
         <p className="mt-5 text-xs leading-5 text-[var(--muted)]">Messintervalle über 10 Sekunden werden nicht einer Zone zugerechnet. IF und TSS erscheinen nur mit FTP und Normalized Power. Die Herzfrequenzdrift benötigt mindestens 20 Minuten gleichzeitig aufgezeichnete Puls- und Leistungsdaten mit mindestens 50 % Abdeckung je Hälfte.</p>
       </section>
       <ActivityCharts streams={streams} nutritionEntries={journal.entries} elapsedTimeSeconds={activity.elapsedTimeSeconds} />
-      <NutritionPlanner activityId={activity.id} elapsedTimeSeconds={activity.elapsedTimeSeconds} products={planner.products} bottles={planner.bottles} presets={planner.presets} entries={journal.entries} editable={!isDemoMode} ready={planner.ready && planner.presetsReady} />
-      <ActivityJournal activityId={activity.id} entries={journal.entries} feedback={journal.feedback} summary={nutritionSummary} editable={!isDemoMode} feedbackDetailsReady={journal.feedbackDetailsReady} />
+      {isCycling && <NutritionPlanner activityId={activity.id} elapsedTimeSeconds={activity.elapsedTimeSeconds} products={planner.products} bottles={planner.bottles} presets={planner.presets} entries={journal.entries} editable={!isDemoMode} ready={planner.ready && planner.presetsReady} />}
+      <ActivityJournal activityId={activity.id} entries={journal.entries} feedback={journal.feedback} summary={nutritionSummary} editable={!isDemoMode} feedbackDetailsReady={journal.feedbackDetailsReady} showNutrition={isCycling} />
     </>
   );
 }

@@ -10,6 +10,7 @@ type ActivityJournalProps = {
   summary: NutritionSummary;
   editable: boolean;
   feedbackDetailsReady: boolean;
+  showNutrition?: boolean;
 };
 
 const inputClass = "mt-1.5 w-full rounded-xl border border-[var(--line)] bg-white px-3 py-2.5 outline-none focus:border-[var(--accent)]";
@@ -23,12 +24,12 @@ function Rating({ name, label, low, high, value }: { name: string; label: string
   return <label className="text-sm font-semibold">{label}<select className={inputClass} name={name} defaultValue={value ?? ""}><option value="">–</option>{Array.from({ length: 10 }, (_, index) => <option value={index + 1} key={index + 1}>{index + 1}{index === 0 ? ` – ${low}` : index === 9 ? ` – ${high}` : ""}</option>)}</select></label>;
 }
 
-export function ActivityJournal({ activityId, entries, feedback, summary, editable, feedbackDetailsReady }: ActivityJournalProps) {
+export function ActivityJournal({ activityId, entries, feedback, summary, editable, feedbackDetailsReady, showNutrition = true }: ActivityJournalProps) {
   const nutritionAction = saveNutritionEntry.bind(null, activityId);
   const feedbackAction = saveSubjectiveFeedback.bind(null, activityId);
   return (
     <section id="journal" className="mt-6 space-y-6 scroll-mt-24">
-      <div className="card p-6">
+      {showNutrition && <div className="card p-6">
         <div><h2 className="text-lg font-bold">Ernährung & Flüssigkeit</h2><p className="mt-1 text-sm text-[var(--muted)]">Protokoll während der Fahrt und Summen bezogen auf die Bewegungszeit.</p></div>
         <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl bg-blue-50/45 p-4"><dt className="text-xs text-[var(--muted)]">Kohlenhydrate</dt><dd className="mt-1 text-xl font-bold">{summary.carbohydratesGrams.toLocaleString("de-DE", { maximumFractionDigits: 1 })} g</dd><p className="text-xs text-[var(--muted)]">{summary.carbohydratesPerHour.toLocaleString("de-DE", { maximumFractionDigits: 1 })} g/h</p></div>
@@ -42,7 +43,7 @@ export function ActivityJournal({ activityId, entries, feedback, summary, editab
           {entries.length === 0 && <p className="rounded-2xl border border-dashed border-[var(--line)] p-4 text-sm text-[var(--muted)]">Noch keine Verpflegung protokolliert.</p>}
         </div>
         {editable && <form action={nutritionAction} className="mt-6 border-t border-[var(--line)] pt-6"><h3 className="font-bold">Eintrag hinzufügen</h3><div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><label className="text-sm font-semibold sm:col-span-2">Produkt / Beschreibung<input className={inputClass} name="Beschreibung" maxLength={200} required placeholder="z. B. Banane + 500 ml Iso" /></label><label className="text-sm font-semibold">Stunden nach Start<input className={inputClass} name="Stunden" type="number" min="0" step="1" placeholder="2" /></label><label className="text-sm font-semibold">Minuten<input className={inputClass} name="Minuten" type="number" min="0" max="59" step="1" placeholder="30" /></label><label className="text-sm font-semibold">Kohlenhydrate (g)<input className={inputClass} name="Kohlenhydrate" type="number" min="0" step="0.1" /></label><label className="text-sm font-semibold">Flüssigkeit (ml)<input className={inputClass} name="Flüssigkeit" type="number" min="0" step="1" /></label><label className="text-sm font-semibold">Natrium (mg)<input className={inputClass} name="Natrium" type="number" min="0" step="1" /></label><label className="text-sm font-semibold">Kalorien<input className={inputClass} name="Kalorien" type="number" min="0" step="1" /></label></div><button className="mt-5 rounded-xl bg-[var(--accent)] px-5 py-3 font-bold text-white hover:bg-[var(--accent-dark)]" type="submit">Eintrag speichern</button></form>}
-      </div>
+      </div>}
 
       <div className="card p-6">
         <h2 className="text-lg font-bold">Subjektives Feedback</h2><p className="mt-1 text-sm text-[var(--muted)]">Deine Einschätzung ergänzt die Messwerte, ohne medizinische Bewertung.</p>

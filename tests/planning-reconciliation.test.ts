@@ -35,4 +35,18 @@ describe("planned workout reconciliation", () => {
     const result = reconcilePlannedWorkouts([workout({ linkedActivityId: "activity-2" })], [activity(), activity({ id: "activity-2", distanceMeters: 100_000 })])[0];
     expect(result.activity?.id).toBe("activity-2");
   });
+
+  it("marks a planned gym session completed from an Apple Health strength workout", () => {
+    const result = reconcilePlannedWorkouts([
+      workout({ sportType: "strength", title: "Krafttraining A", intensity: "strength", plannedDistanceKm: null, plannedDurationMinutes: 60 }),
+    ], [activity({ sportType: "strength", title: "Krafttraining", distanceMeters: 0, movingTimeSeconds: 3_480, elapsedTimeSeconds: 3_600, averageSpeedKmh: 0, source: "apple_health_workout" })])[0];
+    expect(result.effectiveStatus).toBe("completed");
+    expect(result.comparison?.distanceDeltaKm).toBeNull();
+    expect(result.comparison?.durationDeltaMinutes).toBe(-2);
+  });
+
+  it("never matches volleyball or running to a planned cycling workout", () => {
+    expect(reconcilePlannedWorkouts([workout()], [activity({ sportType: "volleyball" })])[0].activity).toBeNull();
+    expect(reconcilePlannedWorkouts([workout()], [activity({ sportType: "running" })])[0].activity).toBeNull();
+  });
 });

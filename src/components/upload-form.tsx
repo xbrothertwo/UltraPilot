@@ -76,8 +76,8 @@ export function UploadForm() {
 
   const [state, formAction, pending] = useActionState(submitBatch, initialState);
   const metrics = state.metrics;
-  return <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
-    <form action={formAction} className="card p-6">
+  return <div className="grid min-w-0 gap-6 lg:grid-cols-[1.2fr_.8fr]">
+    <form action={formAction} className="card min-w-0 p-6">
       <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Schritt 1</p><h2 className="mt-2 text-xl font-black">Aktivitäten auswählen</h2></div><span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-bold text-[var(--accent-dark)]">bis zu {MAX_BATCH_FILES}</span></div>
       <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Wähle eine einzelne Fahrt oder direkt mehrere Dateien. Jede Hauptdatei wird als eigene Aktivität gespeichert.</p>
       <FileField id="activityFiles" name="activityFiles" title="Garmin-, GPX- oder FIT-Dateien" hint="Mehrfachauswahl möglich · FIT empfohlen · jeweils maximal 20 MB" accept=".fit,.gpx,.tcx,application/gpx+xml,application/octet-stream" required multiple />
@@ -93,7 +93,7 @@ export function UploadForm() {
 }
 
 function FileField({ id, name, title, hint, accept, required = false, multiple = false }: { id: string; name: string; title: string; hint: string; accept: string; required?: boolean; multiple?: boolean }) {
-  return <label htmlFor={id} className="mt-5 block rounded-2xl border-2 border-dashed border-[#b9c9df] bg-[#f8fbff] p-5 transition hover:border-[var(--accent)]"><span className="font-semibold">{title}</span><span className="mt-1 block text-xs text-[var(--muted)]">{hint}</span><input id={id} name={name} type="file" accept={accept} required={required} multiple={multiple} className="mt-4 max-w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-700 file:px-4 file:py-2 file:text-white" /></label>;
+  return <label htmlFor={id} className="mt-5 block min-w-0 overflow-hidden rounded-2xl border-2 border-dashed border-[#b9c9df] bg-[#f8fbff] p-5 transition hover:border-[var(--accent)]"><span className="font-semibold">{title}</span><span className="mt-1 block text-xs text-[var(--muted)]">{hint}</span><input id={id} name={name} type="file" accept={accept} required={required} multiple={multiple} className="mt-4 block w-full min-w-0 overflow-hidden text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-700 file:px-4 file:py-2 file:text-white" /></label>;
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
