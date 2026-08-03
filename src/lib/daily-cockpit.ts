@@ -12,6 +12,8 @@ export type DailyDecision = {
   reasons: string[];
 };
 
+export type LowReadinessAdaptation = Pick<PlannedWorkout, "sportType" | "title" | "description" | "intensity" | "plannedDurationMinutes" | "plannedDistanceKm">;
+
 export type FuelingPreparation = {
   carbohydrateRateGrams: number;
   totalCarbohydratesGrams: number;
@@ -28,6 +30,7 @@ export function buildDailyDecision(
   workout: PlannedWorkout | null,
   completed: boolean,
   highLoadWithin48Hours: boolean,
+  largestAvailableWindowMinutes: number | null = null,
 ): DailyDecision {
   if (completed && workout) {
     return {
@@ -49,6 +52,27 @@ export function buildDailyDecision(
     };
   }
 
+  const demanding = demandingIntensities.has(workout.intensity) || workout.sportType === "strength";
+  if (readiness.status === "red") {
+    return {
+      level: "recover",
+      eyebrow: "Heute regenerieren",
+      title: demanding ? "Die intensive Einheit heute nicht erzwingen." : "Belastung deutlich reduzieren.",
+      summary: "Wähle „Ich fühle mich schlechter“, um die Einheit bewusst durch regenerative Bewegung zu ersetzen.",
+      reasons: readiness.reasons.slice(0, 3),
+    };
+  }
+
+  if (largestAvailableWindowMinutes !== null && workout.plannedDurationMinutes && largestAvailableWindowMinutes < workout.plannedDurationMinutes) {
+    return {
+      level: "adjust",
+      eyebrow: "Kalender hat sich verändert",
+      title: largestAvailableWindowMinutes < 45 ? "Die Einheit passt heute nicht mehr sinnvoll hinein." : `${workout.title} heute kürzen oder verschieben.`,
+      summary: largestAvailableWindowMinutes < 45 ? "Es gibt heute kein zusammenhängendes Trainingsfenster von mindestens 45 Minuten." : `Dein größtes freies Fenster umfasst ${largestAvailableWindowMinutes} Minuten; geplant sind ${workout.plannedDurationMinutes} Minuten.`,
+      reasons: ["Neue Dienste und Termine haben Vorrang vor einer erzwungenen Einheit.", "Offene Kilometer werden nur in realistisch verfügbare Fenster verteilt."],
+    };
+  }
+
   if (readiness.status === "unknown") {
     return {
       level: "open",
@@ -59,23 +83,15 @@ export function buildDailyDecision(
     };
   }
 
-  const demanding = demandingIntensities.has(workout.intensity);
-  if (readiness.status === "red") {
-    return {
-      level: "recover",
-      eyebrow: "Heute regenerieren",
-      title: demanding ? "Die intensive Einheit heute nicht erzwingen." : "Belastung deutlich reduzieren.",
-      summary: "UltraPilot ändert deinen Plan nicht automatisch, empfiehlt heute aber Pause oder sehr lockere Bewegung.",
-      reasons: readiness.reasons.slice(0, 3),
-    };
-  }
-
   if ((readiness.status === "yellow" && demanding) || (highLoadWithin48Hours && demanding)) {
+    const strength = workout.sportType === "strength";
     return {
       level: "adjust",
       eyebrow: "Heute anpassen",
-      title: `${workout.title} lieber locker fahren.`,
-      summary: "Behalte den Termin, streiche aber die harten Abschnitte und fahre im lockeren Grundlagenbereich.",
+      title: strength ? `${workout.title} heute durch Mobility ersetzen.` : `${workout.title} lieber locker fahren.`,
+      summary: strength
+        ? "Heute keine schweren Sätze erzwingen. Eine kurze Mobility-Einheit schützt die Erholung und hält die Routine aufrecht."
+        : "Behalte den Termin, streiche aber die harten Abschnitte und fahre im lockeren Grundlagenbereich.",
       reasons: highLoadWithin48Hours
         ? ["In den letzten 48 Stunden lag bereits eine hohe Trainingsbelastung.", ...readiness.reasons].slice(0, 3)
         : readiness.reasons.slice(0, 3),
@@ -88,6 +104,44 @@ export function buildDailyDecision(
     title: `${workout.title} wie geplant.`,
     summary: "Tagesform und jüngste Belastung sprechen nicht gegen die vorgesehene Einheit.",
     reasons: readiness.reasons.slice(0, 2),
+  };
+}
+
+function roundedFive(value: number): number {
+  return Math.max(15, Math.round(value / 5) * 5);
+}
+
+export function adaptWorkoutForLowReadiness(workout: PlannedWorkout): LowReadinessAdaptation {
+  const originalDuration = workout.plannedDurationMinutes ?? 60;
+  if (workout.sportType === "cycling") {
+    const duration = Math.min(60, roundedFive(originalDuration * .6));
+    const distance = workout.plannedDistanceKm === null ? null : Math.round(workout.plannedDistanceKm * duration / Math.max(1, originalDuration) * 10) / 10;
+    return {
+      sportType: "cycling",
+      title: "Sehr lockere Regenerationsfahrt",
+      description: "Nur locker in Z1 fahren. Keine Intervalle und keine Belastungsspitzen. Wenn du dich nach 15 Minuten nicht besser fühlst, Einheit beenden.",
+      intensity: "recovery",
+      plannedDurationMinutes: duration,
+      plannedDistanceKm: distance,
+    };
+  }
+  if (workout.sportType === "strength") {
+    return {
+      sportType: "recovery",
+      title: "Mobility & Regeneration",
+      description: "20–30 Minuten lockere Mobility ohne schwere Lasten. Fokus auf Hüfte, Sprunggelenke, Brustwirbelsäule und ruhige Atmung.",
+      intensity: "recovery",
+      plannedDurationMinutes: 25,
+      plannedDistanceKm: null,
+    };
+  }
+  return {
+    sportType: "recovery",
+    title: "Aktive Regeneration",
+    description: "Sehr lockere Bewegung ohne Leistungsziel. Bei anhaltender Müdigkeit vollständig pausieren.",
+    intensity: "recovery",
+    plannedDurationMinutes: Math.min(30, roundedFive(originalDuration * .5)),
+    plannedDistanceKm: null,
   };
 }
 

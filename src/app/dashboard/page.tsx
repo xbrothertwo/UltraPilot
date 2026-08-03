@@ -14,9 +14,11 @@ import { buildReadinessRange, type ReadinessResult } from "@/lib/recovery-readin
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import { getTrainingProfile } from "@/lib/training-profile";
 import { formatHeartRateTarget, getHeartRateZones, getPlannedHeartRateTarget } from "@/lib/training-zones";
-import { generateWeeklyPlan, makeTodayWorkoutEasy } from "@/app/plan/actions";
+import { generateWeeklyPlan } from "@/app/plan/actions";
 import { buildMissionControl } from "@/lib/mission-control";
 import { buildWeeklyTargetDays, recommendWeeklyTarget } from "@/lib/planning/weekly-target";
+import { calculateDailyAvailability } from "@/lib/planning/availability";
+import { acceptTodayPlan, adaptTodayForLowReadiness } from "@/app/dashboard/actions";
 
 export const metadata = { title: "Heute" };
 export const dynamic = "force-dynamic";
@@ -79,10 +81,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const readiness = buildReadinessRange([todayKey], recovery.metrics, recovery.checkins)[0];
   const previousTwoDays = [addDays(todayKey, -1), addDays(todayKey, -2)];
   const highLoadWithin48Hours = load.highLoadDates.some((key) => previousTwoDays.includes(key));
-  const decision = buildDailyDecision(readiness, primaryWorkout, primaryItem?.effectiveStatus === "completed", highLoadWithin48Hours);
+  const todayEvents = planning.events.filter((event) => overlapsDay(event, todayKey));
+  const busyTodayEvents = todayEvents.filter((event) => event.eventKind !== "free");
+  const todayWindows = calculateDailyAvailability(todayKey, busyTodayEvents);
+  const rawLargestWindow = todayWindows.reduce((largest, window) => Math.max(largest, window.durationMinutes), 0);
+  const isWorkday = busyTodayEvents.some((event) => event.eventKind.startsWith("work_"));
+  const largestAvailableWindow = isWorkday ? Math.min(rawLargestWindow, planning.profile.workdayMaxSessionMinutes) : rawLargestWindow;
+  const decision = buildDailyDecision(readiness, primaryWorkout, primaryItem?.effectiveStatus === "completed", highLoadWithin48Hours, largestAvailableWindow);
   const zones = getHeartRateZones(trainingProfile.profile);
   const hrTarget = primaryWorkout ? getPlannedHeartRateTarget(zones, primaryWorkout.intensity) : null;
-  const todayEvents = planning.events.filter((event) => overlapsDay(event, todayKey));
   const selectedBlockWeek = blockWeekForDate(block, weekStart);
   const recentCutoff = dateAtNoon(weekStart); recentCutoff.setDate(recentCutoff.getDate() - 28);
   const recentCycling = activities.filter((activity) => activity.sportType === "cycling" && new Date(activity.activityDate) >= recentCutoff && new Date(activity.activityDate) < rangeStart);
@@ -100,8 +107,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const strength = strengthVariant ? STRENGTH_WORKOUTS[strengthVariant] : null;
   const latest = activities[0];
   const previewDays = [addDays(todayKey, 1), addDays(todayKey, 2), addDays(todayKey, 3)];
-  const quickActionsAvailable = primaryWorkout?.source === "automatic" && primaryWorkout.sportType === "cycling" && primaryItem?.effectiveStatus === "planned";
-  const canShiftTomorrow = todayKey < weekEnd;
+  const autopilotActionsAvailable = primaryWorkout?.source === "automatic" && (primaryWorkout.sportType === "cycling" || primaryWorkout.sportType === "strength") && primaryItem?.effectiveStatus === "planned" && query.saved !== "accepted";
   const mission = buildMissionControl({ activities, nutrition: [], feedback: [], drifts: [], weeklyGoalKm: planning.profile.weeklyDistanceGoalKm, targetYear: planning.profile.targetYear, today: todayKey, recoveryTrackedNights: recovery.metrics.filter((metric) => metric.asleepMinutes > 0).length, recoveryStableNights: 0 });
 
   return <>
@@ -111,7 +117,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     </header>
 
     {isDemoMode && <div className="mb-6 rounded-2xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-950"><strong>Demo-Modus:</strong> Verbinde Supabase, um deine persönlichen Empfehlungen zu sehen.</div>}
-    {query.saved && <div className="mb-6 rounded-2xl bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-950">{{ easy: "Die heutige Fahrt wurde in eine lockere Ausdauerfahrt geändert.", shift: "Die Fahrt wurde auf morgen gelegt und die offene Woche neu verteilt.", pause: "Heute bleibt trainingsfrei; die offenen Kilometer wurden auf die restliche Woche verteilt." }[query.saved] ?? "Plan wurde angepasst."}{query.goal === "met" ? " Dein Wochenziel ist bereits erreicht, daher war keine weitere Verteilung nötig." : ""}</div>}
+    {query.saved && <div className="mb-6 rounded-2xl bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-950">{{ accepted: "Passt – die heutige Einheit bleibt genau so im Plan.", worse: "Danke für das Signal. Die heutige Einheit wurde bewusst in regenerative Bewegung umgewandelt; die gekürzten Kilometer werden nicht erzwungen nachgeholt.", easy: "Die heutige Fahrt wurde in eine lockere Ausdauerfahrt geändert.", shift: "Die Fahrt wurde auf morgen gelegt und die offene Woche neu verteilt.", pause: "Heute bleibt trainingsfrei; UltraPilot hat die verbleibende Woche anhand der noch realistischen Zeitfenster neu geplant." }[query.saved] ?? "Plan wurde angepasst."}{query.goal === "met" ? " Dein Wochenziel ist bereits erreicht, daher war keine weitere Verteilung nötig." : ""}</div>}
     {query.error && <div className="mb-6 rounded-2xl bg-rose-100 px-4 py-3 text-sm font-bold text-rose-950">{query.error}</div>}
 
     <section className={`relative overflow-hidden rounded-[1.6rem] p-5 shadow-[0_20px_50px_rgba(16,37,27,.14)] sm:rounded-[2rem] sm:p-9 ${decisionStyles[decision.level]}`}>
@@ -122,11 +128,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="flex items-center justify-between gap-3"><span className="text-xs font-black uppercase tracking-wider opacity-60">Heutige Einheit</span>{primaryWorkout && <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">{intensityLabels[primaryWorkout.intensity]}</span>}</div>
           {primaryWorkout ? <><p className="mt-3 text-2xl font-black">{primaryWorkout.title}</p><div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold"><span>{primaryWorkout.plannedDurationMinutes ? `${primaryWorkout.plannedDurationMinutes} min` : "Zeit offen"}</span>{primaryWorkout.plannedDistanceKm !== null && <span>{primaryWorkout.plannedDistanceKm} km</span>}{hrTarget && <span>{formatHeartRateTarget(hrTarget)}</span>}</div></> : <><p className="mt-3 text-2xl font-black">Kein Training geplant</p><p className="mt-2 text-sm opacity-70">Ein freier Tag ist Teil des Plans.</p></>}
           <Link href="/plan" className="mt-5 inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#0b2347]">Im Plan öffnen →</Link>
-          {quickActionsAvailable && <div className="mt-4 border-t border-current/10 pt-4"><p className="mb-2 text-[.65rem] font-black uppercase tracking-wider opacity-55">Plan schnell anpassen</p><div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
-            {primaryWorkout.intensity !== "easy" && primaryWorkout.intensity !== "recovery" && <form action={makeTodayWorkoutEasy}><input type="hidden" name="workoutId" value={primaryWorkout.id}/><button className="w-full rounded-xl border border-current/15 bg-white/10 px-3 py-2.5 text-sm font-black hover:bg-white/20" type="submit">Locker machen</button></form>}
-            {canShiftTomorrow && <form action={generateWeeklyPlan}><input type="hidden" name="week" value={weekStart}/><input type="hidden" name="workoutId" value={primaryWorkout.id}/><input type="hidden" name="dashboardAction" value="shift"/><button className="w-full rounded-xl border border-current/15 bg-white/10 px-3 py-2.5 text-sm font-black hover:bg-white/20" type="submit">Auf morgen</button></form>}
-            <form action={generateWeeklyPlan}><input type="hidden" name="week" value={weekStart}/><input type="hidden" name="workoutId" value={primaryWorkout.id}/><input type="hidden" name="dashboardAction" value="pause"/><button className="w-full rounded-xl border border-current/15 bg-white/10 px-3 py-2.5 text-sm font-black hover:bg-white/20" type="submit">Heute pausieren</button></form>
-          </div><p className="mt-2 text-[.68rem] leading-5 opacity-55">Manuelle und absolvierte Einheiten bleiben unverändert. Offene automatische Kilometer werden neu verteilt.</p></div>}
+          {autopilotActionsAvailable && <div className="mt-4 border-t border-current/10 pt-4"><p className="mb-2 text-[.65rem] font-black uppercase tracking-wider opacity-55">Deine Entscheidung</p><div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+            <form action={acceptTodayPlan}><input type="hidden" name="workoutId" value={primaryWorkout.id}/><button className="w-full rounded-xl bg-white px-3 py-2.5 text-sm font-black text-[#0b2347] hover:bg-blue-50" type="submit">Passt</button></form>
+            <form action={generateWeeklyPlan}><input type="hidden" name="week" value={weekStart}/><input type="hidden" name="workoutId" value={primaryWorkout.id}/><input type="hidden" name="dashboardAction" value="pause"/><button className="w-full rounded-xl border border-current/15 bg-white/10 px-3 py-2.5 text-sm font-black hover:bg-white/20" type="submit">Heute keine Zeit</button></form>
+            <form action={adaptTodayForLowReadiness}><input type="hidden" name="workoutId" value={primaryWorkout.id}/><button className="w-full rounded-xl border border-current/15 bg-white/10 px-3 py-2.5 text-sm font-black hover:bg-white/20" type="submit">Ich fühle mich schlechter</button></form>
+          </div><p className="mt-2 text-[.68rem] leading-5 opacity-55">Keine Zufallsverschiebung: Kalender, Tagesform, absolvierte Belastung und der adaptive Zielkorridor bestimmen die Änderung.</p></div>}
         </div>
       </div>
     </section>

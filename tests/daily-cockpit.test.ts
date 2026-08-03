@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDailyDecision, buildFuelingPreparation } from "../src/lib/daily-cockpit";
+import { adaptWorkoutForLowReadiness, buildDailyDecision, buildFuelingPreparation } from "../src/lib/daily-cockpit";
 import type { PlannedWorkout } from "../src/lib/planning/workouts";
 import type { ReadinessResult } from "../src/lib/recovery-readiness";
 
@@ -26,6 +26,33 @@ describe("daily cockpit", () => {
 
   it("does not give green light without recovery data", () => {
     expect(buildDailyDecision(readiness("unknown"), workout, false, false).level).toBe("open");
+  });
+
+  it("flags a workout that no longer fits the largest calendar window", () => {
+    const result = buildDailyDecision(readiness("green"), { ...workout, plannedDurationMinutes: 120 }, false, false, 60);
+    expect(result.level).toBe("adjust");
+    expect(result.summary).toContain("60 Minuten");
+  });
+
+  it("prioritizes red readiness over a calendar conflict", () => {
+    const result = buildDailyDecision(readiness("red"), { ...workout, plannedDurationMinutes: 120 }, false, false, 0);
+    expect(result.level).toBe("recover");
+  });
+
+  it("treats strength as demanding on a yellow day", () => {
+    const result = buildDailyDecision(readiness("yellow"), { ...workout, sportType: "strength", intensity: "strength", plannedDistanceKm: null }, false, false);
+    expect(result.level).toBe("adjust");
+    expect(result.title).toContain("Mobility");
+  });
+
+  it("turns a ride into a shorter deterministic recovery session", () => {
+    const result = adaptWorkoutForLowReadiness({ ...workout, plannedDurationMinutes: 120, plannedDistanceKm: 50 });
+    expect(result).toMatchObject({ title: "Sehr lockere Regenerationsfahrt", intensity: "recovery", plannedDurationMinutes: 60, plannedDistanceKm: 25 });
+  });
+
+  it("replaces strength with mobility when readiness feels worse", () => {
+    const result = adaptWorkoutForLowReadiness({ ...workout, sportType: "strength", intensity: "strength", plannedDistanceKm: null });
+    expect(result).toMatchObject({ sportType: "recovery", plannedDurationMinutes: 25 });
   });
 
   it("calculates fueling from duration and the saved product library", () => {
