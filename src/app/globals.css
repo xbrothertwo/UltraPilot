@@ -63,6 +63,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .primary-button:hover { background: var(--accent-dark); box-shadow: 0 10px 24px rgba(13, 76, 50, .2); transform: translateY(-1px); }
 
+@media (max-width: 63.999rem) {
+  .mobile-safe-header { padding-top: calc(.75rem + env(safe-area-inset-top)); }
+  .mobile-safe-nav { bottom: calc(.75rem + env(safe-area-inset-bottom)); }
+  .mobile-safe-main { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }

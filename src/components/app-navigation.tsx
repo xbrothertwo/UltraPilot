@@ -55,11 +55,11 @@ export function AppNavigation({ configured, userEmail }: { configured: boolean; 
       </div>
     </aside>
 
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/8 bg-[var(--background)]/90 px-4 py-3 backdrop-blur-xl lg:hidden">
+    <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-black/8 bg-[var(--background)]/90 px-4 py-3 backdrop-blur-xl lg:hidden">
       <Link href="/dashboard" className="flex items-center gap-2.5 font-black tracking-tight"><span className="grid size-9 place-items-center rounded-xl bg-[var(--ink)] text-xs text-white">UP</span>UltraPilot</Link>
       <Link href="/activities/upload" aria-label="Aktivität importieren" className="grid size-10 place-items-center rounded-xl bg-[var(--accent)] text-white"><Icon name="plus" /></Link>
     </header>
-    <nav aria-label="Mobile Hauptnavigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-6 rounded-[1.35rem] border border-white/10 bg-[var(--ink)] p-1.5 text-white shadow-2xl lg:hidden">
+    <nav aria-label="Mobile Hauptnavigation" className="mobile-safe-nav fixed inset-x-3 bottom-3 z-40 grid grid-cols-6 rounded-[1.35rem] border border-white/10 bg-[var(--ink)] p-1.5 text-white shadow-2xl lg:hidden">
       {links.map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.62rem] ${active ? "bg-white/12 text-white" : "text-emerald-50/55"}`}><Icon name={link.icon} /><span className="max-w-full truncate">{link.label}</span></Link>; })}
     </nav>
   </>;
