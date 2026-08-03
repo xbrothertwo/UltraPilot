@@ -20,8 +20,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   colorScheme: "light",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#10251b" },
-    { media: "(prefers-color-scheme: dark)", color: "#10251b" },
+    { media: "(prefers-color-scheme: light)", color: "#07162d" },
+    { media: "(prefers-color-scheme: dark)", color: "#07162d" },
   ],
 };
 
@@ -33,8 +33,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         <ServiceWorkerRegistration />
         <AppNavigation configured={configured} userEmail={user?.email ?? null} />
-        <main className="mobile-safe-main min-h-screen px-4 pb-28 pt-5 sm:px-6 sm:pt-7 lg:ml-[17rem] lg:px-10 lg:pb-12 lg:pt-10 xl:px-14">
-          <div className="mx-auto max-w-[88rem]">{children}</div>
+        <main className="mobile-safe-main min-h-screen px-4 pb-28 pt-5 sm:px-6 sm:pt-7 lg:ml-[18rem] lg:px-10 lg:pb-14 lg:pt-10 xl:px-14">
+          <div className="mx-auto max-w-[92rem]">{children}</div>
         </main>
       </body>
     </html>

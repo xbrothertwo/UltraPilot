@@ -90,5 +90,5 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
 }
 
 function Summary({ label, value, detail }: { label: string; value: string; detail: string }) {
-  return <div className="min-w-28 rounded-xl bg-[#edf1ec] px-3 py-2"><dt className="text-[.65rem] font-bold uppercase tracking-wider text-[var(--muted)]">{label}</dt><dd className="mt-0.5 font-black">{value}</dd><p className="text-[.65rem] text-[var(--muted)]">{detail}</p></div>;
+  return <div className="min-w-28 rounded-xl bg-[#edf3fb] px-3 py-2"><dt className="text-[.65rem] font-bold uppercase tracking-wider text-[var(--muted)]">{label}</dt><dd className="mt-0.5 font-black">{value}</dd><p className="text-[.65rem] text-[var(--muted)]">{detail}</p></div>;
 }
