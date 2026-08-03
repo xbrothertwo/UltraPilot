@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeading } from "@/components/page-heading";
 import { isDemoMode } from "@/lib/demo-data";
-import { formatDate, formatDistance, formatDuration } from "@/lib/format";
+import { formatDate, formatDistance, formatDuration, formatPace } from "@/lib/format";
 import { getActivities } from "@/lib/activities";
 import { activitySportLabels } from "@/lib/sports";
 
@@ -24,7 +24,7 @@ export default async function ActivitiesPage({ searchParams }: { searchParams: P
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[var(--line)] pt-3 sm:contents">
             <div><p className="text-xs text-[var(--muted)]">{activity.sportType === "cycling" || activity.sportType === "running" ? "Distanz" : "Ø Herzfrequenz"}</p><p className="font-semibold">{activity.sportType === "cycling" || activity.sportType === "running" ? formatDistance(activity.distanceMeters) : activity.averageHeartRate ? `${activity.averageHeartRate} bpm` : "–"}</p></div>
             <div><p className="text-xs text-[var(--muted)]">Bewegung</p><p className="font-semibold">{formatDuration(activity.movingTimeSeconds)}</p></div>
-            <div><p className="text-xs text-[var(--muted)]">{activity.sportType === "cycling" || activity.sportType === "running" ? "Anstieg" : "Max. Herzfrequenz"}</p><p className="font-semibold">{activity.sportType === "cycling" || activity.sportType === "running" ? `${Math.round(activity.elevationGainMeters).toLocaleString("de-DE")} m` : activity.maximumHeartRate ? `${activity.maximumHeartRate} bpm` : "–"}</p></div>
+            <div><p className="text-xs text-[var(--muted)]">{activity.sportType === "running" ? "Ø Pace" : activity.sportType === "cycling" ? "Anstieg" : "Max. Herzfrequenz"}</p><p className="font-semibold">{activity.sportType === "running" ? formatPace(activity.averageSpeedKmh) : activity.sportType === "cycling" ? `${Math.round(activity.elevationGainMeters).toLocaleString("de-DE")} m` : activity.maximumHeartRate ? `${activity.maximumHeartRate} bpm` : "–"}</p></div>
           </div>
         </Link>) : <div className="p-8 text-center"><p className="font-semibold">Noch keine Aktivitäten</p><p className="mt-1 text-sm text-[var(--muted)]">Dein erster Datei- oder Apple-Health-Import erscheint anschließend hier.</p></div>}
       </div>

@@ -21,6 +21,12 @@ function elapsedLabel(minutes: number): string {
   return hours ? `${hours}:${remainder.toString().padStart(2, "0")} h` : `${remainder} min`;
 }
 
+function chartValue(value: number, unit: ActivityChartStream["unit"], decimals: number): string {
+  if (unit !== "min/km") return Number(value).toFixed(decimals);
+  const totalSeconds = Math.round(Number(value) * 60);
+  return `${Math.floor(totalSeconds / 60)}:${(totalSeconds % 60).toString().padStart(2, "0")}`;
+}
+
 export function ActivityCharts({ streams, nutritionEntries = [], elapsedTimeSeconds = 0 }: { streams: ActivityChartStream[]; nutritionEntries?: NutritionEntry[]; elapsedTimeSeconds?: number }) {
   if (!streams.length) return (
     <section className="card mt-6 p-8 text-center">
@@ -55,8 +61,8 @@ function StreamChart({ stream }: { stream: ActivityChartStream }) {
             <defs><linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={config.color} stopOpacity={0.28} /><stop offset="95%" stopColor={config.color} stopOpacity={0.02} /></linearGradient></defs>
             <CartesianGrid stroke="#e3ebf6" strokeDasharray="4 4" vertical={false} />
             <XAxis dataKey="elapsedMinutes" type="number" domain={["dataMin", "dataMax"]} tickFormatter={(value) => elapsedLabel(Number(value))} tick={{ fill: "#65758b", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={28} />
-            <YAxis width={48} domain={["auto", "auto"]} tick={{ fill: "#65758b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => Number(value).toFixed(config.decimals)} />
-            <Tooltip labelFormatter={(value) => elapsedLabel(Number(value))} formatter={(value) => [`${Number(value).toFixed(config.decimals)} ${stream.unit}`, config.label]} contentStyle={{ border: "1px solid #dce6f2", borderRadius: "12px", boxShadow: "0 8px 24px rgba(35,62,45,.1)" }} />
+            <YAxis width={48} domain={["auto", "auto"]} tick={{ fill: "#65758b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => chartValue(Number(value), stream.unit, config.decimals)} />
+            <Tooltip labelFormatter={(value) => elapsedLabel(Number(value))} formatter={(value) => [`${chartValue(Number(value), stream.unit, config.decimals)} ${stream.unit}`, config.label]} contentStyle={{ border: "1px solid #dce6f2", borderRadius: "12px", boxShadow: "0 8px 24px rgba(35,62,45,.1)" }} />
             <Area type="monotone" dataKey="value" name={config.label} stroke={config.color} strokeWidth={2} fill={`url(#${gradientId})`} isAnimationActive={false} connectNulls={false} />
           </AreaChart>
         </ResponsiveContainer>

@@ -12,7 +12,7 @@ import { ZoneDistribution } from "@/components/zone-distribution";
 import { getActivityById } from "@/lib/activities";
 import { getActivityJournal } from "@/lib/activity-journal";
 import { getActivityChartStreams, getRawActivityStreams } from "@/lib/activity-streams";
-import { formatDate, formatDistance, formatDuration } from "@/lib/format";
+import { formatDate, formatDistance, formatDuration, formatPace } from "@/lib/format";
 import { isDemoMode } from "@/lib/demo-data";
 import { analyzeNutrition } from "@/lib/nutrition-analysis";
 import { getNutritionPlanner } from "@/lib/nutrition-planner";
@@ -44,7 +44,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   const isCycling = activity.sportType === "cycling";
   const hasDistance = activity.sportType === "cycling" || activity.sportType === "running";
   const [streams, rawStreams, { profile }, journal, planner, nearbyWorkouts] = await Promise.all([
-    getActivityChartStreams(activity.id, activity.activityDate, activity.elapsedTimeSeconds),
+    getActivityChartStreams(activity.id, activity.activityDate, activity.elapsedTimeSeconds, activity.sportType === "running"),
     getRawActivityStreams(activity.id),
     getTrainingProfile(),
     getActivityJournal(activity.id),
@@ -78,7 +78,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
         {hasDistance ? <StatCard label="Distanz" value={formatDistance(activity.distanceMeters)} detail="aufgezeichnete Strecke" /> : <StatCard label="Ø Herzfrequenz" value={activity.averageHeartRate === null ? "–" : `${activity.averageHeartRate} bpm`} detail="Apple Watch" />}
         <StatCard label="Bewegungszeit" value={formatDuration(activity.movingTimeSeconds)} detail={`verstrichen ${formatDuration(activity.elapsedTimeSeconds)}`} />
         {hasDistance ? <StatCard label="Höhengewinn" value={`${Math.round(activity.elevationGainMeters).toLocaleString("de-DE")} m`} detail="positive Differenzen" /> : <StatCard label="Max. Herzfrequenz" value={activity.maximumHeartRate === null ? "–" : `${activity.maximumHeartRate} bpm`} detail="höchster Messwert" />}
-        {hasDistance ? <StatCard label="Ø Geschwindigkeit" value={`${activity.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} detail="Distanz / Bewegungszeit" /> : <StatCard label="Belastung" value={activityLoad?.points === null || activityLoad?.points === undefined ? "–" : `${activityLoad.points} UPL`} detail={activityLoad?.method === "heart_rate" ? "aus deinen HF-Zonen" : "noch nicht berechenbar"} />}
+        {hasDistance ? <StatCard label={activity.sportType === "running" ? "Ø Pace" : "Ø Geschwindigkeit"} value={activity.sportType === "running" ? formatPace(activity.averageSpeedKmh) : `${activity.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} detail="Distanz / Bewegungszeit" /> : <StatCard label="Belastung" value={activityLoad?.points === null || activityLoad?.points === undefined ? "–" : `${activityLoad.points} UPL`} detail={activityLoad?.method === "heart_rate" ? "aus deinen HF-Zonen" : "noch nicht berechenbar"} />}
       </section>
       {isCycling && <RideDebrief activityId={activity.id} result={debrief} matchedWorkout={matched?.workout ?? null} nextWorkout={nextWorkout} editable={!isDemoMode} />}
       <section className="card mt-6 p-6">

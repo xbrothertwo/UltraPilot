@@ -14,7 +14,7 @@ export type ChartPoint = {
 export type ActivityChartStream = {
   type: StreamType;
   source: ActivityStream["source"];
-  unit: "bpm" | "W" | "rpm" | "km/h" | "m";
+  unit: "bpm" | "W" | "rpm" | "km/h" | "min/km" | "m";
   originalSampleCount: number;
   renderedSampleCount: number;
   coveragePercent: number;
@@ -52,15 +52,16 @@ function validSamples(value: unknown): SensorSample[] {
   }).sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 }
 
-function convertValue(type: StreamType, value: number): number {
-  return type === "speed" ? value * 3.6 : value;
+function convertValue(type: StreamType, value: number, displayPace: boolean): number {
+  if (type !== "speed") return value;
+  return displayPace ? 1000 / (value * 60) : value * 3.6;
 }
 
-function displayUnit(type: StreamType): ActivityChartStream["unit"] {
-  return { heart_rate: "bpm", power: "W", cadence: "rpm", speed: "km/h", altitude: "m" }[type] as ActivityChartStream["unit"];
+function displayUnit(type: StreamType, displayPace: boolean): ActivityChartStream["unit"] {
+  return { heart_rate: "bpm", power: "W", cadence: "rpm", speed: displayPace ? "min/km" : "km/h", altitude: "m" }[type] as ActivityChartStream["unit"];
 }
 
-export async function getActivityChartStreams(activityId: string, activityStart: string, elapsedTimeSeconds: number): Promise<ActivityChartStream[]> {
+export async function getActivityChartStreams(activityId: string, activityStart: string, elapsedTimeSeconds: number, displayPace = false): Promise<ActivityChartStream[]> {
   if (!isSupabaseConfigured()) return [];
   await requireUser();
   const supabase = await createClient();
@@ -86,7 +87,7 @@ export async function getActivityChartStreams(activityId: string, activityStart:
     if (typeof row.stream_type !== "string" || !streamTypes.includes(row.stream_type as StreamType)) return [];
     if (typeof row.source !== "string" || !sources.includes(row.source as ActivityStream["source"])) return [];
     const type = row.stream_type as StreamType;
-    const allSamples = validSamples(row.samples);
+    const allSamples = validSamples(row.samples).filter((sample) => type !== "speed" || !displayPace || sample.value >= 0.5);
     if (!allSamples.length) return [];
     const reduced = downsampleMinMax(allSamples);
     const firstTime = new Date(allSamples[0].timestamp).getTime();
@@ -95,11 +96,11 @@ export async function getActivityChartStreams(activityId: string, activityStart:
     return [{
       type,
       source: row.source as ActivityStream["source"],
-      unit: displayUnit(type),
+      unit: displayUnit(type, displayPace),
       originalSampleCount: typeof row.sample_count === "number" ? row.sample_count : allSamples.length,
       renderedSampleCount: reduced.length,
       coveragePercent: elapsedTimeSeconds > 0 ? Math.min(100, coverageSeconds / elapsedTimeSeconds * 100) : 0,
-      points: reduced.map((sample) => ({ timestamp: sample.timestamp, elapsedMinutes: Math.max(0, (new Date(sample.timestamp).getTime() - startMilliseconds) / 60_000), value: convertValue(type, sample.value) })),
+      points: reduced.map((sample) => ({ timestamp: sample.timestamp, elapsedMinutes: Math.max(0, (new Date(sample.timestamp).getTime() - startMilliseconds) / 60_000), value: convertValue(type, sample.value, displayPace) })),
     }];
   }).sort((a, b) => streamTypes.indexOf(a.type) - streamTypes.indexOf(b.type));
 }
