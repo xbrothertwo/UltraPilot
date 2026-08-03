@@ -25,6 +25,38 @@ function object(value: unknown): InputRecord {
   return value as InputRecord;
 }
 
+function shortcutRecords(value: unknown): unknown[] {
+  let candidate = value;
+
+  if (typeof candidate === "string") {
+    try {
+      candidate = JSON.parse(candidate) as unknown;
+    } catch {
+      return [];
+    }
+  }
+
+  // iOS Shortcuts wraps a magic list variable in one additional array item
+  // when it is inserted into a JSON array field. Accept that representation
+  // without weakening the per-record validation below.
+  if (Array.isArray(candidate) && candidate.length === 1 && Array.isArray(candidate[0])) {
+    candidate = candidate[0];
+  }
+
+  if (Array.isArray(candidate)) return candidate;
+
+  // Some Shortcuts request-body variants encode a list as an object with
+  // numeric keys. Only accept that exact shape and keep the stable key order.
+  if (typeof candidate === "object" && candidate !== null) {
+    const entries = Object.entries(candidate);
+    if (entries.length > 0 && entries.every(([key]) => /^\d+$/.test(key))) {
+      return entries.sort(([left], [right]) => Number(left) - Number(right)).map(([, item]) => item);
+    }
+  }
+
+  return [];
+}
+
 function text(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -83,14 +115,15 @@ function inRange(samples: SensorSample[], startTime: string, endTime: string): S
 export function parseAppleHealthShortcutPayload(value: unknown): AppleHealthShortcutExtraction {
   const payload = object(value);
   if (payload.version !== 1) throw new Error("Diese Shortcut-Version wird nicht unterstützt.");
-  if (!Array.isArray(payload.records) || payload.records.length < 1 || payload.records.length > 5_000) throw new Error("Der Kurzbefehl muss 1 bis 5.000 Datensätze senden.");
+  const records = shortcutRecords(payload.records);
+  if (records.length < 1 || records.length > 5_000) throw new Error("Der Kurzbefehl muss 1 bis 5.000 Datensätze senden.");
 
   const recoverySamples: AppleHealthRecoverySamples = { sleep: [], heartRate: [], hrv: [], restingHeartRate: [] };
   const workoutRecords: Array<{ row: InputRecord; startTime: string; endTime: string; type: keyof typeof workoutTypes }> = [];
   let ignoredCyclingCount = 0;
   let ignoredUnsupportedCount = 0;
 
-  for (const input of payload.records) {
+  for (const input of records) {
     const row = object(input);
     const kind = normalized(row.kind);
     if (kind === "sleep") {
@@ -154,6 +187,6 @@ export function parseAppleHealthShortcutPayload(value: unknown): AppleHealthShor
     workouts,
     ignoredCyclingCount,
     ignoredUnsupportedCount,
-    recordCount: payload.records.length,
+    recordCount: records.length,
   };
 }
