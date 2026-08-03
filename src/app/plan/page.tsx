@@ -4,6 +4,7 @@ import { PageHeading } from "@/components/page-heading";
 import { TrainingCalendar } from "@/components/training-calendar";
 import { RecoveryPanel } from "@/components/recovery-panel";
 import { TrainingBlockOverview } from "@/components/training-block-overview";
+import { WeeklyTargetCard } from "@/components/weekly-target-card";
 import { getActivities } from "@/lib/activities";
 import { defaultPlanningProfile, getPlanningData } from "@/lib/planning/data";
 import { getLatestPlanGeneration, getPlannedWorkouts } from "@/lib/planning/workouts";
@@ -15,6 +16,7 @@ import { buildReadinessRange } from "@/lib/recovery-readiness";
 import { isDemoMode } from "@/lib/demo-data";
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import { blockWeekForDate, getActiveTrainingBlock } from "@/lib/planning/blocks";
+import { buildWeeklyTargetDays, recommendWeeklyTarget } from "@/lib/planning/weekly-target";
 import { generateWeeklyPlan, savePlanningProfile } from "./actions";
 
 export const metadata = { title: "Plan" };
@@ -59,7 +61,24 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const todayKey = isoDate(new Date());
   const todayReadiness = readiness.find((item) => item.date === todayKey);
   const selectedBlockWeek = blockWeekForDate(trainingBlock, week);
-  const effectiveWeeklyGoal = selectedBlockWeek?.targetDistanceKm ?? profile.weeklyDistanceGoalKm;
+  const recentCutoff = new Date(start); recentCutoff.setDate(recentCutoff.getDate() - 28);
+  const recentCycling = allActivities.filter((activity) => activity.sportType === "cycling" && new Date(activity.activityDate) >= recentCutoff && new Date(activity.activityDate) < start);
+  const recentDistanceKm = recentCycling.reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
+  const recentSeconds = recentCycling.reduce((sum, activity) => sum + activity.movingTimeSeconds, 0);
+  const recentAverageSpeedKmh = recentSeconds > 0 ? recentDistanceKm / (recentSeconds / 3600) : null;
+  const readinessByDate = new Map(readiness.map((item) => [item.date, item.status] as const));
+  const targetDays = buildWeeklyTargetDays(days, data.events, readinessByDate);
+  const weeklyRecommendation = recommendWeeklyTarget({
+    referenceGoalKm: profile.weeklyDistanceGoalKm,
+    days: targetDays,
+    recentFourWeekDistanceKm: recentDistanceKm,
+    recentAverageSpeedKmh,
+    workdayMaxMinutes: profile.workdayMaxSessionMinutes,
+    blockTargetKm: selectedBlockWeek?.targetDistanceKm,
+    blockLongRideTargetKm: selectedBlockWeek?.longRideTargetKm,
+    blockPhase: selectedBlockWeek?.phase,
+  });
+  const effectiveWeeklyGoal = weeklyRecommendation.targetKm;
 
   return <>
     <PageHeading eyebrow="Trainingskalender" title="Deine Woche. Dein echtes Leben." description="Plane Training um Dienste und Termine herum, verschiebe Einheiten per Drag-and-drop und vergleiche Planung mit dem, was du wirklich gefahren bist." />
@@ -73,9 +92,11 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
 
     <TrainingBlockOverview block={trainingBlock} selectedWeek={week} activities={allActivities} weeklyDistanceKm={profile.weeklyDistanceGoalKm} editable={!isDemoMode}/>
 
+    <WeeklyTargetCard recommendation={weeklyRecommendation} blockWeekNumber={selectedBlockWeek?.weekNumber} />
+
     <section className="card mb-4 flex flex-col gap-4 p-4 xl:flex-row xl:items-center xl:justify-between">
       <div className="flex flex-wrap items-center gap-2"><Link href={`/plan?week=${isoDate(previous)}`} aria-label="Vorherige Woche" className="grid size-10 place-items-center rounded-xl border border-[var(--line)] bg-white font-black">←</Link><Link href="/plan" className="rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 text-sm font-bold">Heute</Link><Link href={`/plan?week=${isoDate(next)}`} aria-label="Nächste Woche" className="grid size-10 place-items-center rounded-xl border border-[var(--line)] bg-white font-black">→</Link><h2 className="ml-2 text-lg font-black">{new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short" }).format(start)} – {new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short", year: "numeric" }).format(end)}</h2><form action={generateWeeklyPlan} className="ml-auto"><input type="hidden" name="week" value={week}/><button type="submit" className="rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-black text-white shadow-sm hover:bg-[var(--accent-dark)]">✦ {activities.length ? "Restwoche neu planen" : "Woche automatisch planen"}</button></form></div>
-      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4"><Summary label="Geplant" value={`${Math.round(plannedMinutes)} min`} detail={`${plannedKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`} /><Summary label="Absolviert" value={`${Math.round(actualMinutes)} min`} detail={`${actualKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`} /><Summary label="Plan erfüllt" value={`${completedPlans} / ${activeWorkouts.length}`} detail="zugeordnete Einheiten" /><Summary label={selectedBlockWeek ? `Blockwoche ${selectedBlockWeek.weekNumber}` : "Wochenziel"} value={`${effectiveWeeklyGoal} km`} detail={`${Math.max(0, effectiveWeeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`} /></dl>
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4"><Summary label="Geplant" value={`${Math.round(plannedMinutes)} min`} detail={`${plannedKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`} /><Summary label="Absolviert" value={`${Math.round(actualMinutes)} min`} detail={`${actualKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`} /><Summary label="Plan erfüllt" value={`${completedPlans} / ${activeWorkouts.length}`} detail="zugeordnete Einheiten" /><Summary label="Adaptives Ziel" value={`${effectiveWeeklyGoal} km`} detail={`${Math.max(0, effectiveWeeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`} /></dl>
     </section>
 
     {generation && <section className="mb-4 rounded-2xl border border-emerald-900/10 bg-[var(--accent-soft)] p-5"><div className="flex flex-wrap items-center justify-between gap-2"><p className="eyebrow">Planbegründung</p><span className="rounded-full bg-white/70 px-3 py-1 text-[.65rem] font-black uppercase tracking-wider text-[var(--muted)]">Regelbasiert · nachvollziehbar</span></div><p className="mt-3 text-sm font-semibold leading-6 text-[var(--ink)]">{generation.summary}</p>{generation.caution && <p className="mt-2 text-xs leading-5 text-[var(--muted)]">{generation.caution}</p>}</section>}

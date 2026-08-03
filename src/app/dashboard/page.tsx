@@ -16,6 +16,7 @@ import { getTrainingProfile } from "@/lib/training-profile";
 import { formatHeartRateTarget, getHeartRateZones, getPlannedHeartRateTarget } from "@/lib/training-zones";
 import { generateWeeklyPlan, makeTodayWorkoutEasy } from "@/app/plan/actions";
 import { buildMissionControl } from "@/lib/mission-control";
+import { buildWeeklyTargetDays, recommendWeeklyTarget } from "@/lib/planning/weekly-target";
 
 export const metadata = { title: "Heute" };
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const weekEnd = addDays(weekStart, 6);
   const previewEnd = addDays(todayKey, 3);
   const rangeStart = dateAtNoon(weekStart); rangeStart.setHours(0, 0, 0, 0);
-  const rangeEnd = dateAtNoon(previewEnd); rangeEnd.setHours(23, 59, 59, 999);
+  const rangeEnd = dateAtNoon(previewEnd > weekEnd ? previewEnd : weekEnd); rangeEnd.setHours(23, 59, 59, 999);
 
   const [planning, workouts, activities, recovery, load, block, trainingProfile, nutrition] = await Promise.all([
     getPlanningData({ from: rangeStart, until: rangeEnd }),
@@ -83,7 +84,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const hrTarget = primaryWorkout ? getPlannedHeartRateTarget(zones, primaryWorkout.intensity) : null;
   const todayEvents = planning.events.filter((event) => overlapsDay(event, todayKey));
   const selectedBlockWeek = blockWeekForDate(block, weekStart);
-  const weeklyGoal = selectedBlockWeek?.targetDistanceKm ?? planning.profile.weeklyDistanceGoalKm;
+  const recentCutoff = dateAtNoon(weekStart); recentCutoff.setDate(recentCutoff.getDate() - 28);
+  const recentCycling = activities.filter((activity) => activity.sportType === "cycling" && new Date(activity.activityDate) >= recentCutoff && new Date(activity.activityDate) < rangeStart);
+  const recentDistanceKm = recentCycling.reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
+  const recentSeconds = recentCycling.reduce((sum, activity) => sum + activity.movingTimeSeconds, 0);
+  const recommendationDays = buildWeeklyTargetDays(Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)), planning.events, new Map([[todayKey, readiness.status]]));
+  const weeklyRecommendation = recommendWeeklyTarget({ referenceGoalKm: planning.profile.weeklyDistanceGoalKm, days: recommendationDays, recentFourWeekDistanceKm: recentDistanceKm, recentAverageSpeedKmh: recentSeconds > 0 ? recentDistanceKm / (recentSeconds / 3600) : null, workdayMaxMinutes: planning.profile.workdayMaxSessionMinutes, blockTargetKm: selectedBlockWeek?.targetDistanceKm, blockLongRideTargetKm: selectedBlockWeek?.longRideTargetKm, blockPhase: selectedBlockWeek?.phase });
+  const weeklyGoal = weeklyRecommendation.targetKm;
   const actualKm = weekActivities.filter((activity) => activity.sportType === "cycling").reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
   const progress = Math.min(100, weeklyGoal > 0 ? actualKm / weeklyGoal * 100 : 0);
   const upcomingCycling = reconciled.find((item) => item.effectiveStatus === "planned" && item.workout.sportType === "cycling" && item.workout.scheduledDate >= todayKey)?.workout ?? null;
@@ -137,7 +144,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <aside className="grid content-start gap-4 sm:gap-6">
         <article className="card p-6"><div className="flex items-start justify-between gap-3"><div><p className="eyebrow">Readiness</p><h2 className="mt-2 text-xl font-black">{readinessLabels[readiness.status]}{readiness.score !== null ? ` · ${readiness.score}/100` : ""}</h2></div><span className={`size-3 rounded-full ${readiness.status === "green" ? "bg-emerald-500" : readiness.status === "yellow" ? "bg-amber-400" : readiness.status === "red" ? "bg-rose-500" : "bg-slate-300"}`}/></div><div className="mt-5 grid grid-cols-3 gap-2"><Metric label="Schlaf" value={sleepLabel(readiness.metric?.asleepMinutes ?? 0)}/><Metric label="HF nachts" value={readiness.metric?.sleepingAverageHeartRate ? `${Math.round(readiness.metric.sleepingAverageHeartRate)} bpm` : "–"}/><Metric label="HRV" value={readiness.metric?.hrvSdnnMs ? `${Math.round(readiness.metric.hrvSdnnMs)} ms` : "–"}/></div><div className="mt-4 flex gap-2"><Link href="/plan" className="secondary-button flex-1 justify-center">Tagesform eintragen</Link><Link href="/progress" aria-label="Erholungsverlauf" className="secondary-button">↗</Link></div></article>
 
-        <article className="card p-6"><div className="flex items-center justify-between gap-3"><div><p className="eyebrow">Diese Woche</p><h2 className="mt-2 text-xl font-black">{actualKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} / {weeklyGoal} km</h2></div>{selectedBlockWeek && <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-black text-[var(--accent-dark)]">Block {selectedBlockWeek.weekNumber}/4</span>}</div><div className="mt-4 h-3 overflow-hidden rounded-full bg-[#e3ebf6]"><div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${progress}%` }}/></div><div className="mt-4 grid grid-cols-2 gap-3"><Metric label="Noch offen" value={`${Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`}/><Metric label="7-Tage-Last" value={`${load.sevenDayLoad.toLocaleString("de-DE", { maximumFractionDigits: 0 })} UPL`}/>{selectedBlockWeek && <><Metric label="Lange Fahrt" value={`${selectedBlockWeek.longRideTargetKm} km`}/><Metric label="Wochenfokus" value={selectedBlockWeek.phase}/></>}</div></article>
+        <article className="card p-6"><div className="flex items-center justify-between gap-3"><div><p className="eyebrow">Diese Woche · adaptiv</p><h2 className="mt-2 text-xl font-black">{actualKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} / {weeklyGoal} km</h2></div><span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-black text-[var(--accent-dark)]">{selectedBlockWeek ? `Block ${selectedBlockWeek.weekNumber}/4` : `${weeklyRecommendation.lowerKm}–${weeklyRecommendation.upperKm} km`}</span></div><div className="mt-4 h-3 overflow-hidden rounded-full bg-[#e3ebf6]"><div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${progress}%` }}/></div><div className="mt-4 grid grid-cols-2 gap-3"><Metric label="Noch offen" value={`${Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`}/><Metric label="Zielkorridor" value={`${weeklyRecommendation.lowerKm}–${weeklyRecommendation.upperKm} km`}/><Metric label="Lange Fahrt" value={`ca. ${weeklyRecommendation.longRideTargetKm} km`}/><Metric label="Radfenster" value={`${weeklyRecommendation.availableRideDays} Tage`}/></div></article>
 
         <article className="relative overflow-hidden rounded-[1.5rem] bg-[var(--ink)] p-6 text-white"><div className="absolute -right-12 -top-12 size-40 rounded-full border-[28px] border-cyan-300/10"/><div className="relative"><div className="flex items-center justify-between gap-3"><p className="text-xs font-black uppercase tracking-[.16em] text-cyan-200/60">RAG Mission Control</p><span className="text-xs font-bold text-cyan-200">{mission.achievedMilestones}/{mission.milestones.length}</span></div><h2 className="mt-3 text-xl font-black">{mission.nextMilestone?.title ?? "Roadmap vollständig"}</h2>{mission.nextMilestone && <><p className="mt-2 text-sm text-blue-50/60">{mission.nextMilestone.evidence}</p><div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#67e8f9]" style={{ width: `${mission.nextMilestone.progressPercent}%` }}/></div></>}<Link href="/mission" className="mt-5 inline-flex rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[var(--ink)]">Mission öffnen →</Link></div></article>
 
