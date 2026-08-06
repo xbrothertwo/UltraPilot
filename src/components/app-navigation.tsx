@@ -71,7 +71,7 @@ export function AppNavigation({ configured, userEmail }: { configured: boolean; 
         </Link>
 
         <div className="mt-7 rounded-2xl border border-white/8 bg-white/[.045] p-3.5">
-          <div className="flex items-center justify-between"><span className="text-[.62rem] font-black uppercase tracking-[.17em] text-blue-200/50">Road to RAG</span><span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_#67e8f9]" /></div>
+          <div className="flex items-center justify-between"><span className="text-[.62rem] font-black uppercase tracking-[.17em] text-blue-200/50">Ausdauer-Mission</span><span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_#67e8f9]" /></div>
           <p className="mt-2 text-sm font-bold">Nord–Süd · 1.100 km</p>
           <p className="mt-1 text-xs text-slate-300/55">Zielkorridor 2028</p>
         </div>
@@ -95,7 +95,7 @@ export function AppNavigation({ configured, userEmail }: { configured: boolean; 
 
     <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-blue-950/6 bg-[#f3f7fc]/88 px-4 py-2.5 backdrop-blur-2xl lg:hidden">
       <Link href="/dashboard" className="flex items-center gap-2.5 font-black tracking-[-.03em] text-[var(--ink)]"><span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-xs text-white shadow-md shadow-blue-500/20">UP</span>UltraPilot</Link>
-      <span className="rounded-full border border-blue-200/70 bg-blue-50 px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700">RAG · 2028</span>
+      <span className="rounded-full border border-blue-200/70 bg-blue-50 px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700">Endurance OS</span>
     </header>
 
     <nav aria-label="Mobile Hauptnavigation" className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-blue-950/8 bg-white/92 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_rgba(20,48,89,.2)] backdrop-blur-2xl lg:hidden">

@@ -7,7 +7,7 @@ import { getPlanningData } from "@/lib/planning/data";
 import { getRecoveryData } from "@/lib/recovery";
 import { buildReadinessRange } from "@/lib/recovery-readiness";
 
-export const metadata = { title: "RAG Mission Control" };
+export const metadata = { title: "Ausdauer-Mission" };
 export const dynamic = "force-dynamic";
 
 function dateKey(value: Date): string { return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(value); }
@@ -29,7 +29,16 @@ export default async function MissionPage() {
   const next = mission.nextMilestone;
 
   return <>
-    <PageHeading eyebrow="Road to RAG" title="Mission Control 2028" description="Dein nachvollziehbarer Weg zur unterstützten 1.100-km-Nord–Süd-Strecke – aus echten Fahrten, nicht aus motivierenden Fantasiezahlen." action={<Link href="/plan" className="primary-button">Aktuellen Block planen</Link>} />
+    <PageHeading
+  eyebrow="Ausdauer-Mission"
+  title="Mission Control"
+  description="Dein nachvollziehbarer Weg zu deinem persönlichen Ausdauerziel – auf Basis echter Trainingseinheiten statt motivierender Fantasiezahlen."
+  action={
+    <Link href="/plan" className="primary-button">
+      Aktuellen Block planen
+    </Link>
+  }
+/>
 
     <section className="relative overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-[#07162d] via-[#123a72] to-[#155e9a] p-6 text-white shadow-[0_24px_60px_rgba(9,26,51,.2)] sm:rounded-[2rem] sm:p-9">
       <div className="absolute -right-28 -top-32 size-96 rounded-full border-[60px] border-cyan-300/10"/>

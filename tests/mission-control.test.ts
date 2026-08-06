@@ -4,7 +4,7 @@ import { buildMissionControl } from "../src/lib/mission-control";
 
 function ride(id: string, date: string, km: number, hours = 4): Activity { return { id, userId: "u", sportType: "cycling", activityDate: `${date}T08:00:00Z`, title: id, distanceMeters: km * 1000, movingTimeSeconds: hours * 3600, elapsedTimeSeconds: hours * 3600, elevationGainMeters: 0, averageSpeedKmh: km / hours, averageHeartRate: 130, maximumHeartRate: 160, averagePower: null, normalizedPower: null, source: "fit", createdAt: `${date}T12:00:00Z` }; }
 
-describe("RAG mission control", () => {
+describe("endurance mission control", () => {
   it("detects longest ride and consecutive-day distance", () => {
     const result = buildMissionControl({ activities: [ride("a", "2026-07-25", 140), ride("b", "2026-07-26", 120), ride("c", "2026-07-10", 210)], nutrition: [], feedback: [], drifts: [], weeklyGoalKm: 125, targetYear: 2028, today: "2026-08-03", recoveryTrackedNights: 0, recoveryStableNights: 0 });
     expect(result.longestRideKm).toBe(210);
