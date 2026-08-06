@@ -46,18 +46,83 @@ function spacedDays(available: PlanningDay[], count: number, preferredDate?: str
   return selected;
 }
 
-function distributeDistance(targetDistanceKm: number, cyclingCount: number, longRideTargetKm?: number): number[] {
-  if (cyclingCount <= 0) return [];
-  if (cyclingCount === 1) return [rounded(targetDistanceKm)];
-  if (longRideTargetKm === undefined) {
-    const shares = cyclingCount === 2 ? [.6, .4] : [.45, .3, .25];
-    return shares.map((share, index) => index === shares.length - 1 ? rounded(targetDistanceKm - shares.slice(0, index).reduce((sum, previous) => sum + rounded(targetDistanceKm * previous), 0)) : rounded(targetDistanceKm * share));
+function distributeEvenly(
+  targetDistanceKm: number,
+  sessionCount: number,
+): number[] {
+  if (sessionCount <= 0) return [];
+
+  const distances: number[] = [];
+  let allocatedDistance = 0;
+
+  for (let index = 0; index < sessionCount; index += 1) {
+    const distance =
+      index === sessionCount - 1
+        ? rounded(targetDistanceKm - allocatedDistance)
+        : rounded(targetDistanceKm / sessionCount);
+
+    distances.push(distance);
+    allocatedDistance = rounded(allocatedDistance + distance);
   }
-  const longRide = rounded(Math.max(0, Math.min(targetDistanceKm, longRideTargetKm)));
-  const remaining = rounded(targetDistanceKm - longRide);
-  if (cyclingCount === 2) return [longRide, remaining];
-  const second = rounded(remaining * .6);
-  return [longRide, second, rounded(remaining - second)];
+
+  return distances;
+}
+
+function distributeDistance(
+  targetDistanceKm: number,
+  sessionCount: number,
+  longRideTargetKm?: number,
+): number[] {
+  if (sessionCount <= 0) return [];
+  if (sessionCount === 1) return [rounded(targetDistanceKm)];
+
+  if (longRideTargetKm === undefined) {
+    if (sessionCount === 2) {
+      const first = rounded(targetDistanceKm * 0.6);
+      return [first, rounded(targetDistanceKm - first)];
+    }
+
+    if (sessionCount === 3) {
+      const first = rounded(targetDistanceKm * 0.45);
+      const second = rounded(targetDistanceKm * 0.3);
+
+      return [
+        first,
+        second,
+        rounded(targetDistanceKm - first - second),
+      ];
+    }
+
+    const first = rounded(targetDistanceKm * 0.3);
+    const second = rounded(targetDistanceKm * 0.2);
+    const remainingDistance = rounded(
+      targetDistanceKm - first - second,
+    );
+
+    return [
+      first,
+      second,
+      ...distributeEvenly(remainingDistance, sessionCount - 2),
+    ];
+  }
+
+  const longRide = rounded(
+    Math.max(0, Math.min(targetDistanceKm, longRideTargetKm)),
+  );
+  const remainingDistance = rounded(targetDistanceKm - longRide);
+
+  if (sessionCount === 2) {
+    return [longRide, remainingDistance];
+  }
+
+  const second = rounded(remainingDistance * 0.6);
+  const remainingAfterSecond = rounded(remainingDistance - second);
+
+  return [
+    longRide,
+    second,
+    ...distributeEvenly(remainingAfterSecond, sessionCount - 2),
+  ];
 }
 
 export function generateDeterministicWeek(input: GeneratorInput): { workouts: GeneratedWorkout[]; targetDistanceKm: number; ruleSummary: string } {

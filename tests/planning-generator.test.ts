@@ -112,11 +112,52 @@ describe("deterministic weekly planner", () => {
     expect(runs.every((workout) => !workout.description.includes("fahren"))).toBe(true);
   });
 
-  it("respects the configured number of weekly runs", () => {
-    const days = ["03", "04", "05", "06", "07"].map((day) => ({ date: `2026-08-${day}`, availableMinutes: 90, workday: false, occupied: false }));
-    const result = generateDeterministicWeek({ primarySport: "running", runningSessionsPerWeek: 4, days, weeklyGoalKm: 32, recentFourWeekDistanceKm: 120, recentAverageSpeedKmh: 10, workdayMaxMinutes: 75, strengthVariants: [] });
-    expect(result.workouts.filter((workout) => workout.sportType === "running")).toHaveLength(4);
-  });
+  it.each([1, 2, 3, 4, 5, 6, 7])(
+  "creates valid distances for %i weekly runs",
+  (runningSessionsPerWeek) => {
+    const days = ["03", "04", "05", "06", "07", "08", "09"].map((day) => ({
+      date: `2026-08-${day}`,
+      availableMinutes: 120,
+      workday: false,
+      occupied: false,
+    }));
+
+    const result = generateDeterministicWeek({
+      primarySport: "running",
+      runningSessionsPerWeek,
+      days,
+      weeklyGoalKm: 42,
+      recentFourWeekDistanceKm: 140,
+      recentAverageSpeedKmh: 10,
+      workdayMaxMinutes: 75,
+      strengthVariants: [],
+    });
+
+    const runs = result.workouts.filter(
+      (workout) => workout.sportType === "running",
+    );
+
+    const distances = runs.map((workout) => workout.plannedDistanceKm);
+
+    expect(runs).toHaveLength(runningSessionsPerWeek);
+
+    expect(
+      distances.every(
+        (distance) =>
+          typeof distance === "number" &&
+          Number.isFinite(distance) &&
+          distance >= 0,
+      ),
+    ).toBe(true);
+
+    const totalDistance = distances.reduce<number>(
+      (sum, distance) => sum + (distance ?? 0),
+      0,
+    );
+
+    expect(totalDistance).toBeCloseTo(42, 5);
+  },
+);
 
   it("forces a same-day cross-training run to stay easy", () => {
     const result = generateDeterministicWeek({
