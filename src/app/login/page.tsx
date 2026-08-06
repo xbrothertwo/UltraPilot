@@ -15,7 +15,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return <div className="mx-auto max-w-5xl">
     <section className="relative mb-5 overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-[#07162d] via-[#123a72] to-[#176b98] p-6 text-white shadow-[0_24px_60px_rgba(9,26,51,.2)] sm:p-10">
       <div className="absolute -right-24 -top-28 size-80 rounded-full border-[50px] border-cyan-300/10" />
-      <div className="relative max-w-2xl"><p className="text-[.65rem] font-black uppercase tracking-[.22em] text-cyan-200">Personal Endurance OS</p><h1 className="mt-3 text-4xl font-black leading-[1.02] tracking-[-.05em] sm:text-6xl">Dein Weg zu<br/><span className="text-blue-200">1.100 Kilometern.</span></h1><p className="mt-5 max-w-xl text-sm leading-6 text-blue-50/65 sm:text-base sm:leading-7">Training, Erholung, Dienstplan und Verpflegung in einem persönlichen Cockpit – entwickelt für dein RAG-Ziel 2028.</p><div className="mt-6 flex flex-wrap gap-2 text-xs font-bold"><span className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5">Regelbasiert</span><span className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5">Nachvollziehbar</span><span className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5">Nur für dich</span></div></div>
+      <div className="relative max-w-2xl"><p className="text-[.65rem] font-black uppercase tracking-[.22em] text-cyan-200">Personal Endurance OS</p><h1 className="mt-3 text-4xl font-black leading-[1.02] tracking-[-.05em] sm:text-6xl">
+  Dein Training.<br/>
+  <span className="text-blue-200">Dein echtes Leben.</span>
+</h1>
+<p className="mt-5 max-w-xl text-sm leading-6 text-blue-50/65 sm:text-base sm:leading-7">
+  Training, Erholung, Alltag und Verpflegung in einem persönlichen Ausdauer-Cockpit.
+</p> <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold"><span className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5">Regelbasiert</span><span className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5">Nachvollziehbar</span><span className="rounded-full border border-white/10 bg-white/8 px-3 py-1.5">Nur für dich</span></div></div>
     </section>
     {params.error ? <p role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">{params.error}</p> : null}
     {params.message ? <p role="status" className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{params.message}</p> : null}

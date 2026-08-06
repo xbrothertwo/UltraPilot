@@ -1,6 +1,6 @@
 # UltraPilot
 
-> Persönliche RAG-Planung: Ziel Race Across Germany Nord–Süd 2028 supported, datensparsamer ICS-Dienstplanimport, bestätigte Dienstcode-Zuordnung und deterministisch berechnete freie Zeitfenster. Bestehende Installationen benötigen `supabase/migrations/202608020007_calendar_planning.sql`.
+> Lebensnaher Ausdauer-Trainingsplaner mit datensparsamem ICS-Dienstplanimport, bestätigter Dienstcode-Zuordnung und deterministisch berechneten freien Zeitfenstern. Bestehende Installationen benötigen `supabase/migrations/202608020007_calendar_planning.sql`.
 
 > Zentrale Verpflegungsbibliothek unter `/nutrition`, bearbeitbare Timeline-Einträge, wiederverwendbare Flaschenrezepte und Verpflegungsmarker an den Aktivitätsdiagrammen. Bestehende Installationen benötigen `supabase/migrations/202608020006_nutrition_library.sql`.
 
