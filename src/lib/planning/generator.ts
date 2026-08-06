@@ -1,7 +1,16 @@
 import { strengthDescription, type StrengthVariant } from "./strength-plan";
 import type { PrimarySport } from "./data";
 
-export type PlanningDay = { date: string; availableMinutes: number; workday: boolean; occupied: boolean; crossTraining?: boolean; readiness?: "green" | "yellow" | "red" | "unknown"; highIntensityAllowed?: boolean };
+export type PlanningDay = {
+  date: string;
+  availableMinutes: number;
+  longestAvailableWindowMinutes?: number;
+  workday: boolean;
+  occupied: boolean;
+  crossTraining?: boolean;
+  readiness?: "green" | "yellow" | "red" | "unknown";
+  highIntensityAllowed?: boolean;
+};
 export type GeneratedWorkout = { scheduledDate: string; sportType: PrimarySport | "strength"; title: string; description: string; intensity: "easy" | "endurance" | "tempo" | "strength"; plannedDurationMinutes: number; plannedDistanceKm: number | null };
 export type GeneratorInput = { primarySport?: PrimarySport; runningSessionsPerWeek?: number; easyRunWithCrossTraining?: boolean; days: PlanningDay[]; weeklyGoalKm: number; recentFourWeekDistanceKm: number; recentAverageSpeedKmh: number | null; workdayMaxMinutes: number; strengthVariants: StrengthVariant[]; longRideTargetKm?: number; longRideCovered?: boolean; tempoSessionTarget?: number; preferredCyclingDate?: string };
 
@@ -11,6 +20,15 @@ export function calculateRemainingWeeklyDistance(goalKm: number, completedKm: nu
   return rounded(Math.max(0, goalKm - completedKm - manuallyPlannedKm));
 }
 
+function contiguousAvailableMinutes(day: PlanningDay): number {
+  return Math.max(
+    0,
+    Math.min(
+      day.availableMinutes,
+      day.longestAvailableWindowMinutes ?? day.availableMinutes,
+    ),
+  );
+}
 export function cyclingDescription(intensity: "easy" | "endurance" | "tempo", durationMinutes: number): string {
   if (intensity === "tempo") {
     const repetitions = durationMinutes >= 75 ? 3 : 2;
@@ -32,7 +50,9 @@ function dayGap(first: string, second: string): number { return Math.abs(new Dat
 
 function spacedDays(available: PlanningDay[], count: number, preferredDate?: string): PlanningDay[] {
   if (!available.length || count <= 0) return [];
-  const dayValue = (day: PlanningDay) => day.availableMinutes - (day.readiness === "yellow" ? 180 : 0);
+  const dayValue = (day: PlanningDay) =>
+  contiguousAvailableMinutes(day) -
+  (day.readiness === "yellow" ? 180 : 0);
   const preferred = preferredDate ? available.find((day) => day.date === preferredDate) : undefined;
   const selected = [preferred ?? [...available].sort((a, b) => dayValue(b) - dayValue(a) || a.date.localeCompare(b.date))[0]];
   while (selected.length < Math.min(count, available.length)) {
@@ -128,7 +148,12 @@ function distributeDistance(
 export function generateDeterministicWeek(input: GeneratorInput): { workouts: GeneratedWorkout[]; targetDistanceKm: number; ruleSummary: string } {
   const primarySport = input.primarySport ?? "cycling";
   const minimumMinutes = primarySport === "running" ? 30 : 45;
-  const available = input.days.filter((day) => !day.occupied && day.readiness !== "red" && day.availableMinutes >= minimumMinutes);
+  const available = input.days.filter(
+  (day) =>
+    !day.occupied &&
+    day.readiness !== "red" &&
+    contiguousAvailableMinutes(day) >= minimumMinutes,
+);
   if (!available.length) return { workouts: [], targetDistanceKm: 0, ruleSummary: `Keine freien Zeitfenster von mindestens ${minimumMinutes} Minuten.` };
   const weeklyRecent = input.recentFourWeekDistanceKm / 4;
   const targetDistanceKm = rounded(Math.max(0, input.weeklyGoalKm));
@@ -150,9 +175,10 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
     const desiredMinutes = Math.ceil(
     (requestedDistance / referenceSpeedKmh) * 60,
     );
+    const availableWindowMinutes = contiguousAvailableMinutes(day);
     const cap = day.workday
-    ? Math.min(day.availableMinutes, input.workdayMaxMinutes)
-    : day.availableMinutes;
+    ? Math.min(availableWindowMinutes, input.workdayMaxMinutes)
+    : availableWindowMinutes;
     const duration = Math.max(
       minimumMinutes,
       Math.min(desiredMinutes, cap),
@@ -171,7 +197,11 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
     return { scheduledDate: day.date, sportType: primarySport, title, description, intensity, plannedDurationMinutes: duration, plannedDistanceKm: distance };
   });
   const usedDates = new Set(enduranceWorkouts.map((workout) => workout.scheduledDate));
-  const gymCandidates = available.filter((day) => (pairCrossTraining || !usedDates.has(day.date)) && day.availableMinutes >= 60);
+  const gymCandidates = available.filter(
+  (day) =>
+    (pairCrossTraining || !usedDates.has(day.date)) &&
+    contiguousAvailableMinutes(day) >= 60,
+);
   const gym = spacedDays(gymCandidates, input.strengthVariants.length).map((day, index): GeneratedWorkout => { const variant = input.strengthVariants[index]; return { scheduledDate: day.date, sportType: "strength", title: `Krafttraining ${variant}`, description: strengthDescription(variant), intensity: "strength", plannedDurationMinutes: 60, plannedDistanceKm: null }; });
   const adjustedEndurance = enduranceWorkouts.map((workout) => {
     const sameDayCrossTraining = primarySport === "running" && pairCrossTraining && (gym.some((strength) => strength.scheduledDate === workout.scheduledDate) || available.find((day) => day.date === workout.scheduledDate)?.crossTraining);

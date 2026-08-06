@@ -26,7 +26,32 @@ describe("deterministic weekly planner", () => {
     expect(result.workouts.some((workout) => workout.scheduledDate === "2026-08-05")).toBe(false);
     expect(result.workouts.find((workout) => workout.scheduledDate === "2026-08-04")?.plannedDurationMinutes).toBeLessThanOrEqual(75);
   });
+  it("does not combine separate availability windows into one workout", () => {
+  const result = generateDeterministicWeek({
+    primarySport: "cycling",
+    days: [
+      {
+        date: "2026-08-03",
+        availableMinutes: 120,
+        longestAvailableWindowMinutes: 60,
+        workday: false,
+        occupied: false,
+      },
+    ],
+    weeklyGoalKm: 65,
+    recentFourWeekDistanceKm: 400,
+    recentAverageSpeedKmh: 25,
+    workdayMaxMinutes: 90,
+    strengthVariants: [],
+  });
 
+  const ride = result.workouts.find(
+    (workout) => workout.sportType === "cycling",
+  );
+
+  expect(ride?.plannedDurationMinutes).toBe(60);
+  expect(ride?.plannedDistanceKm).toBe(25);
+});
   it("caps cycling distance with a conservative fallback when history is missing", () => {
   const result = generateDeterministicWeek({
     days: [
