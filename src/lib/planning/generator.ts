@@ -83,15 +83,15 @@ function distributeDistance(
     }
 
     if (sessionCount === 3) {
-      const first = rounded(targetDistanceKm * 0.45);
-      const second = rounded(targetDistanceKm * 0.3);
+      const first = rounded(targetDistanceKm * 0.5);
+      const second = rounded(targetDistanceKm * 0.35);
 
-      return [
-        first,
-        second,
-        rounded(targetDistanceKm - first - second),
-      ];
-    }
+    return [
+      first,
+      second,
+      rounded(targetDistanceKm - first - second),
+   ];
+  }
 
     const first = rounded(targetDistanceKm * 0.3);
     const second = rounded(targetDistanceKm * 0.2);
