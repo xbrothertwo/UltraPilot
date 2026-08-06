@@ -27,11 +27,85 @@ describe("deterministic weekly planner", () => {
     expect(result.workouts.find((workout) => workout.scheduledDate === "2026-08-04")?.plannedDurationMinutes).toBeLessThanOrEqual(75);
   });
 
-  it("plans the configured target exactly even without history", () => {
-    const result = generateDeterministicWeek({ days: [{ date: "2026-08-03", availableMinutes: 240, workday: false, occupied: false }], weeklyGoalKm: 125, recentFourWeekDistanceKm: 0, recentAverageSpeedKmh: null, workdayMaxMinutes: 90, strengthVariants: [] });
-    expect(result.targetDistanceKm).toBe(125);
-    expect(result.workouts[0].plannedDistanceKm).toBe(125);
+  it("caps cycling distance with a conservative fallback when history is missing", () => {
+  const result = generateDeterministicWeek({
+    days: [
+      {
+        date: "2026-08-03",
+        availableMinutes: 240,
+        workday: false,
+        occupied: false,
+      },
+    ],
+    weeklyGoalKm: 125,
+    recentFourWeekDistanceKm: 0,
+    recentAverageSpeedKmh: null,
+    workdayMaxMinutes: 90,
+    strengthVariants: [],
   });
+
+  const ride = result.workouts.find(
+    (workout) => workout.sportType === "cycling",
+  );
+
+  expect(ride?.plannedDurationMinutes).toBe(240);
+  expect(ride?.plannedDistanceKm).toBe(88);
+  expect(result.ruleSummary).toContain("37");
+  expect(result.ruleSummary).toContain("offen");
+});
+
+it("reduces running distance when the requested distance does not fit the available time", () => {
+  const result = generateDeterministicWeek({
+    primarySport: "running",
+    runningSessionsPerWeek: 1,
+    days: [
+      {
+        date: "2026-08-03",
+        availableMinutes: 75,
+        workday: false,
+        occupied: false,
+      },
+    ],
+    weeklyGoalKm: 40,
+    recentFourWeekDistanceKm: 100,
+    recentAverageSpeedKmh: 10,
+    workdayMaxMinutes: 75,
+    strengthVariants: [],
+  });
+
+  const run = result.workouts.find(
+    (workout) => workout.sportType === "running",
+  );
+
+  expect(run?.plannedDurationMinutes).toBe(75);
+  expect(run?.plannedDistanceKm).toBe(12.5);
+});
+
+it("reduces cycling distance when the requested distance does not fit the available time", () => {
+  const result = generateDeterministicWeek({
+    primarySport: "cycling",
+    days: [
+      {
+        date: "2026-08-03",
+        availableMinutes: 60,
+        workday: false,
+        occupied: false,
+      },
+    ],
+    weeklyGoalKm: 65,
+    recentFourWeekDistanceKm: 400,
+    recentAverageSpeedKmh: 25,
+    workdayMaxMinutes: 60,
+    strengthVariants: [],
+  });
+
+  const ride = result.workouts.find(
+    (workout) => workout.sportType === "cycling",
+  );
+
+  expect(ride?.plannedDurationMinutes).toBe(60);
+  expect(ride?.plannedDistanceKm).toBe(25);
+});
 
   it("distributes the exact target without rounding drift", () => {
     const days = ["03", "04", "05"].map((day) => ({ date: `2026-08-${day}`, availableMinutes: 300, workday: false, occupied: false }));
@@ -117,7 +191,7 @@ describe("deterministic weekly planner", () => {
   (runningSessionsPerWeek) => {
     const days = ["03", "04", "05", "06", "07", "08", "09"].map((day) => ({
       date: `2026-08-${day}`,
-      availableMinutes: 120,
+      availableMinutes: 300,
       workday: false,
       occupied: false,
     }));
