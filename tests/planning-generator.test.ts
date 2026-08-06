@@ -232,7 +232,30 @@ it("reduces cycling distance when the requested distance does not fit the availa
     expect(totalDistance).toBeCloseTo(42, 5);
   },
 );
+  it("distributes three runs as 50, 35 and 15 percent", () => {
+  const result = generateDeterministicWeek({
+    primarySport: "running",
+    runningSessionsPerWeek: 3,
+    days: ["03", "04", "05"].map((day) => ({
+      date: `2026-08-${day}`,
+      availableMinutes: 300,
+      workday: false,
+      occupied: false,
+    })),
+    weeklyGoalKm: 40,
+    recentFourWeekDistanceKm: 120,
+    recentAverageSpeedKmh: 10,
+    workdayMaxMinutes: 75,
+    strengthVariants: [],
+  });
 
+  const distances = result.workouts
+  .filter((workout) => workout.sportType === "running")
+  .map((workout) => workout.plannedDistanceKm ?? 0)
+  .sort((a, b) => b - a);
+
+  expect(distances).toEqual([20, 14, 6]);
+});
   it("forces a same-day cross-training run to stay easy", () => {
     const result = generateDeterministicWeek({
       primarySport: "running",
