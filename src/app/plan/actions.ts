@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
-import { zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
+import { allDayEventBounds, zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
 import { getActivities } from "@/lib/activities";
 import { calculateDailyAvailability } from "@/lib/planning/availability";
 import { getPlanningData } from "@/lib/planning/data";
@@ -522,13 +522,18 @@ export async function setPlannedWorkoutStatus(formData: FormData) {
   redirect(destination);
 }
 
-function calendarDateTime(formData: FormData, name: string): string {
+function validatedDateTimeLocal(formData: FormData, name: string): string {
   const value = formData.get(name);
   if (
     typeof value !== "string" ||
     !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)
   )
     throw new Error(`${name} ist ungültig.`);
+  return value;
+}
+
+function calendarDateTime(formData: FormData, name: string): string {
+  const value = validatedDateTimeLocal(formData, name);
   return zonedLocalTimeToIso(
     `${value.slice(0, 4)}${value.slice(5, 7)}${value.slice(8, 10)}T${value.slice(11, 13)}${value.slice(14, 16)}00`,
     "Europe/Berlin",
@@ -549,8 +554,16 @@ export async function saveCalendarEvent(formData: FormData) {
       !kinds.includes(kindValue as (typeof kinds)[number])
     )
       throw new Error("Terminart ist ungültig.");
-    const startsAt = calendarDateTime(formData, "startsAt");
-    const endsAt = calendarDateTime(formData, "endsAt");
+    const allDay = formData.get("allDay") === "on";
+    const { startsAt, endsAt } = allDay
+      ? allDayEventBounds(
+          validatedDateTimeLocal(formData, "startsAt"),
+          validatedDateTimeLocal(formData, "endsAt"),
+        )
+      : {
+          startsAt: calendarDateTime(formData, "startsAt"),
+          endsAt: calendarDateTime(formData, "endsAt"),
+        };
     if (new Date(endsAt) <= new Date(startsAt))
       throw new Error("Das Ende muss nach dem Beginn liegen.");
     const user = await requireUser();
@@ -561,7 +574,7 @@ export async function saveCalendarEvent(formData: FormData) {
       event_kind: kindValue,
       starts_at: startsAt,
       ends_at: endsAt,
-      all_day: formData.get("allDay") === "on",
+      all_day: allDay,
     };
     if (typeof id === "string" && id) {
       const { data, error } = await supabase
