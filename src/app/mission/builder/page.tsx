@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PageHeading } from "@/components/page-heading";
 import { UltraMissionBuilder } from "@/components/ultra-mission-builder";
+import { getMission } from "@/lib/missions";
 import { getPlanningData } from "@/lib/planning/data";
 
 export const metadata = {
@@ -8,6 +10,13 @@ export const metadata = {
 };
 
 export const dynamic = "force-dynamic";
+
+type MissionBuilderPageProps = {
+  searchParams: Promise<{
+    id?: string;
+    error?: string;
+  }>;
+};
 
 function defaultStartAt(): string {
   const tomorrow = new Date();
@@ -27,9 +36,26 @@ function defaultStartAt(): string {
   return `${date}T06:00`;
 }
 
-export default async function MissionBuilderPage() {
-  const planning =
-    await getPlanningData();
+export default async function MissionBuilderPage({
+  searchParams,
+}: MissionBuilderPageProps) {
+  const parameters =
+    await searchParams;
+
+  const missionId =
+    parameters.id ?? null;
+
+  const [planning, mission] =
+    await Promise.all([
+      getPlanningData(),
+      missionId
+        ? getMission(missionId)
+        : Promise.resolve(null),
+    ]);
+
+  if (missionId && !mission) {
+    notFound();
+  }
 
   const initialSportType =
     planning.profile.primarySport ===
@@ -41,14 +67,22 @@ export default async function MissionBuilderPage() {
     <>
       <PageHeading
         eyebrow="Ultra Mission Builder"
-        title="Plane deine nächste große Mission"
-        description="Simuliere Bewegungszeit, Pausen, Zielankunft, Versorgung und Kontrollpunkte für Rad- oder Laufmissionen. Alle Ergebnisse basieren ausschließlich auf deinen Eingaben."
+        title={
+          mission
+            ? "Mission bearbeiten"
+            : "Plane deine nächste große Mission"
+        }
+        description={
+          mission
+            ? "Passe Distanz, Tempo, Startzeit, Versorgung und Kontrollpunkte deiner gespeicherten Mission an."
+            : "Simuliere Bewegungszeit, Pausen, Zielankunft, Versorgung und Kontrollpunkte für Rad- oder Laufmissionen."
+        }
         action={
           <Link
             href="/mission"
             className="rounded-full border border-[var(--line)] px-4 py-2.5 text-sm font-black"
           >
-            Zurück zu Mission Control
+            Zurück zum Mission HQ
           </Link>
         }
       />
@@ -57,6 +91,10 @@ export default async function MissionBuilderPage() {
         defaultStartAt={defaultStartAt()}
         initialSportType={
           initialSportType
+        }
+        initialMission={mission}
+        serverError={
+          parameters.error ?? null
         }
       />
     </>

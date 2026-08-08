@@ -13,6 +13,9 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   MissionStatus,
 } from "@/lib/missions";
+import {
+  buildMissionWriteInput,
+} from "@/lib/mission-input";
 
 function errorRedirect(
   error: unknown,
@@ -235,5 +238,121 @@ export async function setMissionStatus(
 
   redirect(
     "/mission?updated=status",
+  );
+}
+function builderErrorRedirect(
+  formData: FormData,
+  error: unknown,
+): never {
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Die Mission konnte nicht gespeichert werden.";
+
+  const parameters =
+    new URLSearchParams();
+
+  const missionId =
+    formData.get("missionId");
+
+  if (
+    typeof missionId === "string" &&
+    missionId.trim() !== ""
+  ) {
+    parameters.set(
+      "id",
+      missionId,
+    );
+  }
+
+  parameters.set("error", message);
+
+  redirect(
+    `/mission/builder?${parameters.toString()}`,
+  );
+}
+
+export async function saveMission(
+  formData: FormData,
+) {
+  let savedMode:
+    | "custom"
+    | "updated" = "custom";
+
+  try {
+    const parsed =
+      buildMissionWriteInput(formData);
+
+    savedMode = parsed.missionId
+      ? "updated"
+      : "custom";
+
+    const user = await requireUser();
+
+    const supabase =
+      await createClient();
+
+    if (!supabase) {
+      throw new Error(
+        "Supabase ist nicht verfügbar.",
+      );
+    }
+
+    const now =
+      new Date().toISOString();
+
+    if (parsed.missionId) {
+      const { data, error } =
+        await supabase
+          .from("missions")
+          .update({
+            ...parsed.values,
+            updated_at: now,
+          })
+          .eq(
+            "id",
+            parsed.missionId,
+          )
+          .eq("user_id", user.id)
+          .select("id")
+          .maybeSingle();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data) {
+        throw new Error(
+          "Die Mission wurde nicht gefunden.",
+        );
+      }
+    } else {
+      const { error } =
+        await supabase
+          .from("missions")
+          .insert({
+            ...parsed.values,
+            user_id: user.id,
+            source: "custom",
+            derived_key: null,
+            status: "planned",
+            updated_at: now,
+          });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    }
+  } catch (error) {
+    builderErrorRedirect(
+      formData,
+      error,
+    );
+  }
+
+  revalidatePath("/mission");
+
+  redirect(
+    `/mission?saved=${savedMode}`,
   );
 }

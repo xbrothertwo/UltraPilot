@@ -449,6 +449,12 @@ export default async function MissionPage() {
                   </div>
 
                   <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                    <Link
+  href={`/mission/builder?id=${mission.id}`}
+  className="rounded-full bg-[var(--accent)] px-3 py-2 text-xs font-black text-white"
+>
+  Bearbeiten
+</Link>
                     {mission.status !==
                       "completed" && (
                       <form

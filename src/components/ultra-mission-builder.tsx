@@ -1,5 +1,7 @@
 "use client";
-
+import {
+  saveMission,
+} from "@/app/mission/actions";
 import { useMemo, useState } from "react";
 import {
   buildUltraMissionPlan,
@@ -8,6 +10,9 @@ import {
   paceMinutesPerKmToSpeed,
   type MissionSportType,
 } from "@/lib/ultra-mission-builder";
+import type {
+  SavedMission,
+} from "@/lib/missions";
 
 type BuilderValues = {
   distanceKm: string;
@@ -25,6 +30,8 @@ type BuilderValues = {
 type UltraMissionBuilderProps = {
   defaultStartAt: string;
   initialSportType: MissionSportType;
+  initialMission: SavedMission | null;
+  serverError: string | null;
 };
 
 const numberFormatter = new Intl.NumberFormat(
@@ -99,7 +106,113 @@ function valuesForSport(
     sodiumMilligramsPerHour: "500",
   };
 }
+function paceInputFromSeconds(
+  totalSeconds: number,
+): string {
+  const minutes = Math.floor(
+    totalSeconds / 60,
+  );
 
+  const seconds =
+    totalSeconds % 60;
+
+  return `${minutes}:${String(
+    seconds,
+  ).padStart(2, "0")}`;
+}
+
+function dateTimeLocalInBerlin(
+  value: string,
+): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const parts =
+    new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Berlin",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(date);
+
+  const part = (type: string) =>
+    parts.find(
+      (item) => item.type === type,
+    )?.value ?? "";
+
+  return [
+    `${part("year")}-${part("month")}-${part("day")}`,
+    `${part("hour")}:${part("minute")}`,
+  ].join("T");
+}
+
+function valuesFromMission(
+  mission: SavedMission,
+  defaultStartAt: string,
+): BuilderValues {
+  const defaults = valuesForSport(
+    mission.sportType,
+    defaultStartAt,
+  );
+
+  return {
+    ...defaults,
+    distanceKm: String(
+      mission.distanceKm,
+    ),
+    elevationMeters: String(
+      mission.elevationMeters,
+    ),
+    averageSpeedKmh:
+      mission.averageSpeedKmh === null
+        ? defaults.averageSpeedKmh
+        : String(
+            mission.averageSpeedKmh,
+          ),
+    pace:
+      mission.paceSecondsPerKm === null
+        ? defaults.pace
+        : paceInputFromSeconds(
+            mission.paceSecondsPerKm,
+          ),
+    startAt: mission.startAt
+      ? dateTimeLocalInBerlin(
+          mission.startAt,
+        )
+      : defaultStartAt,
+    stopIntervalKm: String(
+      mission.stopIntervalKm,
+    ),
+    stopDurationMinutes: String(
+      mission.stopDurationMinutes,
+    ),
+    carbohydratesPerHour: String(
+      mission.carbohydratesPerHour,
+    ),
+    fluidMillilitersPerHour: String(
+      mission.fluidMillilitersPerHour,
+    ),
+    sodiumMilligramsPerHour: String(
+      mission.sodiumMilligramsPerHour,
+    ),
+  };
+}
+
+function isoOrEmpty(
+  value: string,
+): string {
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toISOString();
+}
 function formatDateTime(
   value: Date,
 ): string {
@@ -126,11 +239,31 @@ function formatLiters(
 export function UltraMissionBuilder({
   defaultStartAt,
   initialSportType,
+  initialMission,
+  serverError,
 }: UltraMissionBuilderProps) {
+  const startingSportType =
+    initialMission?.sportType ??
+    initialSportType;
+
   const [sportType, setSportType] =
     useState<MissionSportType>(
-      initialSportType,
+      startingSportType,
     );
+
+  const [title, setTitle] = useState(
+    initialMission?.title ??
+      (startingSportType === "running"
+        ? "Meine Laufmission"
+        : "Meine Radmission"),
+  );
+
+  const [
+    description,
+    setDescription,
+  ] = useState(
+    initialMission?.description ?? "",
+  );
 
   const [valuesBySport, setValuesBySport] =
     useState<
@@ -138,15 +271,28 @@ export function UltraMissionBuilder({
         MissionSportType,
         BuilderValues
       >
-    >({
-      cycling: valuesForSport(
-        "cycling",
-        defaultStartAt,
-      ),
-      running: valuesForSport(
-        "running",
-        defaultStartAt,
-      ),
+    >(() => {
+      const defaults = {
+        cycling: valuesForSport(
+          "cycling",
+          defaultStartAt,
+        ),
+        running: valuesForSport(
+          "running",
+          defaultStartAt,
+        ),
+      };
+
+      if (initialMission) {
+        defaults[
+          initialMission.sportType
+        ] = valuesFromMission(
+          initialMission,
+          defaultStartAt,
+        );
+      }
+
+      return defaults;
     });
 
   const values =
@@ -249,7 +395,47 @@ export function UltraMissionBuilder({
         <p className="eyebrow">
           Mission konfigurieren
         </p>
+        {serverError && (
+  <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-950">
+    {serverError}
+  </div>
+)}
 
+<div className="mt-5 space-y-4">
+  <label className="block">
+    <span className="text-sm font-bold">
+      Missionsname
+    </span>
+
+    <input
+      type="text"
+      value={title}
+      maxLength={200}
+      onChange={(event) =>
+        setTitle(event.target.value)
+      }
+      className="mt-2 w-full rounded-xl border border-[var(--line)] bg-transparent px-3 py-2.5"
+    />
+  </label>
+
+  <label className="block">
+    <span className="text-sm font-bold">
+      Beschreibung
+    </span>
+
+    <textarea
+      value={description}
+      maxLength={2000}
+      rows={3}
+      onChange={(event) =>
+        setDescription(
+          event.target.value,
+        )
+      }
+      className="mt-2 w-full resize-y rounded-xl border border-[var(--line)] bg-transparent px-3 py-2.5"
+    />
+  </label>
+</div>
         <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-[#edf3fb] p-1">
           <button
             type="button"
@@ -459,6 +645,137 @@ export function UltraMissionBuilder({
             </div>
           </div>
         </div>
+        <form
+  action={saveMission}
+  className="mt-5 border-t border-[var(--line)] pt-5"
+>
+  <input
+    type="hidden"
+    name="missionId"
+    value={initialMission?.id ?? ""}
+  />
+
+  <input
+    type="hidden"
+    name="title"
+    value={title}
+  />
+
+  <input
+    type="hidden"
+    name="description"
+    value={description}
+  />
+
+  <input
+    type="hidden"
+    name="sportType"
+    value={sportType}
+  />
+
+  <input
+    type="hidden"
+    name="targetDate"
+    value={values.startAt.slice(0, 10)}
+  />
+
+  <input
+    type="hidden"
+    name="startAtIso"
+    value={isoOrEmpty(
+      values.startAt,
+    )}
+  />
+
+  <input
+    type="hidden"
+    name="distanceKm"
+    value={values.distanceKm}
+  />
+
+  <input
+    type="hidden"
+    name="elevationMeters"
+    value={values.elevationMeters}
+  />
+
+  <input
+    type="hidden"
+    name="averageSpeedKmh"
+    value={
+      sportType === "cycling"
+        ? values.averageSpeedKmh
+        : ""
+    }
+  />
+
+  <input
+    type="hidden"
+    name="pace"
+    value={
+      sportType === "running"
+        ? values.pace
+        : ""
+    }
+  />
+
+  <input
+    type="hidden"
+    name="stopIntervalKm"
+    value={values.stopIntervalKm}
+  />
+
+  <input
+    type="hidden"
+    name="stopDurationMinutes"
+    value={
+      values.stopDurationMinutes
+    }
+  />
+
+  <input
+    type="hidden"
+    name="carbohydratesPerHour"
+    value={
+      values.carbohydratesPerHour
+    }
+  />
+
+  <input
+    type="hidden"
+    name="fluidMillilitersPerHour"
+    value={
+      values.fluidMillilitersPerHour
+    }
+  />
+
+  <input
+    type="hidden"
+    name="sodiumMilligramsPerHour"
+    value={
+      values.sodiumMilligramsPerHour
+    }
+  />
+
+  <button
+    type="submit"
+    disabled={
+      result.plan === null ||
+      title.trim() === ""
+    }
+    className="primary-button w-full disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {initialMission
+      ? "Änderungen speichern"
+      : "Mission speichern"}
+  </button>
+
+  <p className="mt-2 text-center text-xs text-[var(--muted)]">
+    {initialMission
+      ? "Die bestehende Mission wird aktualisiert."
+      : "Die Mission erscheint anschließend im Mission HQ."}
+  </p>
+</form>
       </aside>
 
       <main className="min-w-0">
