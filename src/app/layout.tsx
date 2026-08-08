@@ -26,12 +26,14 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  colorScheme: "light",
+  colorScheme: "light dark",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#07162d" },
-    { media: "(prefers-color-scheme: dark)", color: "#07162d" },
+    { media: "(prefers-color-scheme: dark)", color: "#060b18" },
   ],
 };
+
+const themeInitScript = `(function(){try{var s=localStorage.getItem("ultrapilot-theme");var t=s==="dark"||s==="light"?s:(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`;
 
 export default async function RootLayout({
   children,
@@ -43,7 +45,10 @@ export default async function RootLayout({
       ? await getPlanningGoalSummary()
       : defaultPlanningGoalSummary;
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         <ServiceWorkerRegistration />
         <AppNavigation

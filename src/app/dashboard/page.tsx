@@ -332,13 +332,13 @@ export default async function DashboardPage({
       </header>
 
       {isDemoMode && (
-        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
+        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
           <strong>Demo-Modus:</strong> Verbinde Supabase, um deine persönlichen
           Empfehlungen zu sehen.
         </div>
       )}
       {query.saved && (
-        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-950">
+        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-950 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
           {{
             accepted: "Passt – die heutige Einheit bleibt genau so im Plan.",
             worse:
@@ -353,7 +353,7 @@ export default async function DashboardPage({
         </div>
       )}
       {query.error && (
-        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-950">
+        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-950 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200">
           {query.error}
         </div>
       )}
@@ -514,7 +514,7 @@ export default async function DashboardPage({
           <article className="card p-5 sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600">
+                <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
                   <DashboardIcon name="pulse" />
                 </span>
                 <div>
@@ -575,7 +575,7 @@ export default async function DashboardPage({
                   background: `conic-gradient(from -90deg, var(--cyan), var(--accent) ${progress * 3.6}deg, #e7eef8 0deg)`,
                 }}
               >
-                <div className="font-data grid size-14 place-items-center rounded-full bg-white text-sm font-black text-[var(--ink)]">
+                <div className="font-data grid size-14 place-items-center rounded-full bg-[var(--surface-strong)] text-sm font-black text-[var(--ink)]">
                   {Math.round(progress)}%
                 </div>
               </div>
@@ -620,7 +620,7 @@ export default async function DashboardPage({
           <article className="card overflow-hidden" id="training-details">
             <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-5 py-4 sm:px-6">
               <div className="flex items-center gap-3">
-                <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
+                <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
                   <DashboardIcon name="calendar" />
                 </span>
                 <div>
@@ -641,7 +641,7 @@ export default async function DashboardPage({
               {primaryWorkout ? (
                 <details
                   open
-                  className="group rounded-2xl border border-blue-100 bg-blue-50/55 p-4"
+                  className="group rounded-2xl border border-blue-100 bg-blue-50/55 p-4 dark:border-blue-400/20 dark:bg-blue-400/10"
                 >
                   <summary className="flex list-none items-center gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-600 text-white">
@@ -679,7 +679,7 @@ export default async function DashboardPage({
                             (exercise) => (
                               <div
                                 key={exercise.name}
-                                className="rounded-xl bg-white px-4 py-3 shadow-sm"
+                                className="rounded-xl bg-[var(--surface-strong)] px-4 py-3 shadow-sm"
                               >
                                 <p className="font-bold">{exercise.name}</p>
                                 <p className="mt-1 text-sm text-[var(--muted)]">
@@ -737,7 +737,7 @@ export default async function DashboardPage({
                   </div>
                 </details>
               ) : (
-                <div className="rounded-2xl border border-dashed border-[var(--line)] bg-slate-50/60 p-5">
+                <div className="rounded-2xl border border-dashed border-[var(--line)] bg-slate-50/60 p-5 dark:bg-white/[.03]">
                   <p className="font-black">Heute ist trainingsfrei.</p>
                   <p className="mt-1 text-sm text-[var(--muted)]">
                     Erholen, Mobility oder spazieren – ohne Kilometer nachholen
@@ -751,9 +751,9 @@ export default async function DashboardPage({
                   busyTodayEvents.map((event) => (
                     <div
                       key={event.id}
-                      className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white/70 p-4"
+                      className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"
                     >
-                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/[.06] dark:text-slate-300">
                         <DashboardIcon name="clock" />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -945,7 +945,7 @@ export default async function DashboardPage({
 
           <article className="card p-5 sm:p-6">
             <div className="flex items-center gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
                 <DashboardIcon name="activity" />
               </span>
               <div>
@@ -960,7 +960,7 @@ export default async function DashboardPage({
             {latest ? (
               <Link
                 href={`/activities/${latest.id}`}
-                className="mt-4 block rounded-2xl bg-slate-50/80 p-4 transition hover:bg-blue-50"
+                className="mt-4 block rounded-2xl bg-slate-50/80 p-4 transition hover:bg-blue-50 dark:bg-white/[.04] dark:hover:bg-blue-400/10"
               >
                 <div className="grid grid-cols-3 gap-3">
                   <Metric

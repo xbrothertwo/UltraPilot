@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOut } from "@/app/auth/actions";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type IconName =
   | "today"
@@ -250,12 +251,15 @@ export function AppNavigation({
           </Link>
 
           <div className="mt-auto border-t border-white/8 pt-4">
-            <Link
-              href="/settings"
-              className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm ${pathname.startsWith("/settings") ? "bg-white/10 font-bold text-white" : "text-slate-300/60 hover:text-white"}`}
-            >
-              <Icon name="settings" /> Einstellungen
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/settings"
+                className={`flex flex-1 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm ${pathname.startsWith("/settings") ? "bg-white/10 font-bold text-white" : "text-slate-300/60 hover:text-white"}`}
+              >
+                <Icon name="settings" /> Einstellungen
+              </Link>
+              <ThemeToggle className="grid size-9 shrink-0 place-items-center rounded-xl text-slate-300/60 transition hover:bg-white/10 hover:text-white" />
+            </div>
             {configured &&
               (userEmail ? (
                 <form action={signOut}>
@@ -279,7 +283,7 @@ export function AppNavigation({
         </div>
       </aside>
 
-      <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-blue-950/6 bg-[#f3f7fc]/88 px-4 py-2.5 backdrop-blur-2xl lg:hidden">
+      <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-blue-950/6 bg-[var(--surface-strong)]/88 px-4 py-2.5 backdrop-blur-2xl dark:border-white/8 lg:hidden">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 font-black tracking-[-.03em] text-[var(--ink)]"
@@ -289,14 +293,17 @@ export function AppNavigation({
           </span>
           UltraPilot
         </Link>
-        <span className="rounded-full border border-blue-200/70 bg-blue-50 px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700">
-          Endurance OS
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="rounded-full border border-blue-200/70 bg-[var(--accent-soft)] px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700 dark:border-white/10 dark:text-blue-200">
+            Endurance OS
+          </span>
+          <ThemeToggle className="grid size-8 shrink-0 place-items-center rounded-full text-[var(--ink-soft)] hover:bg-[var(--accent-soft)]" />
+        </div>
       </header>
 
       <nav
         aria-label="Mobile Hauptnavigation"
-        className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-blue-950/8 bg-white/92 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_rgba(20,48,89,.2)] backdrop-blur-2xl lg:hidden"
+        className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-blue-950/8 bg-[var(--surface-strong)]/92 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_rgba(20,48,89,.2)] backdrop-blur-2xl dark:border-white/8 lg:hidden"
       >
         {mobileMainLinks.slice(0, 2).map((link) => {
           const active = isActive(pathname, link.href);
@@ -305,7 +312,7 @@ export function AppNavigation({
               key={link.href}
               href={link.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200" : "text-slate-500 dark:text-slate-400"}`}
             >
               <Icon name={link.icon} />
               <span>{link.href === "/plan" ? "Plan" : link.label}</span>
@@ -329,7 +336,7 @@ export function AppNavigation({
               key={link.href}
               href={link.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200" : "text-slate-500 dark:text-slate-400"}`}
             >
               <Icon name={link.icon} />
               <span>Mission</span>
@@ -341,7 +348,7 @@ export function AppNavigation({
           aria-expanded={moreOpen}
           aria-controls="mobile-more-menu"
           onClick={() => setMoreOpen(true)}
-          className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold ${moreActive ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}
+          className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold ${moreActive ? "bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200" : "text-slate-500 dark:text-slate-400"}`}
         >
           <Icon name="more" />
           <span>Mehr</span>
@@ -361,7 +368,7 @@ export function AppNavigation({
             role="dialog"
             aria-modal="true"
             aria-labelledby="mobile-more-title"
-            className="mobile-safe-sheet absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-[#f7faff] px-4 pb-5 pt-3 shadow-2xl"
+            className="mobile-safe-sheet absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-[var(--background)] px-4 pb-5 pt-3 shadow-2xl"
           >
             <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-slate-300" />
             <div className="flex items-center justify-between px-1">
@@ -378,7 +385,7 @@ export function AppNavigation({
                 type="button"
                 aria-label="Menü schließen"
                 onClick={() => setMoreOpen(false)}
-                className="grid size-11 place-items-center rounded-full border border-[var(--line)] bg-white text-[var(--ink)] shadow-sm"
+                className="grid size-11 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)] shadow-sm"
               >
                 <Icon name="close" />
               </button>
@@ -391,7 +398,7 @@ export function AppNavigation({
                     key={link.href}
                     href={link.href}
                     onClick={() => setMoreOpen(false)}
-                    className={`flex min-h-22 flex-col justify-between rounded-[1.15rem] border p-4 transition ${active ? "border-blue-300 bg-blue-600 text-white shadow-lg shadow-blue-500/15" : "border-[var(--line)] bg-white text-[var(--ink)] shadow-sm"}`}
+                    className={`flex min-h-22 flex-col justify-between rounded-[1.15rem] border p-4 transition ${active ? "border-blue-300 bg-blue-600 text-white shadow-lg shadow-blue-500/15" : "border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)] shadow-sm"}`}
                   >
                     <Icon name={link.icon} />
                     <span className="text-sm font-bold">{link.label}</span>
