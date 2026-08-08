@@ -166,6 +166,8 @@ export default async function PlanPage({
   );
   const targetDays = buildWeeklyTargetDays(days, data.events, readinessByDate);
   const weeklyRecommendation = recommendWeeklyTarget({
+    primarySport: profile.primarySport,
+    runningSessionsPerWeek: profile.runningSessionsPerWeek,
     referenceGoalKm: profile.weeklyDistanceGoalKm,
     days: targetDays,
     recentFourWeekDistanceKm: recentDistanceKm,

@@ -6,6 +6,7 @@ function day(date: string, availableMinutes: number, workday = false): WeeklyTar
 }
 
 const base = {
+  primarySport: "cycling" as const,
   referenceGoalKm: 125,
   recentFourWeekDistanceKm: 500,
   recentAverageSpeedKmh: 25,
@@ -48,5 +49,31 @@ describe("recommendWeeklyTarget", () => {
   it("never recommends a long ride above half of a very small weekly target", () => {
     const result = recommendWeeklyTarget({ ...base, days: [day("2026-08-03", 45, true)] });
     expect(result.longRideTargetKm).toBeLessThanOrEqual(result.targetKm / 2);
+  });
+
+  it("uses real running pace instead of the cycling speed fallback", () => {
+    const result = recommendWeeklyTarget({
+      ...base,
+      primarySport: "running",
+      recentAverageSpeedKmh: 9,
+      days: [day("2026-08-03", 60), day("2026-08-04", 60), day("2026-08-05", 60)],
+    });
+    expect(result.estimatedCapacityKm).toBe(25);
+  });
+
+  it("uses more than three windows when more weekly runs are configured", () => {
+    const result = recommendWeeklyTarget({
+      ...base,
+      primarySport: "running",
+      runningSessionsPerWeek: 5,
+      days: [
+        day("2026-08-03", 45),
+        day("2026-08-04", 45),
+        day("2026-08-05", 45),
+        day("2026-08-06", 45),
+        day("2026-08-07", 45),
+      ],
+    });
+    expect(result.availableRideDays).toBe(5);
   });
 });
