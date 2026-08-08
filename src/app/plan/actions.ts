@@ -96,7 +96,74 @@ function integer(
     throw new Error(`${name} ist ungültig.`);
   return value;
 }
+function optionalInteger(
+  formData: FormData,
+  name: string,
+  minimum: number,
+  maximum: number,
+): number | null {
+  const raw = formData.get(name);
 
+  if (typeof raw !== "string" || raw.trim() === "") {
+    return null;
+  }
+
+  const value = Number(raw);
+
+  if (
+    !Number.isInteger(value) ||
+    value < minimum ||
+    value > maximum
+  ) {
+    throw new Error(`${name} ist ungültig.`);
+  }
+
+  return value;
+}
+
+function optionalText(
+  formData: FormData,
+  name: string,
+  maximumLength: number,
+): string | null {
+  const raw = formData.get(name);
+
+  if (typeof raw !== "string") {
+    return null;
+  }
+
+  const value = raw.trim();
+
+  if (!value) {
+    return null;
+  }
+
+  if (value.length > maximumLength) {
+    throw new Error(`${name} ist zu lang.`);
+  }
+
+  return value;
+}
+
+function optionalSupportMode(
+  formData: FormData,
+): "supported" | "nonsupported" | "open" | null {
+  const value = formData.get("supportMode");
+
+  if (value === null || value === "") {
+    return null;
+  }
+
+  if (
+    value !== "supported" &&
+    value !== "nonsupported" &&
+    value !== "open"
+  ) {
+    throw new Error("Unterstützungsmodus ist ungültig.");
+  }
+
+  return value;
+}
 export async function savePlanningProfile(formData: FormData) {
   try {
     const user = await requireUser();
@@ -112,11 +179,30 @@ export async function savePlanningProfile(formData: FormData) {
           .from("training_goals")
           .upsert({
             user_id: user.id,
-            event_name: "Race Across Germany Nord–Süd",
-            target_year: integer(formData, "targetYear", 2026, 2100),
-            event_distance_km: 1100,
-            event_elevation_meters: 7500,
-            support_mode: "supported",
+            event_name: optionalText(formData, "eventName", 200),
+
+target_year: optionalInteger(
+  formData,
+  "targetYear",
+  2026,
+  2100,
+),
+
+event_distance_km: optionalInteger(
+  formData,
+  "eventDistance",
+  1,
+  100000,
+),
+
+event_elevation_meters: optionalInteger(
+  formData,
+  "eventElevation",
+  0,
+  1000000,
+),
+
+support_mode: optionalSupportMode(formData),
             weekly_distance_goal_km: integer(
               formData,
               "weeklyDistance",
