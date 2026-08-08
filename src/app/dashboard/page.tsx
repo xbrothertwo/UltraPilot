@@ -358,10 +358,10 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,.55fr)]">
-        <article className="cut-corner relative overflow-hidden bg-[#0b2145] p-5 text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] sm:p-8">
-          <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-blue-400/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-cyan-300/15 blur-3xl" />
+      <section className="grid gap-4 xl:grid-cols-12">
+        <article className="cut-corner rise-in relative order-2 overflow-hidden bg-[#0b2145] p-5 text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] sm:p-8 xl:order-2 xl:col-span-7">
+          <div className="aurora-drift pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-blue-400/20 blur-3xl" />
+          <div className="aurora-drift pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-cyan-300/15 blur-3xl" style={{ animationDelay: "-6s" }} />
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-[.05] mix-blend-overlay"
@@ -510,12 +510,61 @@ export default async function DashboardPage({
           </div>
         </article>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-          <article className="card p-5 sm:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
-                  <DashboardIcon name="pulse" />
+        <article className="cut-corner rise-in relative order-1 flex flex-col items-center overflow-hidden bg-[#0b2145] p-6 text-center text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] xl:order-1 xl:col-span-5 xl:row-span-2 xl:justify-center">
+          <div className="aurora-drift pointer-events-none absolute -left-16 -top-16 size-72 rounded-full bg-cyan-300/20 blur-3xl" style={{ animationDelay: "-3s" }} />
+          <div className="aurora-drift pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-blue-400/20 blur-3xl" style={{ animationDelay: "-11s" }} />
+          <p className="eyebrow relative text-blue-200/60">Wochenziel · adaptiv</p>
+          <div
+            className="glow-ring-lg relative mt-5 grid size-48 shrink-0 place-items-center rounded-full sm:size-56"
+            style={{
+              background: `conic-gradient(from -90deg, var(--cyan), var(--accent) ${progress * 3.6}deg, rgba(255,255,255,.12) 0deg)`,
+            }}
+          >
+            <div className="grid size-[85%] place-items-center rounded-full bg-[#0b2145]">
+              <span className="font-display font-data text-[3.4rem] leading-none sm:text-[4rem]">
+                {Math.round(progress)}%
+              </span>
+            </div>
+          </div>
+          <h2 className="font-data relative mt-5 text-2xl font-black tracking-tight sm:text-3xl">
+            {actualKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })}{" "}
+            <span className="text-base font-bold text-blue-200/50">
+              / {weeklyGoal} km
+            </span>
+          </h2>
+          <p className="relative mt-1 text-xs text-blue-200/50">
+            Noch{" "}
+            {Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", {
+              maximumFractionDigits: 1,
+            })}{" "}
+            km · Korridor {weeklyRecommendation.lowerKm}–
+            {weeklyRecommendation.upperKm}
+          </p>
+          <div className="relative mt-6 grid w-full grid-cols-2 gap-3 border-t border-white/10 pt-5">
+            <div>
+              <p className="text-[.62rem] font-black uppercase tracking-[.08em] text-blue-200/45">
+                {primarySport === "running" ? "Langer Lauf" : "Lange Fahrt"}
+              </p>
+              <p className="font-data mt-1 text-lg font-black">
+                ca. {weeklyRecommendation.longRideTargetKm} km
+              </p>
+            </div>
+            <div>
+              <p className="text-[.62rem] font-black uppercase tracking-[.08em] text-blue-200/45">
+                {primarySport === "running" ? "Laufenster" : "Radfenster"}
+              </p>
+              <p className="font-data mt-1 text-lg font-black">
+                {weeklyRecommendation.availableRideDays} Tage
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article className="card order-3 p-5 xl:order-3 xl:col-span-7 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
+                <DashboardIcon name="pulse" />
                 </span>
                 <div>
                   <p className="text-xs font-bold text-[var(--muted)]">
@@ -566,53 +615,6 @@ export default async function DashboardPage({
               </Link>
             </div>
           </article>
-
-          <article className="card p-5 sm:p-6">
-            <div className="flex items-center gap-4">
-              <div
-                className="glow-ring grid size-20 shrink-0 place-items-center rounded-full"
-                style={{
-                  background: `conic-gradient(from -90deg, var(--cyan), var(--accent) ${progress * 3.6}deg, #e7eef8 0deg)`,
-                }}
-              >
-                <div className="font-data grid size-14 place-items-center rounded-full bg-[var(--surface-strong)] text-sm font-black text-[var(--ink)]">
-                  {Math.round(progress)}%
-                </div>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-[var(--muted)]">
-                  Wochenziel · adaptiv
-                </p>
-                <h2 className="font-data mt-1 text-2xl font-black tracking-tight">
-                  {actualKm.toLocaleString("de-DE", {
-                    maximumFractionDigits: 1,
-                  })}{" "}
-                  <span className="text-base text-[var(--muted)]">
-                    / {weeklyGoal} km
-                  </span>
-                </h2>
-                <p className="mt-1 text-xs text-[var(--muted)]">
-                  Noch{" "}
-                  {Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", {
-                    maximumFractionDigits: 1,
-                  })}{" "}
-                  km · Korridor {weeklyRecommendation.lowerKm}–
-                  {weeklyRecommendation.upperKm}
-                </p>
-              </div>
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-3 border-t border-[var(--line)] pt-4">
-              <Metric
-                label={primarySport === "running" ? "Langer Lauf" : "Lange Fahrt"}
-                value={`ca. ${weeklyRecommendation.longRideTargetKm} km`}
-              />
-              <Metric
-                label={primarySport === "running" ? "Laufenster" : "Radfenster"}
-                value={`${weeklyRecommendation.availableRideDays} Tage`}
-              />
-            </div>
-          </article>
-        </div>
       </section>
 
       <section className="mt-4 grid gap-4 sm:mt-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,.8fr)]">
