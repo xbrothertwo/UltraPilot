@@ -16,8 +16,14 @@ type IconName =
   | "settings"
   | "plus"
   | "more"
-  | "close";
-type NavigationLink = { href: string; label: string; icon: IconName };
+  | "close"
+  | "bell";
+type NavigationLink = {
+  href: string;
+  label: string;
+  icon: IconName;
+  soon?: boolean;
+};
 
 type NavigationGoal = {
   eventName: string | null;
@@ -38,6 +44,7 @@ const links: NavigationLink[] = [
   { href: "/mission", label: "Mission", icon: "mission" },
   { href: "/progress", label: "Fortschritt", icon: "progress" },
   { href: "/nutrition", label: "Verpflegung", icon: "nutrition" },
+  { href: "/notifications", label: "Benachrichtigungen", icon: "bell", soon: true },
 ];
 
 function Icon({
@@ -89,6 +96,12 @@ function Icon({
       <>
         <circle cx="10" cy="10" r="3" />
         <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M15.7 4.3l-1.4 1.4M5.7 14.3l-1.4 1.4" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M5 8a5 5 0 0 1 10 0v3l1.5 3h-13L5 11V8Z" />
+        <path d="M8 16a2 2 0 0 0 4 0" />
       </>
     ),
     plus: <path d="M10 4v12M4 10h12" />,
@@ -143,6 +156,7 @@ export function AppNavigation({
     findLink("/progress"),
     findLink("/activities"),
     findLink("/nutrition"),
+    findLink("/notifications"),
     { href: "/settings", label: "Einstellungen", icon: "settings" },
   ];
   const moreActive = mobileMoreLinks.some((link) =>
@@ -183,8 +197,8 @@ export function AppNavigation({
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[18rem] flex-col overflow-hidden border-r border-white/8 bg-[#07162d] text-white lg:flex">
-        <div className="pointer-events-none absolute -left-32 -top-28 size-96 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-48 -right-40 size-96 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="aurora-drift pointer-events-none absolute -left-32 -top-28 size-96 rounded-full bg-blue-500/25 blur-3xl" />
+        <div className="aurora-drift pointer-events-none absolute -bottom-48 -right-40 size-96 rounded-full bg-cyan-400/15 blur-3xl" style={{ animationDelay: "-8s" }} />
         <div className="relative flex h-full flex-col p-5">
           <Link
             href="/dashboard"
@@ -234,9 +248,13 @@ export function AppNavigation({
                   className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-600 to-blue-500 font-bold text-white shadow-[0_10px_26px_rgba(37,99,235,.4)]" : "font-medium text-slate-300/70 hover:bg-white/[.055] hover:text-white"}`}
                 >
                   <Icon name={link.icon} />
-                  <span>{link.label}</span>
-                  {active ? (
-                    <span className="ml-auto size-1.5 rounded-full bg-cyan-200 shadow-[0_0_8px_#67e8f9]" />
+                  <span className="min-w-0 flex-1 truncate">{link.label}</span>
+                  {link.soon ? (
+                    <span className="shrink-0 rounded-full bg-cyan-300/15 px-2 py-.5 text-[.58rem] font-black uppercase tracking-[.1em] text-cyan-200">
+                      Bald
+                    </span>
+                  ) : active ? (
+                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-cyan-200 shadow-[0_0_8px_#67e8f9]" />
                   ) : null}
                 </Link>
               );
@@ -400,7 +418,10 @@ export function AppNavigation({
                     onClick={() => setMoreOpen(false)}
                     className={`flex min-h-22 flex-col justify-between rounded-[1.15rem] border p-4 transition ${active ? "border-blue-300 bg-blue-600 text-white shadow-lg shadow-blue-500/15" : "border-[var(--line)] bg-[var(--surface-strong)] text-[var(--ink)] shadow-sm"}`}
                   >
-                    <Icon name={link.icon} />
+                    <div className="flex items-start justify-between gap-2">
+                      <Icon name={link.icon} />
+                      {link.soon ? <span className="badge-soon">Bald</span> : null}
+                    </div>
                     <span className="text-sm font-bold">{link.label}</span>
                   </Link>
                 );
