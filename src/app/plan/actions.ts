@@ -488,17 +488,33 @@ export async function movePlannedWorkout(
   }
 }
 
+const manuallyCompletableSports = ["strength", "mobility", "recovery", "other"];
+
 export async function setPlannedWorkoutStatus(formData: FormData) {
   let destination = planDestination(formData, "saved=status");
   try {
     const id = formData.get("id");
     const status = formData.get("status");
     if (typeof id !== "string" || !id) throw new Error("Einheit fehlt.");
-    if (status !== "planned" && status !== "skipped")
+    if (status !== "planned" && status !== "skipped" && status !== "completed")
       throw new Error("Status ist ungültig.");
     const user = await requireUser();
     const supabase = await createClient();
     if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    if (status === "completed") {
+      const { data: workout, error: fetchError } = await supabase
+        .from("planned_workouts")
+        .select("sport_type")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (fetchError || !workout)
+        throw new Error(fetchError?.message ?? "Einheit wurde nicht gefunden.");
+      if (!manuallyCompletableSports.includes(workout.sport_type))
+        throw new Error(
+          "Diese Einheit wird nur über eine abgeglichene Aktivität als erledigt markiert.",
+        );
+    }
     const { data, error } = await supabase
       .from("planned_workouts")
       .update({
@@ -513,6 +529,7 @@ export async function setPlannedWorkoutStatus(formData: FormData) {
     if (error || !data)
       throw new Error(error?.message ?? "Einheit wurde nicht gefunden.");
     revalidatePath("/plan");
+    revalidatePath("/dashboard");
   } catch (error) {
     destination = planDestination(
       formData,

@@ -82,3 +82,18 @@ export function reconcilePlannedWorkouts(workouts: PlannedWorkout[], activities:
     return { workout, activity, effectiveStatus: workout.status === "skipped" ? "skipped" : activity ? "completed" : workout.status, comparison: activity ? comparePlanWithActivity(workout, activity) : null };
   });
 }
+
+export function computeStrengthWeekProgress(
+  workouts: PlannedWorkout[],
+  gymSummerSessions: number,
+  gymWinterSessions: number,
+): { completed: number; planned: number } | null {
+  if (gymSummerSessions <= 0 && gymWinterSessions <= 0) return null;
+  const strengthWorkouts = workouts.filter(
+    (workout) => workout.sportType === "strength" && workout.status !== "skipped",
+  );
+  return {
+    completed: strengthWorkouts.filter((workout) => workout.status === "completed").length,
+    planned: strengthWorkouts.length,
+  };
+}
