@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getActivities } from "@/lib/activities";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { hasCompletedOnboarding } from "@/lib/onboarding";
 import {
   buildDailyDecision,
   buildFuelingPreparation,
@@ -132,6 +135,8 @@ export default async function DashboardPage({
   searchParams: Promise<{ saved?: string; error?: string; goal?: string }>;
 }) {
   const query = await searchParams;
+  if (isSupabaseConfigured() && !(await hasCompletedOnboarding()))
+    redirect("/onboarding");
   const today = new Date();
   const todayKey = dateKey(today);
   const weekStart = weekStartKey(todayKey);
