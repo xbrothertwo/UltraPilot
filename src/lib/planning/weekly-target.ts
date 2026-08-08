@@ -73,10 +73,12 @@ export function buildWeeklyTargetDays(
   dates: string[],
   events: WeeklyTargetEvent[],
   readinessByDate: ReadonlyMap<string, WeeklyTargetDay["readiness"]> = new Map(),
+  beforeLateShiftAllowed = true,
+  afterNightShiftAllowed = true,
 ): WeeklyTargetDay[] {
   return dates.map((date) => {
     const dayEvents = events.filter((event) => event.eventKind !== "free" && new Date(event.startsAt) < new Date(`${date}T23:59:59`) && new Date(event.endsAt) > new Date(`${date}T00:00:00`));
-    const windows = calculateDailyAvailability(date, dayEvents);
+    const windows = calculateDailyAvailability(date, dayEvents, 30, 6, 22, beforeLateShiftAllowed, afterNightShiftAllowed);
     return {
       date,
       availableMinutes: windows.reduce((sum, window) => sum + window.durationMinutes, 0),

@@ -745,6 +745,8 @@ export async function generateWeeklyPlan(formData: FormData) {
     rangeStart.setHours(0, 0, 0, 0);
     const rangeEnd = new Date(end);
     rangeEnd.setHours(23, 59, 59, 999);
+    const eventsRangeStart = new Date(rangeStart);
+    eventsRangeStart.setDate(eventsRangeStart.getDate() - 2);
     const historyStart = new Date(start);
     historyStart.setDate(historyStart.getDate() - 180);
     const historyEnd = new Date(start);
@@ -760,7 +762,7 @@ export async function generateWeeklyPlan(formData: FormData) {
       trainingLoad,
       trainingBlock,
     ] = await Promise.all([
-      getPlanningData({ from: rangeStart, until: rangeEnd }),
+      getPlanningData({ from: eventsRangeStart, until: rangeEnd }),
       getPlannedWorkouts(week, until),
       getActivities(),
       getPlannedWorkouts(iso(historyStart), iso(historyEnd)),
@@ -957,6 +959,14 @@ export async function generateWeeklyPlan(formData: FormData) {
         .map((workout) => workout.scheduledDate),
     );
     const loadProtectedDates = new Set<string>();
+    const shiftRuleBlockedDates = new Set<string>();
+    const hasShiftEvent = (key: string) =>
+      planning.events.some(
+        (event) =>
+          event.eventKind.startsWith("work_") &&
+          new Date(event.startsAt) < new Date(`${key}T23:59:59`) &&
+          new Date(event.endsAt) > new Date(`${key}T00:00:00`),
+      );
     const days = Array.from({ length: 7 }, (_, index) => {
       const date = new Date(start);
       date.setDate(date.getDate() + index);
@@ -967,13 +977,44 @@ export async function generateWeeklyPlan(formData: FormData) {
           new Date(event.endsAt) > new Date(`${key}T00:00:00`) &&
           event.eventKind !== "free",
       );
-      const windows = calculateDailyAvailability(key, events);
+      const windows = calculateDailyAvailability(
+        key,
+        events,
+        30,
+        6,
+        22,
+        planning.profile.beforeLateShiftAllowed,
+        planning.profile.afterNightShiftAllowed,
+      );
+      const availableMinutes = windows.reduce(
+        (sum, window) => sum + window.durationMinutes,
+        0,
+      );
+      if (
+        availableMinutes === 0 &&
+        (!planning.profile.beforeLateShiftAllowed ||
+          !planning.profile.afterNightShiftAllowed) &&
+        events.some(
+          (event) =>
+            event.eventKind === "work_late" || event.eventKind === "work_night",
+        )
+      ) {
+        const unrestricted = calculateDailyAvailability(key, events);
+        if (unrestricted.some((window) => window.durationMinutes > 0))
+          shiftRuleBlockedDates.add(key);
+      }
       const recentHighLoad = [1, 2].some((offset) => {
         const previous = new Date(`${key}T12:00:00Z`);
         previous.setUTCDate(previous.getUTCDate() - offset);
         return highLoadDates.has(previous.toISOString().slice(0, 10));
       });
-      if (recentHighLoad) loadProtectedDates.add(key);
+      const recentConsecutiveShifts = [1, 2].every((offset) => {
+        const previous = new Date(`${key}T12:00:00Z`);
+        previous.setUTCDate(previous.getUTCDate() - offset);
+        return hasShiftEvent(previous.toISOString().slice(0, 10));
+      });
+      const needsExtraCaution = recentHighLoad || recentConsecutiveShifts;
+      if (needsExtraCaution) loadProtectedDates.add(key);
       const measuredReadiness = readinessByDate.get(key);
       const crossTraining =
         crossTrainingActivityDates.has(key) ||
@@ -985,10 +1026,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           workout.title.toLowerCase().includes("volleyball"));
       return {
         date: key,
-        availableMinutes: windows.reduce(
-          (sum, window) => sum + window.durationMinutes,
-          0,
-        ),
+        availableMinutes,
         longestAvailableWindowMinutes: windows.reduce(
           (longest, window) => Math.max(longest, window.durationMinutes),
           0,
@@ -996,14 +1034,14 @@ export async function generateWeeklyPlan(formData: FormData) {
         workday: events.some((event) => event.eventKind.startsWith("work_")),
         crossTraining,
         readiness:
-          recentHighLoad &&
+          needsExtraCaution &&
           (measuredReadiness === "green" ||
             measuredReadiness === "unknown" ||
             measuredReadiness === undefined)
             ? ("yellow" as const)
             : measuredReadiness,
         highIntensityAllowed:
-          !recentHighLoad &&
+          !needsExtraCaution &&
           !events.some((event) => event.eventKind === "work_night"),
         occupied:
           key < today ||
@@ -1174,11 +1212,14 @@ export async function generateWeeklyPlan(formData: FormData) {
       const loadProtection = loadProtectedDates.size
         ? ` Nach hoher persönlicher Vorbelastung wurden ${loadProtectedDates.size} Tag${loadProtectedDates.size === 1 ? "" : "e"} für Tempo gesperrt.`
         : "";
+      const shiftRuleContext = shiftRuleBlockedDates.size
+        ? ` ${shiftRuleBlockedDates.size} Tag${shiftRuleBlockedDates.size === 1 ? "" : "e"} ${shiftRuleBlockedDates.size === 1 ? "wurde" : "wurden"} wegen deiner Dienstregeln (kein Training vor Spätdienst oder nach Nachtdienst) nicht genutzt.`
+        : "";
       const blockContext = blockWeek
         ? ` Blockwoche ${blockWeek.weekNumber}/4 (${blockWeek.phase}): lange Ausfahrt rund ${weeklyRecommendation.longRideTargetKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km, ${blockWeek.tempoSessionTarget ? "eine Tempoeinheit möglich" : "keine Tempoeinheit"}.`
         : "";
       const adaptiveContext = ` Aus Kalender und Verlauf ergibt sich ein sinnvoller Korridor von ${weeklyRecommendation.lowerKm}–${weeklyRecommendation.upperKm} km; der Planwert liegt bei ${weeklyGoalKm} km statt starr bei ${planning.profile.weeklyDistanceGoalKm} km.`;
-      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${manuallyPlannedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km manuell geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${adaptiveContext}${blockContext}${increaseWarning}${loadProtection}`;
+      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${manuallyPlannedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km manuell geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${adaptiveContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`;
       const caution =
         "Verschiebe oder kürze Einheiten bei ungewöhnlicher Müdigkeit, Schmerzen oder unerwarteter Zusatzbelastung. UltraPilot erstellt keine medizinischen Diagnosen.";
       const { data: generation, error: generationError } = await supabase

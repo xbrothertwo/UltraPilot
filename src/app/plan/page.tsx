@@ -191,7 +191,13 @@ export default async function PlanPage({
   const readinessByDate = new Map(
     readiness.map((item) => [item.date, item.status] as const),
   );
-  const targetDays = buildWeeklyTargetDays(days, data.events, readinessByDate);
+  const targetDays = buildWeeklyTargetDays(
+    days,
+    data.events,
+    readinessByDate,
+    profile.beforeLateShiftAllowed,
+    profile.afterNightShiftAllowed,
+  );
   const weeklyRecommendation = recommendWeeklyTarget({
     primarySport: profile.primarySport,
     runningSessionsPerWeek: profile.runningSessionsPerWeek,
