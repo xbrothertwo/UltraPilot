@@ -433,7 +433,8 @@ export function AppNavigation({
                   <form action={signOut}>
                     <button
                       type="submit"
-                      className="min-h-11 w-full rounded-xl bg-[var(--ink)] px-4 text-sm font-bold text-white"
+                      className="min-h-11 w-full truncate rounded-xl bg-[var(--ink)] px-4 text-sm font-bold text-white"
+                      title={`${userEmail} abmelden`}
                     >
                       {userEmail} · Abmelden
                     </button>
