@@ -77,6 +77,25 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   text-transform: uppercase;
 }
 
+.font-display {
+  font-family: "Bahnschrift", "Arial Narrow", Inter, "Segoe UI", sans-serif;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.font-data {
+  font-family: ui-monospace, "Consolas", "SFMono-Regular", monospace;
+  font-variant-numeric: tabular-nums;
+}
+.cut-corner {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%);
+}
+.cut-corner-sm {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+.glow-ring {
+  filter: drop-shadow(0 0 14px rgba(37, 99, 235, .45));
+}
+
 .primary-button,
 .secondary-button {
   display: inline-flex;

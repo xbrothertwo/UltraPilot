@@ -314,7 +314,7 @@ export default async function DashboardPage({
               month: "long",
             }).format(today)}
           </p>
-          <h1 className="mt-2 text-[2.2rem] font-black leading-none tracking-[-.045em] text-[var(--ink)] sm:text-5xl">
+          <h1 className="font-display mt-2 text-[2.2rem] leading-none text-[var(--ink)] sm:text-5xl">
             Dein Cockpit.
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted)] sm:text-base">
@@ -359,9 +359,17 @@ export default async function DashboardPage({
       )}
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,.55fr)]">
-        <article className="relative overflow-hidden rounded-[1.75rem] bg-[#0b2145] p-5 text-white shadow-[0_24px_60px_rgba(9,31,68,.2)] sm:p-8">
-          <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-blue-400/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-cyan-300/10 blur-3xl" />
+        <article className="cut-corner relative overflow-hidden bg-[#0b2145] p-5 text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] sm:p-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-blue-400/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-cyan-300/15 blur-3xl" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[.05] mix-blend-overlay"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(180deg, #fff 0px, #fff 1px, transparent 1px, transparent 3px)",
+            }}
+          />
           <div className="relative">
             <div
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[.68rem] font-black uppercase tracking-[.16em] ring-1 ring-inset ${decisionPillStyles[decision.level]}`}
@@ -369,7 +377,7 @@ export default async function DashboardPage({
               <span className="size-1.5 rounded-full bg-current" />
               {decision.eyebrow}
             </div>
-            <h2 className="mt-5 max-w-3xl text-[2rem] font-black leading-[1.04] tracking-[-.045em] sm:text-[3.25rem]">
+            <h2 className="font-display mt-5 max-w-3xl text-[2rem] leading-[1.04] sm:text-[3.25rem]">
               {decision.title}
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-100/70 sm:text-base sm:leading-7">
@@ -520,7 +528,7 @@ export default async function DashboardPage({
                 </div>
               </div>
               <span
-                className={`mt-2 size-2.5 rounded-full ${readiness.status === "green" ? "bg-emerald-500" : readiness.status === "yellow" ? "bg-amber-400" : readiness.status === "red" ? "bg-rose-500" : "bg-slate-300"}`}
+                className={`mt-2 size-2.5 rounded-full ${readiness.status === "green" ? "bg-emerald-500 shadow-[0_0_12px_#34d399]" : readiness.status === "yellow" ? "bg-amber-400 shadow-[0_0_12px_#fbbf24]" : readiness.status === "red" ? "bg-rose-500 shadow-[0_0_12px_#fb7185]" : "bg-slate-300"}`}
               />
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3 border-t border-[var(--line)] pt-4">
@@ -562,12 +570,12 @@ export default async function DashboardPage({
           <article className="card p-5 sm:p-6">
             <div className="flex items-center gap-4">
               <div
-                className="grid size-20 shrink-0 place-items-center rounded-full"
+                className="glow-ring grid size-20 shrink-0 place-items-center rounded-full"
                 style={{
-                  background: `conic-gradient(var(--accent) ${progress * 3.6}deg, #e7eef8 0deg)`,
+                  background: `conic-gradient(from -90deg, var(--cyan), var(--accent) ${progress * 3.6}deg, #e7eef8 0deg)`,
                 }}
               >
-                <div className="grid size-14 place-items-center rounded-full bg-white text-sm font-black text-[var(--ink)]">
+                <div className="font-data grid size-14 place-items-center rounded-full bg-white text-sm font-black text-[var(--ink)]">
                   {Math.round(progress)}%
                 </div>
               </div>
@@ -575,7 +583,7 @@ export default async function DashboardPage({
                 <p className="text-xs font-bold text-[var(--muted)]">
                   Wochenziel · adaptiv
                 </p>
-                <h2 className="mt-1 text-2xl font-black tracking-tight">
+                <h2 className="font-data mt-1 text-2xl font-black tracking-tight">
                   {actualKm.toLocaleString("de-DE", {
                     maximumFractionDigits: 1,
                   })}{" "}
