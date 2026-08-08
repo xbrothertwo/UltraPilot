@@ -193,7 +193,7 @@ export function AppNavigation({
               UP
             </span>
             <span>
-              <strong className="block text-[1.08rem] tracking-[-.03em]">
+              <strong className="font-display block text-[1.08rem]">
                 UltraPilot
               </strong>
               <span className="mt-0.5 block text-[.59rem] font-bold uppercase tracking-[.2em] text-blue-200/55">
@@ -202,7 +202,7 @@ export function AppNavigation({
             </span>
           </Link>
 
-          <div className="mt-7 rounded-2xl border border-white/8 bg-white/[.045] p-3.5">
+          <div className="cut-corner-sm mt-7 border border-white/8 bg-white/[.045] p-3.5">
             <div className="flex items-center justify-between">
               <span className="text-[.62rem] font-black uppercase tracking-[.17em] text-blue-200/50">
                 Ausdauer-Mission
@@ -210,7 +210,7 @@ export function AppNavigation({
               <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_#67e8f9]" />
             </div>
             <p
-              className="mt-2 truncate text-sm font-bold"
+              className="font-display mt-2 truncate text-sm"
               title={missionHeadline}
             >
               {missionHeadline}
@@ -230,12 +230,12 @@ export function AppNavigation({
                   key={link.href}
                   href={link.href}
                   aria-current={active ? "page" : undefined}
-                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-600 to-blue-500 font-bold text-white shadow-[0_8px_20px_rgba(37,99,235,.22)]" : "font-medium text-slate-300/70 hover:bg-white/[.055] hover:text-white"}`}
+                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-600 to-blue-500 font-bold text-white shadow-[0_10px_26px_rgba(37,99,235,.4)]" : "font-medium text-slate-300/70 hover:bg-white/[.055] hover:text-white"}`}
                 >
                   <Icon name={link.icon} />
                   <span>{link.label}</span>
                   {active ? (
-                    <span className="ml-auto size-1.5 rounded-full bg-cyan-200" />
+                    <span className="ml-auto size-1.5 rounded-full bg-cyan-200 shadow-[0_0_8px_#67e8f9]" />
                   ) : null}
                 </Link>
               );
@@ -244,7 +244,7 @@ export function AppNavigation({
 
           <Link
             href="/activities/upload"
-            className="relative mt-6 flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-xl bg-white px-4 text-sm font-black text-[#0b2b61] shadow-[0_12px_28px_rgba(0,0,0,.14)] transition hover:-translate-y-0.5 hover:shadow-xl"
+            className="cut-corner-sm relative mt-6 flex min-h-12 items-center justify-center gap-2 bg-gradient-to-br from-white to-blue-50 px-4 text-sm font-black text-[#0b2b61] shadow-[0_12px_28px_rgba(37,99,235,.28)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(37,99,235,.38)]"
           >
             <Icon name="plus" /> Aktivität importieren
           </Link>
