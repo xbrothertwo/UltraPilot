@@ -61,10 +61,18 @@ export function UploadForm() {
       }
 
       const succeeded = results.filter((result) => result.status === "success").length;
+      const duplicates = results.filter((result) => result.status === "duplicate").length;
+      const failed = results.length - succeeded - duplicates;
+      const overallStatus = failed > 0 ? (succeeded > 0 || duplicates > 0 ? "partial" : "error") : duplicates > 0 ? (succeeded > 0 ? "partial" : "duplicate") : "success";
+      const messageParts = [
+        succeeded ? `${succeeded} ${succeeded === 1 ? "Aktivität" : "Aktivitäten"} importiert` : null,
+        duplicates ? `${duplicates} bereits vorhanden (übersprungen)` : null,
+        failed ? `${failed} fehlgeschlagen` : null,
+      ].filter((part): part is string => part !== null);
       const lastSuccess = [...results].reverse().find((result) => result.status === "success");
       return {
-        status: succeeded === results.length ? "success" : succeeded ? "partial" : "error",
-        message: succeeded === results.length ? `${succeeded} ${succeeded === 1 ? "Aktivität wurde" : "Aktivitäten wurden"} erfolgreich importiert.` : `${succeeded} von ${results.length} Aktivitäten wurden importiert. Prüfe die Meldungen unten.`,
+        status: overallStatus,
+        message: `${messageParts.join(", ")}.`,
         results,
         metrics: lastSuccess?.metrics,
         heartRateSource: lastSuccess?.heartRateSource,
@@ -89,8 +97,8 @@ export function UploadForm() {
       <div className="mt-5 rounded-xl bg-[#eef4fb] px-4 py-3 text-xs leading-5 text-[var(--muted)]">Enthält die Hauptdatei bereits Herzfrequenzwerte, werden sie direkt für Kurve, Durchschnitt, Maximum, Zonen und Trainingsbelastung verwendet. Eine zusätzliche Watch-Datei ist dann nicht nötig.</div>
       {localStatus && <p role="status" className="mt-4 text-sm font-bold text-[var(--accent-dark)]">{localStatus}</p>}
       <button type="submit" disabled={pending} className="mt-5 w-full rounded-xl bg-[var(--accent)] px-5 py-3 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:cursor-wait disabled:opacity-60">{pending ? "Import läuft …" : "Ausgewählte Aktivitäten importieren"}</button>
-      {state.status !== "idle" && <div role="status" className={`mt-5 rounded-xl border px-4 py-3 text-sm ${state.status === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : state.status === "partial" ? "border-amber-200 bg-amber-50 text-amber-950" : "border-red-200 bg-red-50 text-red-900"}`}><strong>{state.message}</strong></div>}
-      {state.results?.length ? <div className="mt-4 space-y-2">{state.results.map((result, index) => <div key={`${result.fileName}-${index}`} className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${result.status === "success" ? "border-emerald-200 bg-emerald-50/60" : "border-red-200 bg-red-50/60"}`}><div><p className="font-bold">{result.fileName ?? `Datei ${index + 1}`}</p><p className="mt-0.5 text-xs text-[var(--muted)]">{result.message}</p></div>{result.activityId && <Link href={`/activities/${result.activityId}`} className="font-bold text-[var(--accent)]">Öffnen →</Link>}</div>)}</div> : null}
+      {state.status !== "idle" && <div role="status" className={`mt-5 rounded-xl border px-4 py-3 text-sm ${state.status === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : state.status === "partial" || state.status === "duplicate" ? "border-amber-200 bg-amber-50 text-amber-950" : "border-red-200 bg-red-50 text-red-900"}`}><strong>{state.message}</strong></div>}
+      {state.results?.length ? <div className="mt-4 space-y-2">{state.results.map((result, index) => <div key={`${result.fileName}-${index}`} className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${result.status === "success" ? "border-emerald-200 bg-emerald-50/60" : result.status === "duplicate" ? "border-amber-200 bg-amber-50/60" : "border-red-200 bg-red-50/60"}`}><div><p className="font-bold">{result.fileName ?? `Datei ${index + 1}`}</p><p className="mt-0.5 text-xs text-[var(--muted)]">{result.message}</p></div>{result.activityId && <Link href={`/activities/${result.activityId}`} className="font-bold text-[var(--accent)]">Öffnen →</Link>}</div>)}</div> : null}
     </form>
     <aside className="card p-6"><p className="eyebrow">Letztes Ergebnis</p>{metrics ? <><dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-6"><Metric label="Distanz" value={formatDistance(metrics.distanceMeters)} /><Metric label="Bewegungszeit" value={formatDuration(metrics.movingTimeSeconds)} /><Metric label="Verstrichene Zeit" value={formatDuration(metrics.elapsedTimeSeconds)} /><Metric label={selectedSportType === "running" ? "Ø Pace" : "Ø Geschwindigkeit"} value={selectedSportType === "running" ? formatPace(metrics.averageSpeedKmh) : `${metrics.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} /><Metric label="Höhengewinn" value={`${Math.round(metrics.elevationGainMeters).toLocaleString("de-DE")} m`} /><Metric label="Ø Herzfrequenz" value={metrics.averageHeartRate === null ? "Keine Daten" : `${Math.round(metrics.averageHeartRate)} bpm`} /></dl><p className="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-900">Herzfrequenzquelle: {state.heartRateSource === "apple_watch" ? `Apple Watch (${state.importedHeartRateSamples} Samples)` : state.heartRateSource === "primary" ? "Hauptdatei" : "keine"}</p></> : <p className="mt-4 text-sm leading-6 text-[var(--muted)]">Nach dem Import erscheint hier eine Zusammenfassung der zuletzt erfolgreich verarbeiteten Aktivität.</p>}</aside>
   </div>;

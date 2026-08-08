@@ -4,13 +4,14 @@ import type { GpxMetrics } from "@/lib/gpx/types";
 import { parseActivityFile } from "@/lib/activity-files/parser";
 import { mergeHeartRate } from "@/lib/activity-files/merge";
 import type { ActivityStream } from "@/lib/activity-files/types";
+import { findDuplicateActivity } from "@/lib/activity-files/duplicate";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/supabase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 export type UploadState = {
-  status: "idle" | "success" | "partial" | "error" | "unsupported";
+  status: "idle" | "success" | "partial" | "error" | "unsupported" | "duplicate";
   message: string;
   fileName?: string;
   metrics?: GpxMetrics;
@@ -68,6 +69,25 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     const user = await requireUser();
     const supabase = await createClient();
     if (!supabase) return { status: "error", fileName: file.name, message: "Supabase ist nicht verfügbar." };
+
+    const duplicateWindowMs = 3 * 60 * 1000;
+    const windowStart = new Date(new Date(metrics.startTime).getTime() - duplicateWindowMs).toISOString();
+    const windowEnd = new Date(new Date(metrics.startTime).getTime() + duplicateWindowMs).toISOString();
+    const { data: candidateRows, error: duplicateCheckError } = await supabase
+      .from("activities")
+      .select("id, activity_date, moving_time_seconds, distance_meters")
+      .eq("user_id", user.id)
+      .eq("sport_type", sportType)
+      .gte("activity_date", windowStart)
+      .lte("activity_date", windowEnd);
+    if (duplicateCheckError) throw new Error(`Duplikate konnten nicht geprüft werden: ${duplicateCheckError.message}`);
+    const duplicate = findDuplicateActivity(
+      (candidateRows ?? []).map((row) => ({ id: row.id, activityDate: row.activity_date, movingTimeSeconds: row.moving_time_seconds, distanceMeters: row.distance_meters })),
+      { startTime: metrics.startTime, movingTimeSeconds: metrics.movingTimeSeconds, distanceMeters: metrics.distanceMeters },
+    );
+    if (duplicate) {
+      return { status: "duplicate", fileName: file.name, message: `Diese Aktivität wurde bereits am ${new Date(duplicate.activityDate).toLocaleDateString("de-DE")} importiert und wurde übersprungen.`, activityId: duplicate.id };
+    }
 
     const activityId = crypto.randomUUID();
     const primaryExtension = fileExtension(file)!;
