@@ -13,7 +13,10 @@ import {
   getActiveTrainingBlock,
 } from "@/lib/planning/blocks";
 import { getPlanningData, type PlanningEvent } from "@/lib/planning/data";
-import { reconcilePlannedWorkouts } from "@/lib/planning/reconciliation";
+import {
+  computeStrengthWeekProgress,
+  reconcilePlannedWorkouts,
+} from "@/lib/planning/reconciliation";
 import {
   STRENGTH_WORKOUTS,
   strengthVariantFromTitle,
@@ -164,6 +167,21 @@ export default async function DashboardPage({
     return key >= weekStart && key <= weekEnd;
   });
   const reconciled = reconcilePlannedWorkouts(workouts, activities);
+  const strengthProgress = computeStrengthWeekProgress(
+    workouts,
+    planning.profile.gymSummerSessions,
+    planning.profile.gymWinterSessions,
+  );
+  const nextStrengthWorkout = strengthProgress
+    ? workouts
+        .filter(
+          (workout) =>
+            workout.sportType === "strength" &&
+            workout.status === "planned" &&
+            workout.scheduledDate >= todayKey,
+        )
+        .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))[0] ?? null
+    : null;
   const todayItems = reconciled.filter(
     (item) =>
       item.workout.scheduledDate === todayKey &&
@@ -902,6 +920,38 @@ export default async function DashboardPage({
               Verpflegung öffnen →
             </Link>
           </article>
+
+          {strengthProgress && (
+            <article className="card p-5 sm:p-6">
+              <div className="flex items-start gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+                  <DashboardIcon name="strength" />
+                </span>
+                <div>
+                  <p className="text-xs font-bold text-[var(--muted)]">
+                    Kraft · diese Woche
+                  </p>
+                  <h2 className="mt-0.5 text-xl font-black">
+                    {strengthProgress.completed} / {strengthProgress.planned}{" "}
+                    <span className="text-base font-bold text-[var(--muted)]">
+                      Einheiten
+                    </span>
+                  </h2>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-[var(--muted)]">
+                {nextStrengthWorkout
+                  ? `Nächste Einheit: ${nextStrengthWorkout.title} · ${nextStrengthWorkout.scheduledDate === todayKey ? "heute" : dayLabel(nextStrengthWorkout.scheduledDate)}`
+                  : "Keine weitere Kraft-Einheit diese Woche geplant."}
+              </p>
+              <Link
+                href="/plan"
+                className="mt-4 inline-flex text-sm font-black text-[var(--accent)]"
+              >
+                Trainingsplan öffnen →
+              </Link>
+            </article>
+          )}
 
           <article className="card p-5 sm:p-6">
             <div className="flex items-start gap-3">
