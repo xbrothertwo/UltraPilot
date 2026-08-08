@@ -65,8 +65,8 @@ export async function completeOnboarding(formData: FormData) {
       : 0;
     const volleyball = formData.get("volleyball") === "on";
     const workdayMax = optionalInteger(formData, "workdayMax", 15, 360) ?? 90;
-    const beforeLate = formData.get("beforeLate") !== "off";
-    const afterNight = formData.get("afterNight") !== "off";
+    const beforeLate = formData.get("beforeLate") === "on";
+    const afterNight = formData.get("afterNight") === "on";
 
     const maxHeartRate = optionalInteger(formData, "maxHeartRate", 80, 240);
     const restingHeartRate = optionalInteger(formData, "restingHeartRate", 25, 120);
