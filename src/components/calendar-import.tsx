@@ -4,7 +4,7 @@ import { useState } from "react";
 import { importCalendarEvents } from "@/app/plan/actions";
 import { parseIcs, type ParsedCalendarEvent } from "@/lib/calendar/ics-parser";
 
-const kindOptions = [{ value: "work_early", label: "Frühdienst" }, { value: "work_late", label: "Spätdienst" }, { value: "work_night", label: "Nachtdienst" }, { value: "work_day", label: "Tagdienst" }, { value: "appointment", label: "Privater Termin" }, { value: "vacation", label: "Urlaub / Abwesenheit" }, { value: "free", label: "Frei" }, { value: "other", label: "Sonstiges" }];
+const kindOptions = [{ value: "work_early", label: "Früher Arbeitsblock" }, { value: "work_late", label: "Später Arbeitsblock" }, { value: "work_night", label: "Nachtarbeit" }, { value: "work_day", label: "Arbeitstag" }, { value: "appointment", label: "Privater Termin" }, { value: "vacation", label: "Urlaub / Abwesenheit" }, { value: "free", label: "Frei" }, { value: "other", label: "Sonstiges" }];
 
 function suggestion(code: string, events: ParsedCalendarEvent[]): string {
   const matching = events.filter((event) => event.title === code);

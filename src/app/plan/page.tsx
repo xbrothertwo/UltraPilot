@@ -217,7 +217,7 @@ export default async function PlanPage({
       <PageHeading
         eyebrow={`Trainingskalender · ${profile.primarySport === "running" ? "Laufen" : "Radfahren"}`}
         title="Deine Woche. Dein echtes Leben."
-        description={`Plane ${profile.primarySport === "running" ? "Läufe" : "Radtraining"} um Dienste und Termine herum, verschiebe Einheiten und vergleiche Planung mit dem tatsächlich absolvierten Training.`}
+        description={`Plane ${profile.primarySport === "running" ? "Läufe" : "Radtraining"} um Arbeit und Termine herum, verschiebe Einheiten und vergleiche Planung mit dem tatsächlich absolvierten Training.`}
       />
       {query.saved && (
         <p className="mb-5 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900">
@@ -466,12 +466,12 @@ export default async function PlanPage({
       <section className="mt-6 grid gap-6 xl:grid-cols-2">
         <details className="card p-6">
           <summary className="cursor-pointer list-none text-xl font-black">
-            Dienstplan importieren{" "}
+            Kalender importieren{" "}
             <span className="float-right text-[var(--accent)]">+</span>
           </summary>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            Nur Codes und Zeiten werden gespeichert; Beschreibungen,
-            Kollegennamen und Orte bleiben außen vor.
+            Nur Codes und Zeiten werden gespeichert; Beschreibungen, Namen und
+            Orte bleiben außen vor.
           </p>
           <div className="mt-5">
             <CalendarImport />
@@ -656,7 +656,7 @@ export default async function PlanPage({
                 type="checkbox"
                 defaultChecked={profile.beforeLateShiftAllowed}
               />{" "}
-              Training vor Spätdienst möglich
+              Training vor einem späten Arbeitsblock möglich
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold sm:col-span-2">
               <input
@@ -664,7 +664,7 @@ export default async function PlanPage({
                 type="checkbox"
                 defaultChecked={profile.afterNightShiftAllowed}
               />{" "}
-              Training nach Nachtdienst möglich
+              Training nach Nachtarbeit möglich
             </label>
             <button
               className="rounded-xl bg-[var(--accent)] px-5 py-3 font-bold text-white sm:col-span-2"

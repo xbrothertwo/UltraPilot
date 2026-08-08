@@ -1213,7 +1213,7 @@ export async function generateWeeklyPlan(formData: FormData) {
         ? ` Nach hoher persönlicher Vorbelastung wurden ${loadProtectedDates.size} Tag${loadProtectedDates.size === 1 ? "" : "e"} für Tempo gesperrt.`
         : "";
       const shiftRuleContext = shiftRuleBlockedDates.size
-        ? ` ${shiftRuleBlockedDates.size} Tag${shiftRuleBlockedDates.size === 1 ? "" : "e"} ${shiftRuleBlockedDates.size === 1 ? "wurde" : "wurden"} wegen deiner Dienstregeln (kein Training vor Spätdienst oder nach Nachtdienst) nicht genutzt.`
+        ? ` ${shiftRuleBlockedDates.size} Tag${shiftRuleBlockedDates.size === 1 ? "" : "e"} ${shiftRuleBlockedDates.size === 1 ? "wurde" : "wurden"} wegen deiner Arbeitszeit-Regeln (kein Training vor einem späten Arbeitsblock oder nach Nachtarbeit) nicht genutzt.`
         : "";
       const blockContext = blockWeek
         ? ` Blockwoche ${blockWeek.weekNumber}/4 (${blockWeek.phase}): lange Ausfahrt rund ${weeklyRecommendation.longRideTargetKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km, ${blockWeek.tempoSessionTarget ? "eine Tempoeinheit möglich" : "keine Tempoeinheit"}.`
