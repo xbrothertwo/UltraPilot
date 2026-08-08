@@ -1,4 +1,3 @@
-
 import { isDemoMode } from "@/lib/demo-data";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -57,6 +56,44 @@ export const defaultPlanningProfile: PlanningProfile = {
   indoorCyclingAvailableFrom: "2026-10-01",
   strengthPlan: {},
 };
+export type PlanningGoalSummary = {
+  eventName: string | null;
+  targetYear: number | null;
+  eventDistanceKm: number | null;
+};
+
+export const defaultPlanningGoalSummary: PlanningGoalSummary = {
+  eventName: null,
+  targetYear: null,
+  eventDistanceKm: null,
+};
+
+export async function getPlanningGoalSummary(): Promise<PlanningGoalSummary> {
+  if (isDemoMode) {
+    return defaultPlanningGoalSummary;
+  }
+
+  const supabase = await createClient();
+
+  if (!supabase) {
+    return defaultPlanningGoalSummary;
+  }
+
+  const { data, error } = await supabase
+    .from("training_goals")
+    .select("event_name,target_year,event_distance_km")
+    .maybeSingle();
+
+  if (error || !data) {
+    return defaultPlanningGoalSummary;
+  }
+
+  return {
+    eventName: data.event_name ?? null,
+    targetYear: data.target_year ?? null,
+    eventDistanceKm: data.event_distance_km ?? null,
+  };
+}
 
 export async function getPlanningData(range?: {
   from: Date;
@@ -117,11 +154,7 @@ export async function getPlanningData(range?: {
       .order("starts_at"),
   ]);
 
-  if (
-    goalResult.error ||
-    preferencesResult.error ||
-    eventsResult.error
-  ) {
+  if (goalResult.error || preferencesResult.error || eventsResult.error) {
     return {
       profile: defaultPlanningProfile,
       events: [],
@@ -144,12 +177,9 @@ export async function getPlanningData(range?: {
 
     profile: {
       primarySport:
-        preferences?.primary_sport === "running"
-          ? "running"
-          : "cycling",
+        preferences?.primary_sport === "running" ? "running" : "cycling",
 
-      runningSessionsPerWeek:
-        preferences?.running_sessions_per_week ?? 3,
+      runningSessionsPerWeek: preferences?.running_sessions_per_week ?? 3,
 
       easyRunWithCrossTraining:
         preferences?.easy_run_with_cross_training ?? false,
@@ -157,37 +187,26 @@ export async function getPlanningData(range?: {
       eventName: goal?.event_name ?? null,
       targetYear: goal?.target_year ?? null,
       eventDistanceKm: goal?.event_distance_km ?? null,
-      eventElevationMeters:
-        goal?.event_elevation_meters ?? null,
+      eventElevationMeters: goal?.event_elevation_meters ?? null,
       supportMode,
 
-      weeklyDistanceGoalKm:
-        goal?.weekly_distance_goal_km ?? 125,
+      weeklyDistanceGoalKm: goal?.weekly_distance_goal_km ?? 125,
 
-      beforeLateShiftAllowed:
-        preferences?.before_late_shift_allowed ?? true,
+      beforeLateShiftAllowed: preferences?.before_late_shift_allowed ?? true,
 
-      afterNightShiftAllowed:
-        preferences?.after_night_shift_allowed ?? true,
+      afterNightShiftAllowed: preferences?.after_night_shift_allowed ?? true,
 
-      workdayMaxSessionMinutes:
-        preferences?.workday_max_session_minutes ?? 90,
+      workdayMaxSessionMinutes: preferences?.workday_max_session_minutes ?? 90,
 
-      gymSummerSessions:
-        preferences?.gym_summer_sessions ?? 1,
+      gymSummerSessions: preferences?.gym_summer_sessions ?? 1,
 
-      gymWinterSessions:
-        preferences?.gym_winter_sessions ?? 2,
+      gymWinterSessions: preferences?.gym_winter_sessions ?? 2,
 
       indoorCyclingAvailableFrom:
-        preferences?.indoor_cycling_available_from ??
-        "2026-10-01",
+        preferences?.indoor_cycling_available_from ?? "2026-10-01",
 
       strengthPlan:
-        (preferences?.strength_plan as Record<
-          string,
-          unknown
-        > | null) ?? {},
+        (preferences?.strength_plan as Record<string, unknown> | null) ?? {},
     },
 
     events: (eventsResult.data ?? []).map((event) => ({

@@ -5,46 +5,165 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOut } from "@/app/auth/actions";
 
-type IconName = "today" | "mission" | "plan" | "progress" | "activities" | "nutrition" | "settings" | "plus" | "more" | "close";
+type IconName =
+  | "today"
+  | "mission"
+  | "plan"
+  | "progress"
+  | "activities"
+  | "nutrition"
+  | "settings"
+  | "plus"
+  | "more"
+  | "close";
 type NavigationLink = { href: string; label: string; icon: IconName };
+
+type NavigationGoal = {
+  eventName: string | null;
+  targetYear: number | null;
+  eventDistanceKm: number | null;
+};
+
+type AppNavigationProps = {
+  configured: boolean;
+  userEmail: string | null;
+  missionGoal: NavigationGoal;
+};
 
 const links: NavigationLink[] = [
   { href: "/dashboard", label: "Heute", icon: "today" },
   { href: "/plan", label: "Trainingsplan", icon: "plan" },
   { href: "/activities", label: "Aktivitäten", icon: "activities" },
-  { href: "/mission", label: "Mission 2028", icon: "mission" },
+  { href: "/mission", label: "Mission", icon: "mission" },
   { href: "/progress", label: "Fortschritt", icon: "progress" },
   { href: "/nutrition", label: "Verpflegung", icon: "nutrition" },
 ];
 
-function Icon({ name, className = "size-5" }: { name: IconName; className?: string }) {
+function Icon({
+  name,
+  className = "size-5",
+}: {
+  name: IconName;
+  className?: string;
+}) {
   const paths: Record<IconName, React.ReactNode> = {
-    today: <><path d="M5 3v3M15 3v3M3 9h14"/><rect x="3" y="5" width="14" height="12" rx="2"/><path d="m8 13 2 2 4-4"/></>,
-    mission: <><path d="M4 17V3"/><path d="M5 4h9l-2 3 2 3H5"/><path d="m7 17 3-5 3 5"/></>,
-    plan: <><path d="M4 3h12v14H4z"/><path d="M7 7h6M7 10h6M7 13h3"/></>,
-    progress: <><path d="M3 16 8 11l3 2 6-8"/><path d="M13 5h4v4"/></>,
-    activities: <><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></>,
-    nutrition: <><path d="M6 3v6a4 4 0 0 0 8 0V3M6 6h8M10 13v4"/></>,
-    settings: <><circle cx="10" cy="10" r="3"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M15.7 4.3l-1.4 1.4M5.7 14.3l-1.4 1.4"/></>,
-    plus: <path d="M10 4v12M4 10h12"/>,
-    more: <><circle cx="4" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/></>,
+    today: (
+      <>
+        <path d="M5 3v3M15 3v3M3 9h14" />
+        <rect x="3" y="5" width="14" height="12" rx="2" />
+        <path d="m8 13 2 2 4-4" />
+      </>
+    ),
+    mission: (
+      <>
+        <path d="M4 17V3" />
+        <path d="M5 4h9l-2 3 2 3H5" />
+        <path d="m7 17 3-5 3 5" />
+      </>
+    ),
+    plan: (
+      <>
+        <path d="M4 3h12v14H4z" />
+        <path d="M7 7h6M7 10h6M7 13h3" />
+      </>
+    ),
+    progress: (
+      <>
+        <path d="M3 16 8 11l3 2 6-8" />
+        <path d="M13 5h4v4" />
+      </>
+    ),
+    activities: (
+      <>
+        <circle cx="10" cy="10" r="7" />
+        <path d="M10 6v4l3 2" />
+      </>
+    ),
+    nutrition: (
+      <>
+        <path d="M6 3v6a4 4 0 0 0 8 0V3M6 6h8M10 13v4" />
+      </>
+    ),
+    settings: (
+      <>
+        <circle cx="10" cy="10" r="3" />
+        <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M15.7 4.3l-1.4 1.4M5.7 14.3l-1.4 1.4" />
+      </>
+    ),
+    plus: <path d="M10 4v12M4 10h12" />,
+    more: (
+      <>
+        <circle cx="4" cy="10" r="1" fill="currentColor" stroke="none" />
+        <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="10" r="1" fill="currentColor" stroke="none" />
+      </>
+    ),
     close: <path d="m5 5 10 10M15 5 5 15" />,
   };
-  return <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={`${className} shrink-0`}>{paths[name]}</svg>;
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`${className} shrink-0`}
+    >
+      {paths[name]}
+    </svg>
+  );
 }
 
 function isActive(pathname: string, href: string): boolean {
-  if (href === "/activities") return pathname === href || (pathname.startsWith("/activities/") && pathname !== "/activities/upload");
+  if (href === "/activities")
+    return (
+      pathname === href ||
+      (pathname.startsWith("/activities/") && pathname !== "/activities/upload")
+    );
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AppNavigation({ configured, userEmail }: { configured: boolean; userEmail: string | null }) {
+export function AppNavigation({
+  configured,
+  userEmail,
+  missionGoal,
+}: AppNavigationProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const findLink = (href: string) => links.find((link) => link.href === href)!;
-  const mobileMainLinks = [findLink("/dashboard"), findLink("/plan"), findLink("/mission")];
-  const mobileMoreLinks: NavigationLink[] = [findLink("/progress"), findLink("/activities"), findLink("/nutrition"), { href: "/settings", label: "Einstellungen", icon: "settings" }];
-  const moreActive = mobileMoreLinks.some((link) => isActive(pathname, link.href));
+  const mobileMainLinks = [
+    findLink("/dashboard"),
+    findLink("/plan"),
+    findLink("/mission"),
+  ];
+  const mobileMoreLinks: NavigationLink[] = [
+    findLink("/progress"),
+    findLink("/activities"),
+    findLink("/nutrition"),
+    { href: "/settings", label: "Einstellungen", icon: "settings" },
+  ];
+  const moreActive = mobileMoreLinks.some((link) =>
+    isActive(pathname, link.href),
+  );
+
+  const missionHeadlineParts = [
+    missionGoal.eventName?.trim() || null,
+    missionGoal.eventDistanceKm !== null
+      ? `${missionGoal.eventDistanceKm.toLocaleString("de-DE")} km`
+      : null,
+  ].filter(Boolean);
+
+  const missionHeadline =
+    missionHeadlineParts.length > 0
+      ? missionHeadlineParts.join(" · ")
+      : "Noch kein Ausdauerziel";
+
+  const missionSubline =
+    missionGoal.targetYear !== null
+      ? `Zielkorridor ${missionGoal.targetYear}`
+      : "Zieljahr nicht festgelegt";
 
   useEffect(() => {
     if (!moreOpen) return;
@@ -60,66 +179,251 @@ export function AppNavigation({ configured, userEmail }: { configured: boolean; 
     };
   }, [moreOpen]);
 
-  return <>
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[18rem] flex-col overflow-hidden border-r border-white/8 bg-[#07162d] text-white lg:flex">
-      <div className="pointer-events-none absolute -left-32 -top-28 size-96 rounded-full bg-blue-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-48 -right-40 size-96 rounded-full bg-cyan-400/10 blur-3xl" />
-      <div className="relative flex h-full flex-col p-5">
-        <Link href="/dashboard" className="flex items-center gap-3 rounded-2xl px-2 py-3">
-          <span className="grid size-11 place-items-center rounded-[.95rem] bg-gradient-to-br from-blue-400 to-blue-700 text-sm font-black tracking-tight text-white shadow-[0_10px_24px_rgba(37,99,235,.35)]">UP</span>
-          <span><strong className="block text-[1.08rem] tracking-[-.03em]">UltraPilot</strong><span className="mt-0.5 block text-[.59rem] font-bold uppercase tracking-[.2em] text-blue-200/55">Personal Endurance OS</span></span>
+  return (
+    <>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[18rem] flex-col overflow-hidden border-r border-white/8 bg-[#07162d] text-white lg:flex">
+        <div className="pointer-events-none absolute -left-32 -top-28 size-96 rounded-full bg-blue-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-48 -right-40 size-96 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="relative flex h-full flex-col p-5">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-3 rounded-2xl px-2 py-3"
+          >
+            <span className="grid size-11 place-items-center rounded-[.95rem] bg-gradient-to-br from-blue-400 to-blue-700 text-sm font-black tracking-tight text-white shadow-[0_10px_24px_rgba(37,99,235,.35)]">
+              UP
+            </span>
+            <span>
+              <strong className="block text-[1.08rem] tracking-[-.03em]">
+                UltraPilot
+              </strong>
+              <span className="mt-0.5 block text-[.59rem] font-bold uppercase tracking-[.2em] text-blue-200/55">
+                Personal Endurance OS
+              </span>
+            </span>
+          </Link>
+
+          <div className="mt-7 rounded-2xl border border-white/8 bg-white/[.045] p-3.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[.62rem] font-black uppercase tracking-[.17em] text-blue-200/50">
+                Ausdauer-Mission
+              </span>
+              <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_#67e8f9]" />
+            </div>
+            <p
+              className="mt-2 truncate text-sm font-bold"
+              title={missionHeadline}
+            >
+              {missionHeadline}
+            </p>
+
+            <p className="mt-1 text-xs text-slate-300/55">{missionSubline}</p>
+          </div>
+
+          <nav aria-label="Hauptnavigation" className="mt-7 space-y-1">
+            <p className="mb-2 px-3 text-[.58rem] font-black uppercase tracking-[.2em] text-slate-400/55">
+              Cockpit
+            </p>
+            {links.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-600 to-blue-500 font-bold text-white shadow-[0_8px_20px_rgba(37,99,235,.22)]" : "font-medium text-slate-300/70 hover:bg-white/[.055] hover:text-white"}`}
+                >
+                  <Icon name={link.icon} />
+                  <span>{link.label}</span>
+                  {active ? (
+                    <span className="ml-auto size-1.5 rounded-full bg-cyan-200" />
+                  ) : null}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <Link
+            href="/activities/upload"
+            className="relative mt-6 flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-xl bg-white px-4 text-sm font-black text-[#0b2b61] shadow-[0_12px_28px_rgba(0,0,0,.14)] transition hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            <Icon name="plus" /> Aktivität importieren
+          </Link>
+
+          <div className="mt-auto border-t border-white/8 pt-4">
+            <Link
+              href="/settings"
+              className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm ${pathname.startsWith("/settings") ? "bg-white/10 font-bold text-white" : "text-slate-300/60 hover:text-white"}`}
+            >
+              <Icon name="settings" /> Einstellungen
+            </Link>
+            {configured &&
+              (userEmail ? (
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="mt-2 w-full truncate px-3.5 py-2 text-left text-xs text-slate-400/55 hover:text-white"
+                    title={`${userEmail} abmelden`}
+                  >
+                    {userEmail} · Abmelden
+                  </button>
+                </form>
+              ) : (
+                <Link
+                  href="/login"
+                  className="mt-2 block px-3.5 py-2 text-xs font-bold text-blue-200"
+                >
+                  Anmelden
+                </Link>
+              ))}
+          </div>
+        </div>
+      </aside>
+
+      <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-blue-950/6 bg-[#f3f7fc]/88 px-4 py-2.5 backdrop-blur-2xl lg:hidden">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2.5 font-black tracking-[-.03em] text-[var(--ink)]"
+        >
+          <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-xs text-white shadow-md shadow-blue-500/20">
+            UP
+          </span>
+          UltraPilot
         </Link>
+        <span className="rounded-full border border-blue-200/70 bg-blue-50 px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700">
+          Endurance OS
+        </span>
+      </header>
 
-        <div className="mt-7 rounded-2xl border border-white/8 bg-white/[.045] p-3.5">
-          <div className="flex items-center justify-between"><span className="text-[.62rem] font-black uppercase tracking-[.17em] text-blue-200/50">Ausdauer-Mission</span><span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_#67e8f9]" /></div>
-          <p className="mt-2 text-sm font-bold">Nord–Süd · 1.100 km</p>
-          <p className="mt-1 text-xs text-slate-300/55">Zielkorridor 2028</p>
+      <nav
+        aria-label="Mobile Hauptnavigation"
+        className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-blue-950/8 bg-white/92 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_rgba(20,48,89,.2)] backdrop-blur-2xl lg:hidden"
+      >
+        {mobileMainLinks.slice(0, 2).map((link) => {
+          const active = isActive(pathname, link.href);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={active ? "page" : undefined}
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}
+            >
+              <Icon name={link.icon} />
+              <span>{link.href === "/plan" ? "Plan" : link.label}</span>
+            </Link>
+          );
+        })}
+        <Link
+          href="/activities/upload"
+          aria-label="Aktivität importieren"
+          className="group -mt-6 flex min-w-0 flex-col items-center gap-1 text-[.64rem] font-black text-blue-700"
+        >
+          <span className="grid size-14 place-items-center rounded-full border-[5px] border-[#f3f7fc] bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_10px_24px_rgba(37,99,235,.35)] transition group-active:scale-95">
+            <Icon name="plus" className="size-6" />
+          </span>
+          <span>Import</span>
+        </Link>
+        {mobileMainLinks.slice(2).map((link) => {
+          const active = isActive(pathname, link.href);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={active ? "page" : undefined}
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}
+            >
+              <Icon name={link.icon} />
+              <span>Mission</span>
+            </Link>
+          );
+        })}
+        <button
+          type="button"
+          aria-expanded={moreOpen}
+          aria-controls="mobile-more-menu"
+          onClick={() => setMoreOpen(true)}
+          className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold ${moreActive ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}
+        >
+          <Icon name="more" />
+          <span>Mehr</span>
+        </button>
+      </nav>
+
+      {moreOpen ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            aria-label="Menü schließen"
+            onClick={() => setMoreOpen(false)}
+            className="absolute inset-0 bg-[#07162d]/58 backdrop-blur-[3px]"
+          />
+          <section
+            id="mobile-more-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-more-title"
+            className="mobile-safe-sheet absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-[#f7faff] px-4 pb-5 pt-3 shadow-2xl"
+          >
+            <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-slate-300" />
+            <div className="flex items-center justify-between px-1">
+              <div>
+                <p className="eyebrow">Navigation</p>
+                <h2
+                  id="mobile-more-title"
+                  className="mt-1 text-2xl font-black tracking-tight text-[var(--ink)]"
+                >
+                  Alles im Blick
+                </h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Menü schließen"
+                onClick={() => setMoreOpen(false)}
+                className="grid size-11 place-items-center rounded-full border border-[var(--line)] bg-white text-[var(--ink)] shadow-sm"
+              >
+                <Icon name="close" />
+              </button>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-2.5">
+              {mobileMoreLinks.map((link) => {
+                const active = isActive(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMoreOpen(false)}
+                    className={`flex min-h-22 flex-col justify-between rounded-[1.15rem] border p-4 transition ${active ? "border-blue-300 bg-blue-600 text-white shadow-lg shadow-blue-500/15" : "border-[var(--line)] bg-white text-[var(--ink)] shadow-sm"}`}
+                  >
+                    <Icon name={link.icon} />
+                    <span className="text-sm font-bold">{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+            {configured ? (
+              <div className="mt-4 border-t border-[var(--line)] pt-4">
+                {userEmail ? (
+                  <form action={signOut}>
+                    <button
+                      type="submit"
+                      className="min-h-11 w-full rounded-xl bg-[var(--ink)] px-4 text-sm font-bold text-white"
+                    >
+                      {userEmail} · Abmelden
+                    </button>
+                  </form>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMoreOpen(false)}
+                    className="flex min-h-11 items-center justify-center rounded-xl bg-[var(--ink)] px-4 text-sm font-bold text-white"
+                  >
+                    Anmelden
+                  </Link>
+                )}
+              </div>
+            ) : null}
+          </section>
         </div>
-
-        <nav aria-label="Hauptnavigation" className="mt-7 space-y-1">
-          <p className="mb-2 px-3 text-[.58rem] font-black uppercase tracking-[.2em] text-slate-400/55">Cockpit</p>
-          {links.map((link) => {
-            const active = isActive(pathname, link.href);
-            return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-600 to-blue-500 font-bold text-white shadow-[0_8px_20px_rgba(37,99,235,.22)]" : "font-medium text-slate-300/70 hover:bg-white/[.055] hover:text-white"}`}><Icon name={link.icon} /><span>{link.label}</span>{active ? <span className="ml-auto size-1.5 rounded-full bg-cyan-200" /> : null}</Link>;
-          })}
-        </nav>
-
-        <Link href="/activities/upload" className="relative mt-6 flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-xl bg-white px-4 text-sm font-black text-[#0b2b61] shadow-[0_12px_28px_rgba(0,0,0,.14)] transition hover:-translate-y-0.5 hover:shadow-xl"><Icon name="plus" /> Aktivität importieren</Link>
-
-        <div className="mt-auto border-t border-white/8 pt-4">
-          <Link href="/settings" className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm ${pathname.startsWith("/settings") ? "bg-white/10 font-bold text-white" : "text-slate-300/60 hover:text-white"}`}><Icon name="settings" /> Einstellungen</Link>
-          {configured && (userEmail ? <form action={signOut}><button type="submit" className="mt-2 w-full truncate px-3.5 py-2 text-left text-xs text-slate-400/55 hover:text-white" title={`${userEmail} abmelden`}>{userEmail} · Abmelden</button></form> : <Link href="/login" className="mt-2 block px-3.5 py-2 text-xs font-bold text-blue-200">Anmelden</Link>)}
-        </div>
-      </div>
-    </aside>
-
-    <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-blue-950/6 bg-[#f3f7fc]/88 px-4 py-2.5 backdrop-blur-2xl lg:hidden">
-      <Link href="/dashboard" className="flex items-center gap-2.5 font-black tracking-[-.03em] text-[var(--ink)]"><span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-xs text-white shadow-md shadow-blue-500/20">UP</span>UltraPilot</Link>
-      <span className="rounded-full border border-blue-200/70 bg-blue-50 px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700">Endurance OS</span>
-    </header>
-
-    <nav aria-label="Mobile Hauptnavigation" className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-blue-950/8 bg-white/92 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_rgba(20,48,89,.2)] backdrop-blur-2xl lg:hidden">
-      {mobileMainLinks.slice(0, 2).map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}><Icon name={link.icon} /><span>{link.href === "/plan" ? "Plan" : link.label}</span></Link>; })}
-      <Link href="/activities/upload" aria-label="Aktivität importieren" className="group -mt-6 flex min-w-0 flex-col items-center gap-1 text-[.64rem] font-black text-blue-700">
-        <span className="grid size-14 place-items-center rounded-full border-[5px] border-[#f3f7fc] bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_10px_24px_rgba(37,99,235,.35)] transition group-active:scale-95"><Icon name="plus" className="size-6" /></span><span>Import</span>
-      </Link>
-      {mobileMainLinks.slice(2).map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}><Icon name={link.icon} /><span>Mission</span></Link>; })}
-      <button type="button" aria-expanded={moreOpen} aria-controls="mobile-more-menu" onClick={() => setMoreOpen(true)} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold ${moreActive ? "bg-blue-50 text-blue-700" : "text-slate-500"}`}><Icon name="more" /><span>Mehr</span></button>
-    </nav>
-
-    {moreOpen ? <div className="fixed inset-0 z-50 lg:hidden">
-      <button type="button" aria-label="Menü schließen" onClick={() => setMoreOpen(false)} className="absolute inset-0 bg-[#07162d]/58 backdrop-blur-[3px]" />
-      <section id="mobile-more-menu" role="dialog" aria-modal="true" aria-labelledby="mobile-more-title" className="mobile-safe-sheet absolute inset-x-0 bottom-0 rounded-t-[2rem] bg-[#f7faff] px-4 pb-5 pt-3 shadow-2xl">
-        <div className="mx-auto mb-4 h-1.5 w-11 rounded-full bg-slate-300" />
-        <div className="flex items-center justify-between px-1">
-          <div><p className="eyebrow">Navigation</p><h2 id="mobile-more-title" className="mt-1 text-2xl font-black tracking-tight text-[var(--ink)]">Alles im Blick</h2></div>
-          <button type="button" aria-label="Menü schließen" onClick={() => setMoreOpen(false)} className="grid size-11 place-items-center rounded-full border border-[var(--line)] bg-white text-[var(--ink)] shadow-sm"><Icon name="close" /></button>
-        </div>
-        <div className="mt-5 grid grid-cols-2 gap-2.5">
-          {mobileMoreLinks.map((link) => { const active = isActive(pathname, link.href); return <Link key={link.href} href={link.href} onClick={() => setMoreOpen(false)} className={`flex min-h-22 flex-col justify-between rounded-[1.15rem] border p-4 transition ${active ? "border-blue-300 bg-blue-600 text-white shadow-lg shadow-blue-500/15" : "border-[var(--line)] bg-white text-[var(--ink)] shadow-sm"}`}><Icon name={link.icon} /><span className="text-sm font-bold">{link.label}</span></Link>; })}
-        </div>
-        {configured ? <div className="mt-4 border-t border-[var(--line)] pt-4">{userEmail ? <form action={signOut}><button type="submit" className="min-h-11 w-full rounded-xl bg-[var(--ink)] px-4 text-sm font-bold text-white">{userEmail} · Abmelden</button></form> : <Link href="/login" onClick={() => setMoreOpen(false)} className="flex min-h-11 items-center justify-center rounded-xl bg-[var(--ink)] px-4 text-sm font-bold text-white">Anmelden</Link>}</div> : null}
-      </section>
-    </div> : null}
-  </>;
+      ) : null}
+    </>
+  );
 }
