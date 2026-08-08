@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatPace } from "../src/lib/format";
+import { formatPace, splitPlanReasons } from "../src/lib/format";
 
 describe("running pace formatting", () => {
   it("formats speed as rounded minutes per kilometer", () => {
@@ -9,5 +9,23 @@ describe("running pace formatting", () => {
 
   it("does not invent a pace without positive speed", () => {
     expect(formatPace(0)).toBe("–");
+  });
+});
+
+describe("splitPlanReasons", () => {
+  it("splits a summary paragraph into short standalone statements", () => {
+    const summary = "145 km wurden eingeplant. Geplant wurden 4 Laufeinheiten. Arbeitstage sind auf 90 Minuten begrenzt.";
+    expect(splitPlanReasons(summary, null)).toEqual([
+      "145 km wurden eingeplant.",
+      "Geplant wurden 4 Laufeinheiten.",
+      "Arbeitstage sind auf 90 Minuten begrenzt.",
+    ]);
+  });
+
+  it("appends the caution as its own statement when present", () => {
+    expect(splitPlanReasons("Alles geplant.", "Wenig Zeitpuffer diese Woche.")).toEqual([
+      "Alles geplant.",
+      "Wenig Zeitpuffer diese Woche.",
+    ]);
   });
 });

@@ -19,3 +19,11 @@ export function formatDuration(totalSeconds: number): string {
 export function formatDate(isoDate: string): string {
   return new Intl.DateTimeFormat("de-DE", { dateStyle: "long" }).format(new Date(isoDate));
 }
+
+export function splitPlanReasons(summary: string, caution: string | null): string[] {
+  const sentences = summary
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+  return caution ? [...sentences, caution.trim()] : sentences;
+}
