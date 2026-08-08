@@ -27,7 +27,11 @@ import {
   recommendWeeklyTarget,
 } from "@/lib/planning/weekly-target";
 import { splitPlanReasons } from "@/lib/format";
-import { generateWeeklyPlan, savePlanningProfile } from "./actions";
+import {
+  generateWeeklyPlan,
+  increaseWeeklyGoal,
+  savePlanningProfile,
+} from "./actions";
 
 export const metadata = { title: "Plan" };
 export const dynamic = "force-dynamic";
@@ -221,6 +225,7 @@ export default async function PlanPage({
             event: "Kalendertermin gespeichert.",
             "event-deleted": "Kalendertermin gelöscht.",
             profile: "Planungseinstellungen gespeichert.",
+            "goal-increased": "Wochenziel erhöht.",
           }[query.saved] ?? "Änderung gespeichert."}
         </p>
       )}
@@ -251,6 +256,31 @@ export default async function PlanPage({
           {warnings.join(" · ")}
         </p>
       )}
+
+      {weeklyRecommendation.assessment === "conservative" &&
+        effectiveWeeklyGoal > profile.weeklyDistanceGoalKm && (
+          <form
+            action={increaseWeeklyGoal}
+            className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm dark:border-emerald-400/30 dark:bg-emerald-400/10"
+          >
+            <input type="hidden" name="week" value={week} />
+            <input
+              type="hidden"
+              name="newGoalKm"
+              value={effectiveWeeklyGoal}
+            />
+            <span className="font-bold text-emerald-950 dark:text-emerald-200">
+              Deine Zeitfenster geben mehr her als dein Referenzziel von{" "}
+              {profile.weeklyDistanceGoalKm} km.
+            </span>
+            <button
+              type="submit"
+              className="ml-auto shrink-0 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-black text-white hover:bg-emerald-800"
+            >
+              Auf {effectiveWeeklyGoal} km erhöhen
+            </button>
+          </form>
+        )}
 
       {todayReadiness && (
         <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
