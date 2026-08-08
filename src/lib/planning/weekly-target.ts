@@ -20,6 +20,8 @@ export type WeeklyAvailabilityLevel = "very_busy" | "busy" | "balanced" | "open"
 export type WeeklyTargetRecommendation = {
   referenceGoalKm: number;
   targetKm: number;
+  planningTargetKm: number;
+  suggestedGoalKm: number | null;
   lowerKm: number;
   upperKm: number;
   longRideTargetKm: number;
@@ -68,7 +70,40 @@ const availabilityFactors: Record<WeeklyAvailabilityLevel, number> = {
   open: 1.12,
   very_open: 1.2,
 };
+export function validateWeeklyGoalIncrease(
+  currentGoalKm: number,
+  requestedGoalKm: number,
+): number {
+  if (
+    !Number.isInteger(requestedGoalKm) ||
+    requestedGoalKm <= 0 ||
+    requestedGoalKm > 2000 ||
+    requestedGoalKm % 5 !== 0
+  ) {
+    throw new Error("Wochenziel ist ungültig.");
+  }
 
+  if (
+    !Number.isFinite(currentGoalKm) ||
+    currentGoalKm < 0 ||
+    currentGoalKm > 2000
+  ) {
+    throw new Error("Aktuelles Wochenziel ist ungültig.");
+  }
+
+  if (requestedGoalKm <= currentGoalKm) {
+    throw new Error("Das neue Wochenziel muss höher sein.");
+  }
+
+  const maximumIncreaseKm =
+    currentGoalKm > 0 ? roundFive(currentGoalKm * 1.25) : 50;
+
+  if (requestedGoalKm > maximumIncreaseKm) {
+    throw new Error("Die vorgeschlagene Erhöhung ist zu groß.");
+  }
+
+  return requestedGoalKm;
+}
 export function buildWeeklyTargetDays(
   dates: string[],
   events: WeeklyTargetEvent[],
@@ -123,19 +158,41 @@ export function recommendWeeklyTarget(input: WeeklyTargetInput): WeeklyTargetRec
     anchorKm * 1.25,
     Math.max(anchorKm * 1.15, recentWeeklyKm === null ? 0 : recentWeeklyKm * 1.12),
   );
-  if (rawTarget > anchorKm) rawTarget = Math.min(rawTarget, progressionCeiling);
-  if (estimatedCapacityKm > 0) rawTarget = Math.min(rawTarget, estimatedCapacityKm);
+   if (rawTarget > anchorKm) rawTarget = Math.min(rawTarget, progressionCeiling);
+  if (estimatedCapacityKm > 0)
+    rawTarget = Math.min(rawTarget, estimatedCapacityKm);
+  if (referenceGoalKm > 0)
+    rawTarget = Math.min(rawTarget, referenceGoalKm * 1.25);
+
   const targetKm = roundFive(rawTarget);
+  const planningTargetKm = Math.min(targetKm, referenceGoalKm);
+  const suggestedGoalKm =
+    targetKm > referenceGoalKm ? targetKm : null;
   const lowerKm = roundFive(targetKm * .9);
   const upperKm = roundFive(targetKm * 1.1);
   const assessment: WeeklyTargetAssessment = anchorKm < lowerKm ? "conservative" : anchorKm > upperKm ? "ambitious" : "fitting";
 
   const bestDayMinutes = cyclingDays[0]?.usableMinutes ?? 0;
   const longDayCapacityKm = bestDayMinutes / 60 * speedKmh * .85;
-  let desiredLongRideKm = input.blockLongRideTargetKm ?? targetKm * .45;
-  if (level === "open" || level === "very_open") desiredLongRideKm *= 1.1;
-  if (input.blockPhase === "recovery") desiredLongRideKm = Math.min(desiredLongRideKm, targetKm * .4);
-  const longRideTargetKm = targetKm > 0 ? roundDownFive(Math.min(desiredLongRideKm, targetKm * .5, longDayCapacityKm)) : 0;
+    let desiredLongRideKm =
+    input.blockLongRideTargetKm ?? planningTargetKm * .45;
+  if (level === "open" || level === "very_open")
+    desiredLongRideKm *= 1.1;
+  if (input.blockPhase === "recovery")
+    desiredLongRideKm = Math.min(
+      desiredLongRideKm,
+      planningTargetKm * .4,
+    );
+  const longRideTargetKm =
+    planningTargetKm > 0
+      ? roundDownFive(
+          Math.min(
+            desiredLongRideKm,
+            planningTargetKm * .5,
+            longDayCapacityKm,
+          ),
+        )
+      : 0;
   const longWindowDays = usableDays.filter((day) => !day.workday && day.usableMinutes >= 180).length;
 
   const reasons = [
@@ -152,8 +209,10 @@ export function recommendWeeklyTarget(input: WeeklyTargetInput): WeeklyTargetRec
   if (input.blockPhase === "recovery") reasons.push("Die Erholungswoche wird trotz freier Zeit nicht nach oben erweitert.");
 
   return {
-    referenceGoalKm,
+        referenceGoalKm,
     targetKm,
+    planningTargetKm,
+    suggestedGoalKm,
     lowerKm,
     upperKm,
     longRideTargetKm,

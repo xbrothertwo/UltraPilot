@@ -29,7 +29,10 @@ import {
   blockWeekForDate,
   getActiveTrainingBlock,
 } from "@/lib/planning/blocks";
-import { recommendWeeklyTarget } from "@/lib/planning/weekly-target";
+import {
+  recommendWeeklyTarget,
+  validateWeeklyGoalIncrease,
+} from "@/lib/planning/weekly-target";
 
 const kinds = [
   "work_early",
@@ -253,30 +256,68 @@ support_mode: optionalSupportMode(formData),
 
 export async function increaseWeeklyGoal(formData: FormData) {
   let destination = planDestination(formData, "saved=goal-increased");
+
   try {
     const raw = formData.get("newGoalKm");
-    const goalKm = typeof raw === "string" ? Number(raw) : NaN;
-    if (!Number.isFinite(goalKm) || goalKm <= 0 || goalKm > 2000)
-      throw new Error("Wochenziel ist ungültig.");
+    const requestedGoalKm =
+      typeof raw === "string" ? Number(raw) : NaN;
+
     const user = await requireUser();
     const supabase = await createClient();
-    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
-    const { error } = await supabase
+
+    if (!supabase) {
+      throw new Error("Supabase ist nicht verfügbar.");
+    }
+
+    const { data: currentGoal, error: currentGoalError } = await supabase
+      .from("training_goals")
+      .select("weekly_distance_goal_km")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (currentGoalError || !currentGoal) {
+      throw new Error(
+        currentGoalError?.message ??
+          "Das aktuelle Wochenziel wurde nicht gefunden.",
+      );
+    }
+
+    const goalKm = validateWeeklyGoalIncrease(
+      Number(currentGoal.weekly_distance_goal_km ?? 0),
+      requestedGoalKm,
+    );
+
+    const { data: updatedGoal, error } = await supabase
       .from("training_goals")
       .update({
         weekly_distance_goal_km: goalKm,
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", user.id);
-    if (error) throw new Error(error.message);
+      .eq("user_id", user.id)
+      .select("weekly_distance_goal_km")
+      .maybeSingle();
+
+    if (error || !updatedGoal) {
+      throw new Error(
+        error?.message ??
+          "Das Wochenziel konnte nicht aktualisiert werden.",
+      );
+    }
+
     revalidatePath("/plan");
     revalidatePath("/dashboard");
+    revalidatePath("/mission");
   } catch (error) {
     destination = planDestination(
       formData,
-      `error=${encodeURIComponent(error instanceof Error ? error.message : "Wochenziel konnte nicht erhöht werden.")}`,
+      `error=${encodeURIComponent(
+        error instanceof Error
+          ? error.message
+          : "Wochenziel konnte nicht erhöht werden.",
+      )}`,
     );
   }
+
   redirect(destination);
 }
 
@@ -1077,7 +1118,7 @@ export async function generateWeeklyPlan(formData: FormData) {
       blockLongRideTargetKm: blockWeek?.longRideTargetKm,
       blockPhase: blockWeek?.phase,
     });
-    const weeklyGoalKm = weeklyRecommendation.targetKm;
+    const weeklyGoalKm = weeklyRecommendation.planningTargetKm;
     const remainingDistanceKm = calculateRemainingWeeklyDistance(
       weeklyGoalKm,
       completedDistanceKm,
@@ -1119,7 +1160,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           week_start: week,
           summary,
           caution: null,
-          model: "deterministic-v5-adaptive-target",
+          model: "deterministic-v6-confirmed-goal-cap",
           used_ai: false,
           deterministic_snapshot: {
             weeklyGoalKm,
@@ -1218,8 +1259,15 @@ export async function generateWeeklyPlan(formData: FormData) {
       const blockContext = blockWeek
         ? ` Blockwoche ${blockWeek.weekNumber}/4 (${blockWeek.phase}): lange Ausfahrt rund ${weeklyRecommendation.longRideTargetKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km, ${blockWeek.tempoSessionTarget ? "eine Tempoeinheit möglich" : "keine Tempoeinheit"}.`
         : "";
-      const adaptiveContext = ` Aus Kalender und Verlauf ergibt sich ein sinnvoller Korridor von ${weeklyRecommendation.lowerKm}–${weeklyRecommendation.upperKm} km; der Planwert liegt bei ${weeklyGoalKm} km statt starr bei ${planning.profile.weeklyDistanceGoalKm} km.`;
-      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${manuallyPlannedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km manuell geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${adaptiveContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`;
+            const goalContext =
+        weeklyRecommendation.suggestedGoalKm !== null
+          ? ` Aus Kalender und Verlauf ergibt sich ein sinnvoller Korridor von ${weeklyRecommendation.lowerKm}–${weeklyRecommendation.upperKm} km. Ohne Bestätigung bleibt der Plan bei deinem gespeicherten Wochenziel von ${weeklyGoalKm} km.`
+          : weeklyGoalKm < planning.profile.weeklyDistanceGoalKm
+            ? ` Wegen Kalender, Tagesform oder Blockphase wird dein gespeichertes Wochenziel von ${planning.profile.weeklyDistanceGoalKm} km für diese Woche auf ${weeklyGoalKm} km reduziert.`
+            : ` Der Plan hält sich an dein gespeichertes Wochenziel von ${weeklyGoalKm} km.`;
+
+      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${manuallyPlannedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km manuell geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${goalContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`;
+
       const caution =
         "Verschiebe oder kürze Einheiten bei ungewöhnlicher Müdigkeit, Schmerzen oder unerwarteter Zusatzbelastung. UltraPilot erstellt keine medizinischen Diagnosen.";
       const { data: generation, error: generationError } = await supabase
@@ -1229,7 +1277,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           week_start: week,
           summary,
           caution,
-          model: "deterministic-v5-adaptive-target",
+          model: "deterministic-v6-confirmed-goal-cap",
           used_ai: false,
           deterministic_snapshot: {
             weeklyGoalKm,
