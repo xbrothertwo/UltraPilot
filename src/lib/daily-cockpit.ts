@@ -69,7 +69,7 @@ export function buildDailyDecision(
       eyebrow: "Kalender hat sich verändert",
       title: largestAvailableWindowMinutes < 45 ? "Die Einheit passt heute nicht mehr sinnvoll hinein." : `${workout.title} heute kürzen oder verschieben.`,
       summary: largestAvailableWindowMinutes < 45 ? "Es gibt heute kein zusammenhängendes Trainingsfenster von mindestens 45 Minuten." : `Dein größtes freies Fenster umfasst ${largestAvailableWindowMinutes} Minuten; geplant sind ${workout.plannedDurationMinutes} Minuten.`,
-      reasons: ["Neue Dienste und Termine haben Vorrang vor einer erzwungenen Einheit.", "Offene Kilometer werden nur in realistisch verfügbare Fenster verteilt."],
+      reasons: ["Neue Arbeitszeiten und Termine haben Vorrang vor einer erzwungenen Einheit.", "Offene Kilometer werden nur in realistisch verfügbare Fenster verteilt."],
     };
   }
 

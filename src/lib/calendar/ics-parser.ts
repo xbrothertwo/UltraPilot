@@ -88,7 +88,7 @@ export function parseIcs(text: string, defaultTimezone = "Europe/Berlin"): Parse
     }
     if (current) {
       const parsed = property(line);
-      if (parsed?.name === "RRULE") throw new Error("Wiederkehrende ICS-Termine werden noch nicht automatisch aufgelöst. Bitte den Dienstplan als bereits ausgeführte Einzeltermine exportieren.");
+      if (parsed?.name === "RRULE") throw new Error("Wiederkehrende ICS-Termine werden noch nicht automatisch aufgelöst. Bitte den Kalender als bereits ausgeführte Einzeltermine exportieren.");
       if (parsed && ["SUMMARY", "DTSTART", "DTEND"].includes(parsed.name)) current[parsed.name] = parsed;
     }
   }

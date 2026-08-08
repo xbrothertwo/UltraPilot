@@ -316,7 +316,7 @@ export default async function MissionPage() {
         <p className="mt-3 text-xs leading-5 text-[var(--muted)]">
           Die Horizonte sind Entwicklungsphasen, keine festen Termine. Neue
           Distanzschritte werden nicht automatisch in deinen Kalender gedrückt;
-          sie müssen zum Vier-Wochen-Block, Dienstplan und aktuellen
+          sie müssen zum Vier-Wochen-Block, Kalender und aktuellen
           Erholungsverlauf passen.
         </p>
       </section>

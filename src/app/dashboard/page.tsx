@@ -801,7 +801,7 @@ export default async function DashboardPage({
                     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100">
                       <DashboardIcon name="clock" />
                     </span>
-                    Keine Dienste oder privaten Termine.
+                    Keine Arbeitszeiten oder privaten Termine.
                   </div>
                 )}
               </div>
