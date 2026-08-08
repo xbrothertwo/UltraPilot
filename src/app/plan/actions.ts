@@ -969,6 +969,8 @@ export async function generateWeeklyPlan(formData: FormData) {
         )
       : days;
     const weeklyRecommendation = recommendWeeklyTarget({
+      primarySport,
+      runningSessionsPerWeek: planning.profile.runningSessionsPerWeek,
       referenceGoalKm: planning.profile.weeklyDistanceGoalKm,
       days: recommendationDays,
       recentFourWeekDistanceKm: recentDistanceKm,

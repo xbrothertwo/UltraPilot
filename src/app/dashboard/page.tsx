@@ -211,20 +211,22 @@ export default async function DashboardPage({
   const hrTarget = primaryWorkout
     ? getPlannedHeartRateTarget(zones, primaryWorkout.intensity)
     : null;
-  const selectedBlockWeek = blockWeekForDate(block, weekStart);
+  const primarySport = planning.profile.primarySport;
+  const selectedBlockWeek =
+    primarySport === "cycling" ? blockWeekForDate(block, weekStart) : null;
   const recentCutoff = dateAtNoon(weekStart);
   recentCutoff.setDate(recentCutoff.getDate() - 28);
-  const recentCycling = activities.filter(
+  const recentPrimary = activities.filter(
     (activity) =>
-      activity.sportType === "cycling" &&
+      activity.sportType === primarySport &&
       new Date(activity.activityDate) >= recentCutoff &&
       new Date(activity.activityDate) < rangeStart,
   );
-  const recentDistanceKm = recentCycling.reduce(
+  const recentDistanceKm = recentPrimary.reduce(
     (sum, activity) => sum + activity.distanceMeters / 1000,
     0,
   );
-  const recentSeconds = recentCycling.reduce(
+  const recentSeconds = recentPrimary.reduce(
     (sum, activity) => sum + activity.movingTimeSeconds,
     0,
   );
@@ -234,6 +236,8 @@ export default async function DashboardPage({
     new Map([[todayKey, readiness.status]]),
   );
   const weeklyRecommendation = recommendWeeklyTarget({
+    primarySport,
+    runningSessionsPerWeek: planning.profile.runningSessionsPerWeek,
     referenceGoalKm: planning.profile.weeklyDistanceGoalKm,
     days: recommendationDays,
     recentFourWeekDistanceKm: recentDistanceKm,
@@ -246,21 +250,21 @@ export default async function DashboardPage({
   });
   const weeklyGoal = weeklyRecommendation.targetKm;
   const actualKm = weekActivities
-    .filter((activity) => activity.sportType === "cycling")
+    .filter((activity) => activity.sportType === primarySport)
     .reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
   const progress = Math.min(
     100,
     weeklyGoal > 0 ? (actualKm / weeklyGoal) * 100 : 0,
   );
-  const upcomingCycling =
+  const upcomingPrimary =
     reconciled.find(
       (item) =>
         item.effectiveStatus === "planned" &&
-        item.workout.sportType === "cycling" &&
+        item.workout.sportType === primarySport &&
         item.workout.scheduledDate >= todayKey,
     )?.workout ?? null;
   const fuelingWorkout =
-    primaryWorkout?.sportType === "cycling" ? primaryWorkout : upcomingCycling;
+    primaryWorkout?.sportType === primarySport ? primaryWorkout : upcomingPrimary;
   const fueling = buildFuelingPreparation(
     fuelingWorkout,
     nutrition.products,
@@ -278,7 +282,7 @@ export default async function DashboardPage({
   ];
   const autopilotActionsAvailable =
     primaryWorkout?.source === "automatic" &&
-    (primaryWorkout.sportType === "cycling" ||
+    (primaryWorkout.sportType === primarySport ||
       primaryWorkout.sportType === "strength") &&
     primaryItem?.effectiveStatus === "planned" &&
     query.saved !== "accepted";
@@ -591,11 +595,11 @@ export default async function DashboardPage({
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 border-t border-[var(--line)] pt-4">
               <Metric
-                label="Lange Fahrt"
+                label={primarySport === "running" ? "Langer Lauf" : "Lange Fahrt"}
                 value={`ca. ${weeklyRecommendation.longRideTargetKm} km`}
               />
               <Metric
-                label="Radfenster"
+                label={primarySport === "running" ? "Laufenster" : "Radfenster"}
                 value={`${weeklyRecommendation.availableRideDays} Tage`}
               />
             </div>

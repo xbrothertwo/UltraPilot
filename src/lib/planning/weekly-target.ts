@@ -33,6 +33,8 @@ export type WeeklyTargetRecommendation = {
 };
 
 export type WeeklyTargetInput = {
+  primarySport: "cycling" | "running";
+  runningSessionsPerWeek?: number;
   referenceGoalKm: number;
   days: WeeklyTargetDay[];
   recentFourWeekDistanceKm: number;
@@ -85,21 +87,29 @@ export function buildWeeklyTargetDays(
 }
 
 export function recommendWeeklyTarget(input: WeeklyTargetInput): WeeklyTargetRecommendation {
+  const isRunning = input.primarySport === "running";
   const referenceGoalKm = Math.max(0, input.referenceGoalKm);
   const anchorKm = Math.max(0, input.blockTargetKm ?? referenceGoalKm);
-  const speedKmh = input.recentAverageSpeedKmh && input.recentAverageSpeedKmh >= 10
-    ? Math.min(40, input.recentAverageSpeedKmh)
-    : 22;
+  const speedThreshold = isRunning ? 3 : 10;
+  const speedCap = isRunning ? 25 : 40;
+  const speedFallback = isRunning ? 8 : 22;
+  const speedKmh = input.recentAverageSpeedKmh && input.recentAverageSpeedKmh >= speedThreshold
+    ? Math.min(speedCap, input.recentAverageSpeedKmh)
+    : speedFallback;
+  const minimumMinutes = isRunning ? 30 : 45;
+  const sessionCap = isRunning
+    ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3))
+    : 3;
   const usableDays = input.days
-    .filter((day) => day.readiness !== "red" && day.availableMinutes >= 45)
+    .filter((day) => day.readiness !== "red" && day.availableMinutes >= minimumMinutes)
     .map((day) => {
       const cap = day.workday ? input.workdayMaxMinutes : 300;
       const readinessFactor = day.readiness === "yellow" ? .75 : 1;
       return { ...day, usableMinutes: Math.floor(Math.min(day.availableMinutes, cap) * readinessFactor) };
     })
-    .filter((day) => day.usableMinutes >= 45)
+    .filter((day) => day.usableMinutes >= minimumMinutes)
     .sort((a, b) => b.usableMinutes - a.usableMinutes || a.date.localeCompare(b.date));
-  const cyclingDays = usableDays.slice(0, 3);
+  const cyclingDays = usableDays.slice(0, sessionCap);
   const usableCyclingMinutes = cyclingDays.reduce((sum, day) => sum + day.usableMinutes, 0);
   const level = availabilityLevel(usableCyclingMinutes);
   const estimatedCapacityKm = roundFive(usableCyclingMinutes / 60 * speedKmh);
@@ -127,9 +137,11 @@ export function recommendWeeklyTarget(input: WeeklyTargetInput): WeeklyTargetRec
   const longWindowDays = usableDays.filter((day) => !day.workday && day.usableMinutes >= 180).length;
 
   const reasons = [
-    `${cyclingDays.length} nutzbare Radfenster ergeben rund ${usableCyclingMinutes} realistische Trainingsminuten.`,
+    isRunning
+      ? `${cyclingDays.length} nutzbare Lauffenster ergeben rund ${usableCyclingMinutes} realistische Trainingsminuten.`
+      : `${cyclingDays.length} nutzbare Radfenster ergeben rund ${usableCyclingMinutes} realistische Trainingsminuten.`,
     longWindowDays > 0
-      ? `${longWindowDays} ${longWindowDays === 1 ? "freier Tag eignet" : "freie Tage eignen"} sich für eine längere Ausfahrt.`
+      ? `${longWindowDays} ${longWindowDays === 1 ? "freier Tag eignet" : "freie Tage eignen"} sich für ${isRunning ? "einen langen Lauf" : "eine längere Ausfahrt"}.`
       : "Kein freier Tag bietet aktuell ein langes, unbelastetes Zeitfenster.",
     recentWeeklyKm === null
       ? "Bis genügend Verlauf vorliegt, begrenzt dein Referenzziel größere Sprünge."
