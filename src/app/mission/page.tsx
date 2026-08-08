@@ -103,10 +103,22 @@ export default async function MissionPage() {
         title="Mission Control"
         description="Dein nachvollziehbarer Weg zu deinem persönlichen Ausdauerziel – auf Basis echter Trainingseinheiten statt motivierender Fantasiezahlen."
         action={
-          <Link href="/plan" className="primary-button">
-            Aktuellen Block planen
-          </Link>
-        }
+  <div className="flex flex-wrap gap-2">
+    <Link
+      href="/mission/builder"
+      className="primary-button"
+    >
+      Mission simulieren
+    </Link>
+
+    <Link
+      href="/plan"
+      className="rounded-full border border-[var(--line)] px-4 py-2.5 text-sm font-black"
+    >
+      Aktuellen Block planen
+    </Link>
+  </div>
+}
       />
 
       <section className="relative overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-[#07162d] via-[#123a72] to-[#155e9a] p-6 text-white shadow-[0_24px_60px_rgba(9,26,51,.2)] sm:rounded-[2rem] sm:p-9">
