@@ -251,6 +251,35 @@ support_mode: optionalSupportMode(formData),
   redirect("/plan?saved=profile");
 }
 
+export async function increaseWeeklyGoal(formData: FormData) {
+  let destination = planDestination(formData, "saved=goal-increased");
+  try {
+    const raw = formData.get("newGoalKm");
+    const goalKm = typeof raw === "string" ? Number(raw) : NaN;
+    if (!Number.isFinite(goalKm) || goalKm <= 0 || goalKm > 2000)
+      throw new Error("Wochenziel ist ungültig.");
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { error } = await supabase
+      .from("training_goals")
+      .update({
+        weekly_distance_goal_km: goalKm,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/plan");
+    revalidatePath("/dashboard");
+  } catch (error) {
+    destination = planDestination(
+      formData,
+      `error=${encodeURIComponent(error instanceof Error ? error.message : "Wochenziel konnte nicht erhöht werden.")}`,
+    );
+  }
+  redirect(destination);
+}
+
 type ImportedEvent = {
   title: unknown;
   startsAt: unknown;
