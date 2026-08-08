@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseIcs } from "../src/lib/calendar/ics-parser";
+import { allDayEventBounds, parseIcs } from "../src/lib/calendar/ics-parser";
 
 describe("ICS parser", () => {
   it("parses timed and all-day shifts in Europe/Berlin", () => {
@@ -17,6 +17,19 @@ describe("ICS parser", () => {
 
   it("rejects unresolved recurring rules instead of silently losing occurrences", () => {
     expect(() => parseIcs("BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Termin\nDTSTART:20260801T070000Z\nDTEND:20260801T080000Z\nRRULE:FREQ=WEEKLY\nEND:VEVENT\nEND:VCALENDAR")).toThrow(/Wiederkehrende/);
+  });
+});
+
+describe("allDayEventBounds", () => {
+  it("blocks the full local calendar day regardless of the entered time-of-day", () => {
+    const bounds = allDayEventBounds("2026-08-10T09:00", "2026-08-10T17:00");
+    expect(bounds).toEqual({ startsAt: "2026-08-09T22:00:00.000Z", endsAt: "2026-08-10T22:00:00.000Z" });
+    expect(new Date(bounds.endsAt).getTime() - new Date(bounds.startsAt).getTime()).toBe(86_400_000);
+  });
+
+  it("spans multiple days when start and end dates differ", () => {
+    const bounds = allDayEventBounds("2026-08-10T09:00", "2026-08-11T17:00");
+    expect(new Date(bounds.endsAt).getTime() - new Date(bounds.startsAt).getTime()).toBe(2 * 86_400_000);
   });
 });
 

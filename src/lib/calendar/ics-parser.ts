@@ -40,6 +40,22 @@ function dateToIso(value: string, timezone: string): string {
   return zonedLocalTimeToIso(`${value}T000000`, timezone);
 }
 
+function shiftDateOnly(dateOnly: string, days: number): string {
+  const [year, month, day] = dateOnly.split("-").map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1, day + days));
+  return `${shifted.getUTCFullYear()}${String(shifted.getUTCMonth() + 1).padStart(2, "0")}${String(shifted.getUTCDate()).padStart(2, "0")}`;
+}
+
+// Ignores time-of-day and returns the full local calendar day span, like an all-day ICS event.
+export function allDayEventBounds(startsAtLocal: string, endsAtLocal: string, timezone = "Europe/Berlin"): { startsAt: string; endsAt: string } {
+  const startDateOnly = startsAtLocal.slice(0, 10).replaceAll("-", "");
+  const endDateOnly = endsAtLocal.slice(0, 10).replaceAll("-", "");
+  return {
+    startsAt: dateToIso(startDateOnly, timezone),
+    endsAt: dateToIso(shiftDateOnly(`${endDateOnly.slice(0, 4)}-${endDateOnly.slice(4, 6)}-${endDateOnly.slice(6, 8)}`, 1), timezone),
+  };
+}
+
 function property(line: string): { name: string; parameters: Record<string, string>; value: string } | null {
   const colon = line.indexOf(":");
   if (colon < 0) return null;
