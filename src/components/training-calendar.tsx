@@ -7,7 +7,7 @@ import { deleteCalendarEvent, deletePlannedWorkout, movePlannedWorkout, saveCale
 import type { Activity } from "@/lib/demo-data";
 import type { PlanningEvent, PrimarySport } from "@/lib/planning/data";
 import type { PlannedWorkout } from "@/lib/planning/workouts";
-import { zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
+import { eventOverlapsLocalDay, zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
 import { STRENGTH_WORKOUTS, strengthVariantFromTitle } from "@/lib/planning/strength-plan";
 import { reconcilePlannedWorkouts, type ReconciledWorkout } from "@/lib/planning/reconciliation";
 import { explainWorkoutPlan } from "@/lib/planning/explanations";
@@ -111,7 +111,7 @@ export function TrainingCalendar({ primarySport, days, week, workouts, events, a
       {days.map((date) => {
         const dateValue = new Date(`${date}T12:00:00`);
         const dayWorkouts = reconciled.filter((item) => item.workout.scheduledDate === date);
-        const dayEvents = events.filter((event) => localDate(event.startsAt) === date || (new Date(event.startsAt) < new Date(`${date}T23:59:59`) && new Date(event.endsAt) > new Date(`${date}T00:00:00`)));
+        const dayEvents = events.filter((event) => localDate(event.startsAt) === date || eventOverlapsLocalDay(event, date));
         const dayActivities = activities.filter((activity) => localDate(activity.activityDate) === date && !matchedActivityIds.has(activity.id));
         const dayReadiness = readiness.find((item) => item.date === date);
         return <section key={date} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData("text/planned-workout"); if (id) dropWorkout(id, date); }} className={`min-h-44 rounded-2xl border bg-white/75 p-2.5 md:min-h-[32rem] ${date === today ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/10" : "border-[var(--line)]"}`}>

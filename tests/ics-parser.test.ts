@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allDayEventBounds, parseIcs } from "../src/lib/calendar/ics-parser";
+import { allDayEventBounds, eventOverlapsLocalDay, parseIcs, zonedLocalTimeToIso } from "../src/lib/calendar/ics-parser";
 
 describe("ICS parser", () => {
   it("parses timed and all-day shifts in Europe/Berlin", () => {
@@ -30,6 +30,41 @@ describe("allDayEventBounds", () => {
   it("spans multiple days when start and end dates differ", () => {
     const bounds = allDayEventBounds("2026-08-10T09:00", "2026-08-11T17:00");
     expect(new Date(bounds.endsAt).getTime() - new Date(bounds.startsAt).getTime()).toBe(2 * 86_400_000);
+  });
+});
+
+describe("eventOverlapsLocalDay", () => {
+  it("attributes an activity shortly after German midnight to the new day, not the UTC day", () => {
+    const event = { startsAt: "2026-01-14T23:30:00.000Z", endsAt: "2026-01-14T23:45:00.000Z" };
+    expect(eventOverlapsLocalDay(event, "2026-01-15")).toBe(true);
+    expect(eventOverlapsLocalDay(event, "2026-01-14")).toBe(false);
+  });
+
+  it("attributes an activity shortly before German midnight to the correct day", () => {
+    const event = { startsAt: "2026-01-14T22:30:00.000Z", endsAt: "2026-01-14T22:45:00.000Z" };
+    expect(eventOverlapsLocalDay(event, "2026-01-14")).toBe(true);
+    expect(eventOverlapsLocalDay(event, "2026-01-15")).toBe(false);
+  });
+
+  it("spans both calendar days for a night shift crossing midnight", () => {
+    const event = { startsAt: zonedLocalTimeToIso("20260114T220000", "Europe/Berlin"), endsAt: zonedLocalTimeToIso("20260115T060000", "Europe/Berlin") };
+    expect(eventOverlapsLocalDay(event, "2026-01-14")).toBe(true);
+    expect(eventOverlapsLocalDay(event, "2026-01-15")).toBe(true);
+    expect(eventOverlapsLocalDay(event, "2026-01-16")).toBe(false);
+  });
+
+  it("attributes an activity to the correct day across the spring DST transition", () => {
+    const event = { startsAt: zonedLocalTimeToIso("20260329T110000", "Europe/Berlin"), endsAt: zonedLocalTimeToIso("20260329T120000", "Europe/Berlin") };
+    expect(eventOverlapsLocalDay(event, "2026-03-29")).toBe(true);
+    expect(eventOverlapsLocalDay(event, "2026-03-28")).toBe(false);
+    expect(eventOverlapsLocalDay(event, "2026-03-30")).toBe(false);
+  });
+
+  it("attributes an activity to the correct day across the autumn DST transition", () => {
+    const event = { startsAt: zonedLocalTimeToIso("20261025T110000", "Europe/Berlin"), endsAt: zonedLocalTimeToIso("20261025T120000", "Europe/Berlin") };
+    expect(eventOverlapsLocalDay(event, "2026-10-25")).toBe(true);
+    expect(eventOverlapsLocalDay(event, "2026-10-24")).toBe(false);
+    expect(eventOverlapsLocalDay(event, "2026-10-26")).toBe(false);
   });
 });
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getActivities } from "@/lib/activities";
+import { eventOverlapsLocalDay } from "@/lib/calendar/ics-parser";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { hasCompletedOnboarding } from "@/lib/onboarding";
 import {
@@ -100,9 +101,7 @@ function sleepLabel(minutes: number): string {
 }
 
 function overlapsDay(event: PlanningEvent, key: string): boolean {
-  const start = new Date(`${key}T00:00:00`);
-  const end = new Date(`${key}T23:59:59`);
-  return new Date(event.startsAt) <= end && new Date(event.endsAt) >= start;
+  return eventOverlapsLocalDay(event, key);
 }
 
 const decisionPillStyles: Record<DailyDecisionLevel, string> = {

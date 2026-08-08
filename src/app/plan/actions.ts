@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
-import { allDayEventBounds, zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
+import { allDayEventBounds, eventOverlapsLocalDay, zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
 import { getActivities } from "@/lib/activities";
 import { calculateDailyAvailability } from "@/lib/planning/availability";
 import { getPlanningData } from "@/lib/planning/data";
@@ -777,11 +777,13 @@ export async function generateWeeklyPlan(formData: FormData) {
     ? `/dashboard?saved=${dashboardAction}`
     : planDestination(formData, "generated=1");
   try {
+    const iso = (date: Date) =>
+      new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
     const week = dateValue(formData.get("week"));
     const start = new Date(`${week}T12:00:00`);
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
-    const until = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, "0")}-${String(end.getDate()).padStart(2, "0")}`;
+    const until = iso(end);
     const rangeStart = new Date(start);
     rangeStart.setHours(0, 0, 0, 0);
     const rangeEnd = new Date(end);
@@ -792,8 +794,6 @@ export async function generateWeeklyPlan(formData: FormData) {
     historyStart.setDate(historyStart.getDate() - 180);
     const historyEnd = new Date(start);
     historyEnd.setDate(historyEnd.getDate() - 1);
-    const iso = (date: Date) =>
-      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const [
       planning,
       existing,
@@ -1005,17 +1005,15 @@ export async function generateWeeklyPlan(formData: FormData) {
       planning.events.some(
         (event) =>
           event.eventKind.startsWith("work_") &&
-          new Date(event.startsAt) < new Date(`${key}T23:59:59`) &&
-          new Date(event.endsAt) > new Date(`${key}T00:00:00`),
+          eventOverlapsLocalDay(event, key),
       );
     const days = Array.from({ length: 7 }, (_, index) => {
       const date = new Date(start);
       date.setDate(date.getDate() + index);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      const key = iso(date);
       const events = planning.events.filter(
         (event) =>
-          new Date(event.startsAt) < new Date(`${key}T23:59:59`) &&
-          new Date(event.endsAt) > new Date(`${key}T00:00:00`) &&
+          eventOverlapsLocalDay(event, key) &&
           event.eventKind !== "free",
       );
       const windows = calculateDailyAvailability(
