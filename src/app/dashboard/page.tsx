@@ -207,7 +207,15 @@ export default async function DashboardPage({
   const busyTodayEvents = todayEvents.filter(
     (event) => event.eventKind !== "free",
   );
-  const todayWindows = calculateDailyAvailability(todayKey, busyTodayEvents);
+  const todayWindows = calculateDailyAvailability(
+    todayKey,
+    busyTodayEvents,
+    30,
+    6,
+    22,
+    planning.profile.beforeLateShiftAllowed,
+    planning.profile.afterNightShiftAllowed,
+  );
   const rawLargestWindow = todayWindows.reduce(
     (largest, window) => Math.max(largest, window.durationMinutes),
     0,
@@ -252,6 +260,8 @@ export default async function DashboardPage({
     Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)),
     planning.events,
     new Map([[todayKey, readiness.status]]),
+    planning.profile.beforeLateShiftAllowed,
+    planning.profile.afterNightShiftAllowed,
   );
   const weeklyRecommendation = recommendWeeklyTarget({
     primarySport,

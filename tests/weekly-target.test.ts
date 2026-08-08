@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { recommendWeeklyTarget, type WeeklyTargetDay } from "../src/lib/planning/weekly-target";
+import { buildWeeklyTargetDays, recommendWeeklyTarget, type WeeklyTargetDay } from "../src/lib/planning/weekly-target";
 
 function day(date: string, availableMinutes: number, workday = false): WeeklyTargetDay {
   return { date, availableMinutes, workday, readiness: "unknown" };
@@ -75,5 +75,28 @@ describe("recommendWeeklyTarget", () => {
       ],
     });
     expect(result.availableRideDays).toBe(5);
+  });
+});
+
+describe("buildWeeklyTargetDays", () => {
+  it("honors the before-late-shift rule when computing available minutes", () => {
+    const events = [
+      {
+        startsAt: "2026-08-03T13:00:00.000Z",
+        endsAt: "2026-08-03T21:00:00.000Z",
+        eventKind: "work_late",
+        allDay: false,
+      },
+    ];
+    const allowed = buildWeeklyTargetDays(["2026-08-03"], events, new Map());
+    expect(allowed[0].availableMinutes).toBeGreaterThan(0);
+    const disallowed = buildWeeklyTargetDays(
+      ["2026-08-03"],
+      events,
+      new Map(),
+      false,
+      true,
+    );
+    expect(disallowed[0].availableMinutes).toBe(0);
   });
 });
