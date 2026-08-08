@@ -281,7 +281,7 @@ export default async function DashboardPage({
     blockLongRideTargetKm: selectedBlockWeek?.longRideTargetKm,
     blockPhase: selectedBlockWeek?.phase,
   });
-  const weeklyGoal = weeklyRecommendation.targetKm;
+    const weeklyGoal = weeklyRecommendation.planningTargetKm;
   const actualKm = weekActivities
     .filter((activity) => activity.sportType === primarySport)
     .reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);

@@ -19,13 +19,25 @@ export function WeeklyTargetCard({ recommendation, blockWeekNumber }: { recommen
     <div aria-hidden className="absolute -right-16 -top-20 size-52 rounded-full border-[34px] border-blue-400/8" />
     <div className="relative grid gap-5 xl:grid-cols-[1.1fr_.9fr] xl:items-end">
       <div>
-        <div className="flex flex-wrap items-center gap-2"><p className="eyebrow">Adaptives Wochenziel</p><span className="rounded-full bg-white/80 px-2.5 py-1 text-[.62rem] font-black uppercase tracking-wider text-blue-700 shadow-sm">{blockWeekNumber ? `Blockwoche ${blockWeekNumber}` : levelLabels[recommendation.availabilityLevel]}</span></div>
+        <div className="flex flex-wrap items-center gap-2"><p className="eyebrow">Wochenziel-Einschätzung</p><span className="rounded-full bg-white/80 px-2.5 py-1 text-[.62rem] font-black uppercase tracking-wider text-blue-700 shadow-sm">{blockWeekNumber ? `Blockwoche ${blockWeekNumber}` : levelLabels[recommendation.availabilityLevel]}</span></div>
         <h2 className="mt-3 text-2xl font-black tracking-[-.04em] text-[var(--ink)] sm:text-3xl">Diese Woche sind {recommendation.lowerKm}–{recommendation.upperKm} km sinnvoll.</h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{assessmentLabels[recommendation.assessment]} UltraPilot plant mit <strong className="text-[var(--ink)]">{recommendation.targetKm} km</strong> und behandelt deine {recommendation.referenceGoalKm} km weiterhin als langfristigen Referenzwert.</p>
+        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+  {assessmentLabels[recommendation.assessment]} UltraPilot plant mit{" "}
+  <strong className="text-[var(--ink)]">
+    {recommendation.planningTargetKm} km
+  </strong>
+  .{" "}
+  {recommendation.suggestedGoalKm !== null
+    ? `Mehr Umfang bis ${recommendation.suggestedGoalKm} km wird erst nach deiner Bestätigung eingeplant.`
+    : `Dein bestätigtes Wochenziel liegt bei ${recommendation.referenceGoalKm} km.`}
+</p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[var(--ink-soft)]">{recommendation.reasons.slice(0, 2).map((reason) => <span key={reason} className="rounded-full border border-blue-100 bg-white/75 px-3 py-1.5">{reason}</span>)}</div>
       </div>
       <dl className="grid grid-cols-3 gap-2.5">
-        <TargetMetric label="Planwert" value={`${recommendation.targetKm} km`} />
+        <TargetMetric
+  label="Planwert"
+  value={`${recommendation.planningTargetKm} km`}
+/>
         <TargetMetric label="Lange Fahrt" value={`ca. ${recommendation.longRideTargetKm} km`} />
         <TargetMetric label="Radfenster" value={`${recommendation.availableRideDays} Tage`} />
       </dl>

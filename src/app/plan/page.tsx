@@ -210,7 +210,7 @@ export default async function PlanPage({
     blockLongRideTargetKm: selectedBlockWeek?.longRideTargetKm,
     blockPhase: selectedBlockWeek?.phase,
   });
-  const effectiveWeeklyGoal = weeklyRecommendation.targetKm;
+  const effectiveWeeklyGoal = weeklyRecommendation.planningTargetKm;
 
   return (
     <>
@@ -263,30 +263,29 @@ export default async function PlanPage({
         </p>
       )}
 
-      {weeklyRecommendation.assessment === "conservative" &&
-        effectiveWeeklyGoal > profile.weeklyDistanceGoalKm && (
-          <form
-            action={increaseWeeklyGoal}
-            className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm dark:border-emerald-400/30 dark:bg-emerald-400/10"
+      {weeklyRecommendation.suggestedGoalKm !== null && (
+        <form
+          action={increaseWeeklyGoal}
+          className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm dark:border-emerald-400/30 dark:bg-emerald-400/10"
+        >
+          <input type="hidden" name="week" value={week} />
+          <input
+            type="hidden"
+            name="newGoalKm"
+            value={weeklyRecommendation.suggestedGoalKm}
+          />
+          <span className="font-bold text-emerald-950 dark:text-emerald-200">
+            Deine Zeitfenster geben mehr her als dein Referenzziel von{" "}
+            {profile.weeklyDistanceGoalKm} km.
+          </span>
+          <button
+            type="submit"
+            className="ml-auto shrink-0 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-black text-white hover:bg-emerald-800"
           >
-            <input type="hidden" name="week" value={week} />
-            <input
-              type="hidden"
-              name="newGoalKm"
-              value={effectiveWeeklyGoal}
-            />
-            <span className="font-bold text-emerald-950 dark:text-emerald-200">
-              Deine Zeitfenster geben mehr her als dein Referenzziel von{" "}
-              {profile.weeklyDistanceGoalKm} km.
-            </span>
-            <button
-              type="submit"
-              className="ml-auto shrink-0 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-black text-white hover:bg-emerald-800"
-            >
-              Auf {effectiveWeeklyGoal} km erhöhen
-            </button>
-          </form>
-        )}
+            Auf {weeklyRecommendation.suggestedGoalKm} km erhöhen
+          </button>
+        </form>
+      )}
 
       {todayReadiness && (
         <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
@@ -375,7 +374,7 @@ export default async function PlanPage({
             detail="noch offene Einheiten"
           />
           <Summary
-            label="Adaptives Ziel"
+            label="Planungsziel"
             value={`${effectiveWeeklyGoal} km`}
             detail={`${Math.max(0, effectiveWeeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`}
           />

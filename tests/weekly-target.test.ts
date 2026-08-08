@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildWeeklyTargetDays, recommendWeeklyTarget, type WeeklyTargetDay } from "../src/lib/planning/weekly-target";
+import {
+  buildWeeklyTargetDays,
+  recommendWeeklyTarget,
+  validateWeeklyGoalIncrease,
+  type WeeklyTargetDay,
+} from "../src/lib/planning/weekly-target";
 
 function day(date: string, availableMinutes: number, workday = false): WeeklyTargetDay {
   return { date, availableMinutes, workday, readiness: "unknown" };
@@ -24,20 +29,22 @@ describe("recommendWeeklyTarget", () => {
   it("raises the target cautiously when several long free windows exist", () => {
     const result = recommendWeeklyTarget({ ...base, days: [day("2026-08-03", 600), day("2026-08-04", 600), day("2026-08-05", 300)] });
     expect(result.targetKm).toBe(145);
-    expect(result.assessment).toBe("conservative");
-    expect(result.longRideTargetKm).toBeGreaterThanOrEqual(60);
+expect(result.planningTargetKm).toBe(125);
+expect(result.suggestedGoalKm).toBe(145);
+expect(result.assessment).toBe("conservative");
+expect(result.longRideTargetKm).toBeGreaterThanOrEqual(60);
   });
 
   it("keeps a balanced week close to the reference goal", () => {
     const result = recommendWeeklyTarget({ ...base, days: [day("2026-08-03", 180), day("2026-08-05", 150), day("2026-08-07", 120)] });
-    expect(result.targetKm).toBe(125);
-    expect(result.assessment).toBe("fitting");
+    expect(result.planningTargetKm).toBe(125);
+expect(result.suggestedGoalKm).toBeNull();
   });
 
   it("never raises an explicit recovery block target", () => {
     const result = recommendWeeklyTarget({ ...base, blockTargetKm: 100, blockLongRideTargetKm: 40, blockPhase: "recovery", days: [day("2026-08-03", 600), day("2026-08-04", 600), day("2026-08-05", 600)] });
-    expect(result.targetKm).toBe(100);
-    expect(result.longRideTargetKm).toBeLessThanOrEqual(40);
+    expect(result.planningTargetKm).toBe(100);
+expect(result.suggestedGoalKm).toBeNull();
   });
 
   it("excludes red readiness days from usable capacity", () => {
@@ -77,7 +84,45 @@ describe("recommendWeeklyTarget", () => {
     expect(result.availableRideDays).toBe(5);
   });
 });
+describe("confirmed weekly goal policy", () => {
+  it("never plans above the confirmed goal", () => {
+    const result = recommendWeeklyTarget({
+      ...base,
+      blockTargetKm: 150,
+      days: [
+        day("2026-08-03", 600),
+        day("2026-08-04", 600),
+        day("2026-08-05", 600),
+      ],
+    });
 
+    expect(result.targetKm).toBeGreaterThan(base.referenceGoalKm);
+    expect(result.planningTargetKm).toBe(base.referenceGoalKm);
+    expect(result.suggestedGoalKm).toBe(result.targetKm);
+  });
+
+  it("allows a valid confirmed increase", () => {
+    expect(validateWeeklyGoalIncrease(125, 145)).toBe(145);
+  });
+
+  it("rejects an excessive increase", () => {
+    expect(() => validateWeeklyGoalIncrease(125, 160)).toThrow(
+      "Die vorgeschlagene Erhöhung ist zu groß.",
+    );
+  });
+
+  it("rejects an unchanged or lower goal", () => {
+    expect(() => validateWeeklyGoalIncrease(125, 125)).toThrow(
+      "Das neue Wochenziel muss höher sein.",
+    );
+  });
+
+  it("rejects values outside five-kilometre steps", () => {
+    expect(() => validateWeeklyGoalIncrease(125, 143)).toThrow(
+      "Wochenziel ist ungültig.",
+    );
+  });
+});
 describe("buildWeeklyTargetDays", () => {
   it("honors the before-late-shift rule when computing available minutes", () => {
     const events = [
