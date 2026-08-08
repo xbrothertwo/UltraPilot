@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { computeStrengthWeekProgress } from "../src/lib/planning/reconciliation";
+import {
+  computeStrengthWeekProgress,
+  explainWorkoutPlacement,
+} from "../src/lib/planning/reconciliation";
 import type { PlannedWorkout } from "../src/lib/planning/workouts";
 
 function workout(overrides: Partial<PlannedWorkout>): PlannedWorkout {
@@ -46,5 +49,42 @@ describe("computeStrengthWeekProgress", () => {
       completed: 1,
       planned: 1,
     });
+  });
+});
+
+describe("explainWorkoutPlacement", () => {
+  function placedWorkout(
+    overrides: Partial<
+      Pick<PlannedWorkout, "source" | "sportType" | "intensity" | "plannedDistanceKm">
+    >,
+  ) {
+    return {
+      source: "automatic" as const,
+      sportType: "running" as const,
+      intensity: "easy" as const,
+      plannedDistanceKm: 8,
+      ...overrides,
+    };
+  }
+
+  it("flags manually planned workouts without guessing a rule-based reason", () => {
+    const workout = placedWorkout({ source: "manual" });
+    expect(explainWorkoutPlacement(workout, "green", [workout])).toBe("Manuell eingeplant.");
+  });
+
+  it("identifies the week's longest session for its sport", () => {
+    const long = placedWorkout({ intensity: "endurance", plannedDistanceKm: 20 });
+    const short = placedWorkout({ plannedDistanceKm: 8 });
+    expect(explainWorkoutPlacement(long, "green", [long, short])).toBe(
+      "Längste Einheit dieser Woche — auf den Tag mit dem meisten freien Zeitfenster gelegt.",
+    );
+  });
+
+  it("explains a tempo session and a yellow-readiness easy session differently", () => {
+    const tempo = placedWorkout({ intensity: "tempo" });
+    expect(explainWorkoutPlacement(tempo, "green", [tempo])).toContain("Tempo");
+
+    const easy = placedWorkout({ intensity: "easy" });
+    expect(explainWorkoutPlacement(easy, "yellow", [easy])).toContain("Belastung");
   });
 });

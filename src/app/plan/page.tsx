@@ -41,20 +41,6 @@ const sportLabels: Record<string, string> = {
   recovery: "Regeneration",
   other: "Sonstiges",
 };
-const intensityLabels: Record<string, string> = {
-  recovery: "Regeneration",
-  easy: "Locker",
-  endurance: "Grundlage",
-  tempo: "Tempo",
-  threshold: "Schwelle",
-  vo2: "VO₂max",
-  strength: "Kraft",
-};
-const statusLabels = {
-  planned: "Geplant",
-  completed: "Erledigt",
-  skipped: "Ausgefallen",
-} as const;
 
 function isoDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -260,93 +246,28 @@ export default async function PlanPage({
         </p>
       )}
 
-      {todayReadiness && (
-        <RecoveryPanel
-          readiness={todayReadiness}
-          week={week}
-          editable={!isDemoMode && recovery.ready}
-        />
+      {warnings.length > 0 && (
+        <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
+          {warnings.join(" · ")}
+        </p>
       )}
 
-      <section className="mb-4 grid gap-4 lg:grid-cols-2">
-        <article
-          className={`card p-5 ${warnings.length > 0 ? "" : "lg:col-span-2"}`}
-        >
-          <p className="eyebrow">Heute</p>
-          {todayWorkoutItem ? (
-            <>
-              <h2 className="mt-2 text-xl font-black">
-                {todayWorkoutItem.workout.title}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                {sportLabels[todayWorkoutItem.workout.sportType] ??
-                  todayWorkoutItem.workout.sportType}{" "}
-                · {intensityLabels[todayWorkoutItem.workout.intensity]}
-                {todayWorkoutItem.workout.plannedDurationMinutes
-                  ? ` · ${todayWorkoutItem.workout.plannedDurationMinutes} min`
-                  : ""}
-                {todayWorkoutItem.workout.plannedDistanceKm !== null
-                  ? ` · ${todayWorkoutItem.workout.plannedDistanceKm.toLocaleString("de-DE")} km`
-                  : ""}
-              </p>
-              <p className="mt-2 text-xs font-black uppercase tracking-wider text-[var(--muted)]">
-                {statusLabels[todayWorkoutItem.effectiveStatus]} ·{" "}
-                {todayWorkoutItem.workout.source === "automatic"
-                  ? "Automatisch geplant"
-                  : "Manuell geplant"}
-              </p>
-            </>
-          ) : (
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Kein Training für heute geplant.
-            </p>
-          )}
-        </article>
-        {warnings.length > 0 && (
-          <article className="card border-amber-200 bg-amber-50/70 p-5 dark:border-amber-400/30 dark:bg-amber-400/10">
-            <p className="eyebrow text-amber-700 dark:text-amber-300">
-              Warnungen
-            </p>
-            <ul className="mt-2 space-y-1.5 text-sm font-semibold text-amber-950 dark:text-amber-100">
-              {warnings.map((warning) => (
-                <li key={warning}>• {warning}</li>
-              ))}
-            </ul>
-          </article>
-        )}
-      </section>
-
-      {profile.primarySport === "cycling" ? (
-        <>
-          <TrainingBlockOverview
-            block={trainingBlock}
-            selectedWeek={week}
-            activities={allActivities}
-            weeklyDistanceKm={profile.weeklyDistanceGoalKm}
-            editable={!isDemoMode}
-          />
-          <WeeklyTargetCard
-            recommendation={weeklyRecommendation}
-            blockWeekNumber={selectedBlockWeek?.weekNumber}
-          />
-        </>
-      ) : (
-        <section className="card mb-4 p-5">
-          <p className="eyebrow">Lauf-Wochenziel</p>
-          <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-3xl font-black">{effectiveWeeklyGoal} km</p>{" "}
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                Bis zu {profile.runningSessionsPerWeek}{" "}
-                {profile.runningSessionsPerWeek === 1 ? "Lauf" : "Läufe"} pro
-                Woche · längster Lauf im größten freien Fenster
-              </p>{" "}
-            </div>
-            <p className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-800">
-              HF-gesteuert
-            </p>
-          </div>
-        </section>
+      {todayReadiness && (
+        <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider ${todayReadiness.status === "green" ? "bg-emerald-100 text-emerald-950" : todayReadiness.status === "yellow" ? "bg-amber-100 text-amber-950" : todayReadiness.status === "red" ? "bg-rose-100 text-rose-950" : "bg-slate-100 text-slate-700"}`}
+          >
+            {todayReadiness.status === "unknown"
+              ? "Tagesform offen"
+              : `Tagesform ${todayReadiness.status}${todayReadiness.score !== null ? ` · ${todayReadiness.score}` : ""}`}
+          </span>
+          <span className="font-bold text-[var(--muted)]">
+            Heute:{" "}
+            {todayWorkoutItem
+              ? `${todayWorkoutItem.workout.title} · ${sportLabels[todayWorkoutItem.workout.sportType] ?? todayWorkoutItem.workout.sportType}${todayWorkoutItem.workout.plannedDurationMinutes ? ` · ${todayWorkoutItem.workout.plannedDurationMinutes} min` : ""}`
+              : "kein Training geplant"}
+          </span>
+        </p>
       )}
 
       <section className="card mb-4 flex flex-col gap-4 p-4 xl:flex-row xl:items-center xl:justify-between">
@@ -425,24 +346,6 @@ export default async function PlanPage({
         </dl>
       </section>
 
-      {generation && (
-        <section className="mb-4 rounded-2xl border border-emerald-900/10 bg-[var(--accent-soft)] p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="eyebrow">Planbegründung</p>
-            <span className="rounded-full bg-white/70 px-3 py-1 text-[.65rem] font-black uppercase tracking-wider text-[var(--muted)]">
-              Regelbasiert · nachvollziehbar
-            </span>
-          </div>
-          <ul className="mt-3 space-y-1.5 text-sm font-semibold leading-6 text-[var(--ink)]">
-            {splitPlanReasons(generation.summary, generation.caution).map(
-              (reason) => (
-                <li key={reason}>• {reason}</li>
-              ),
-            )}
-          </ul>
-        </section>
-      )}
-
       <TrainingCalendar
         primarySport={profile.primarySport}
         days={days}
@@ -454,6 +357,75 @@ export default async function PlanPage({
         readiness={readiness}
         activityLoads={trainingLoad.activities}
       />
+
+      <details className="card mt-4 p-6">
+        <summary className="cursor-pointer list-none text-xl font-black">
+          Tagesform-Check-in & Trainingsblock{" "}
+          <span className="float-right text-[var(--accent)]">+</span>
+        </summary>
+        <div className="mt-5">
+          {todayReadiness && (
+            <RecoveryPanel
+              readiness={todayReadiness}
+              week={week}
+              editable={!isDemoMode && recovery.ready}
+            />
+          )}
+
+          {profile.primarySport === "cycling" ? (
+            <>
+              <TrainingBlockOverview
+                block={trainingBlock}
+                selectedWeek={week}
+                activities={allActivities}
+                weeklyDistanceKm={profile.weeklyDistanceGoalKm}
+                editable={!isDemoMode}
+              />
+              <WeeklyTargetCard
+                recommendation={weeklyRecommendation}
+                blockWeekNumber={selectedBlockWeek?.weekNumber}
+              />
+            </>
+          ) : (
+            <section className="card p-5">
+              <p className="eyebrow">Lauf-Wochenziel</p>
+              <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-3xl font-black">
+                    {effectiveWeeklyGoal} km
+                  </p>{" "}
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    Bis zu {profile.runningSessionsPerWeek}{" "}
+                    {profile.runningSessionsPerWeek === 1 ? "Lauf" : "Läufe"}{" "}
+                    pro Woche · längster Lauf im größten freien Fenster
+                  </p>{" "}
+                </div>
+                <p className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-800">
+                  HF-gesteuert
+                </p>
+              </div>
+            </section>
+          )}
+
+          {generation && (
+            <section className="mt-4 rounded-2xl border border-emerald-900/10 bg-[var(--accent-soft)] p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="eyebrow">Planbegründung</p>
+                <span className="rounded-full bg-white/70 px-3 py-1 text-[.65rem] font-black uppercase tracking-wider text-[var(--muted)]">
+                  Regelbasiert · nachvollziehbar
+                </span>
+              </div>
+              <ul className="mt-3 space-y-1.5 text-sm font-semibold leading-6 text-[var(--ink)]">
+                {splitPlanReasons(generation.summary, generation.caution).map(
+                  (reason) => (
+                    <li key={reason}>• {reason}</li>
+                  ),
+                )}
+              </ul>
+            </section>
+          )}
+        </div>
+      </details>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-2">
         <details className="card p-6">
