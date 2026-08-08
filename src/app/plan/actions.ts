@@ -242,6 +242,7 @@ support_mode: optionalSupportMode(formData),
     if (goalError || preferenceError)
       throw new Error((goalError ?? preferenceError)?.message);
     revalidatePath("/plan");
+    revalidatePath("/", "layout");
   } catch (error) {
     redirect(
       `/plan?error=${encodeURIComponent(error instanceof Error ? error.message : "Einstellungen konnten nicht gespeichert werden.")}`,
