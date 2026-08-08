@@ -83,34 +83,6 @@ export function reconcilePlannedWorkouts(workouts: PlannedWorkout[], activities:
   });
 }
 
-export function explainWorkoutPlacement(
-  workout: Pick<PlannedWorkout, "source" | "sportType" | "intensity" | "plannedDistanceKm">,
-  dayReadinessStatus: "green" | "yellow" | "red" | "unknown" | undefined,
-  weekWorkouts: Pick<PlannedWorkout, "sportType" | "plannedDistanceKm">[],
-): string {
-  if (workout.source === "manual") return "Manuell eingeplant.";
-  const sameSport = weekWorkouts.filter(
-    (item) => item.sportType === workout.sportType && item.plannedDistanceKm !== null,
-  );
-  const longestKm = sameSport.reduce(
-    (max, item) => Math.max(max, item.plannedDistanceKm ?? 0),
-    0,
-  );
-  const isLongest =
-    sameSport.length > 1 &&
-    workout.plannedDistanceKm !== null &&
-    workout.plannedDistanceKm === longestKm;
-  if (isLongest)
-    return "Längste Einheit dieser Woche — auf den Tag mit dem meisten freien Zeitfenster gelegt.";
-  if (workout.intensity === "tempo")
-    return "Tempo eingeplant, da die Tagesform an diesem Tag keine Einschränkung zeigt.";
-  if (dayReadinessStatus === "yellow")
-    return "Bewusst locker gehalten wegen erhöhter Belastung an diesem Tag.";
-  if (workout.intensity === "easy" || workout.intensity === "recovery")
-    return "Lockere Einheit zur aktiven Erholung.";
-  return "Passt in dein verfügbares Zeitfenster an diesem Tag.";
-}
-
 export function computeStrengthWeekProgress(
   workouts: PlannedWorkout[],
   gymSummerSessions: number,

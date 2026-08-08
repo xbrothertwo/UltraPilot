@@ -9,7 +9,8 @@ import type { PlanningEvent, PrimarySport } from "@/lib/planning/data";
 import type { PlannedWorkout } from "@/lib/planning/workouts";
 import { zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
 import { STRENGTH_WORKOUTS, strengthVariantFromTitle } from "@/lib/planning/strength-plan";
-import { explainWorkoutPlacement, reconcilePlannedWorkouts, type ReconciledWorkout } from "@/lib/planning/reconciliation";
+import { reconcilePlannedWorkouts, type ReconciledWorkout } from "@/lib/planning/reconciliation";
+import { explainWorkoutPlan } from "@/lib/planning/explanations";
 import { formatHeartRateTarget, getPlannedHeartRateTarget, type ZoneDefinition } from "@/lib/training-zones";
 import type { ReadinessResult } from "@/lib/recovery-readiness";
 import { compareLoadToPlan, type ActivityLoad } from "@/lib/training-load";
@@ -92,6 +93,7 @@ export function TrainingCalendar({ primarySport, days, week, workouts, events, a
   const [moving, startMove] = useTransition();
   const today = localDate(new Date());
   const reconciled = reconcilePlannedWorkouts(workouts, activities);
+  const weekWorkouts = reconciled.map((item) => item.workout);
   const matchedActivityIds = new Set(reconciled.flatMap((item) => item.activity ? [item.activity.id] : []));
   const editorReconciliation = editor?.workout ? reconciled.find((item) => item.workout.id === editor.workout?.id) ?? null : null;
 
@@ -116,14 +118,27 @@ export function TrainingCalendar({ primarySport, days, week, workouts, events, a
           <header className="mb-3 flex items-center justify-between px-1"><div><p className="flex items-center gap-1.5 text-[.65rem] font-bold uppercase tracking-wider text-[var(--muted)]">{new Intl.DateTimeFormat("de-DE", { weekday: "short" }).format(dateValue)}{dayReadiness && <span title={`Readiness: ${dayReadiness.status}${dayReadiness.score === null ? "" : ` (${dayReadiness.score})`}`} className={`size-2 rounded-full ${readinessDots[dayReadiness.status]}`}/>}</p><p className={`mt-0.5 text-lg font-black ${date === today ? "text-[var(--accent)]" : ""}`}>{new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit" }).format(dateValue)}</p>{dayReadiness?.metric && <p className="mt-0.5 text-[.62rem] font-bold opacity-50" title="Schlafdauer">Schlaf {Math.floor(dayReadiness.metric.asleepMinutes / 60)}h{String(dayReadiness.metric.asleepMinutes % 60).padStart(2, "0")}</p>}</div><div className="flex gap-1"><button type="button" onClick={() => setEventEditor(emptyCalendarEvent(date))} title="Eigenen Termin hinzufügen" aria-label={`Termin am ${date} hinzufügen`} className="grid size-8 place-items-center rounded-lg bg-slate-200 text-xs font-black text-slate-700 hover:bg-slate-300">T</button><button type="button" onClick={() => setEditor({ date })} title="Training hinzufügen" aria-label={`Training am ${date} hinzufügen`} className="grid size-8 place-items-center rounded-lg bg-[#edf3fb] text-lg font-bold text-[var(--accent-dark)] hover:bg-[var(--accent-soft)]">+</button></div></header>
           <div className="space-y-2">
             {dayEvents.map((event) => <button key={event.id} type="button" onClick={() => setEventEditor(event)} className="block w-full rounded-lg bg-slate-200/75 px-2.5 py-2 text-left text-[.7rem] leading-4 text-slate-700 transition hover:bg-slate-300"><p className="font-extrabold">{kindLabels[event.eventKind] ?? event.title} · {event.title}</p><p className="opacity-65">{eventTime(event)} · bearbeiten</p></button>)}
-            {dayWorkouts.map((item) => { const workout = item.workout; const stateColor = item.effectiveStatus === "completed" ? "border-emerald-300 bg-[#0b2347] text-white" : item.effectiveStatus === "skipped" ? "border-slate-300 bg-slate-100 text-slate-500 opacity-75" : workoutColors[workout.intensity] ?? workoutColors.endurance; const reasonOpen = openReasonId === workout.id; const reason = explainWorkoutPlacement(workout, dayReadiness?.status, dayWorkouts.map((entry) => entry.workout)); return <div key={workout.id} className="relative">
+            {dayWorkouts.map((item) => { const workout = item.workout; const stateColor = item.effectiveStatus === "completed" ? "border-emerald-300 bg-[#0b2347] text-white" : item.effectiveStatus === "skipped" ? "border-slate-300 bg-slate-100 text-slate-500 opacity-75" : workoutColors[workout.intensity] ?? workoutColors.endurance; const reasonOpen = openReasonId === workout.id; const explanations = explainWorkoutPlan(
+  workout,
+  dayReadiness,
+  weekWorkouts,
+); return <div key={workout.id} className="relative">
               <button type="button" draggable={item.effectiveStatus === "planned"} onDragStart={(event) => { if (item.effectiveStatus !== "planned") return; event.dataTransfer.setData("text/planned-workout", workout.id); event.dataTransfer.effectAllowed = "move"; }} onClick={() => setEditor({ date, workout })} className={`block w-full rounded-xl border-l-4 p-2.5 pr-7 text-left shadow-sm ${item.effectiveStatus === "planned" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} ${stateColor}`}>
                 <p className="text-[.65rem] font-black uppercase tracking-wider opacity-60">{sportLabels[workout.sportType] ?? workout.sportType} · {statusLabels[item.effectiveStatus]} · {intensityLabels[workout.intensity]} · {sourceLabels[workout.source]}</p>
                 <p className={`mt-1 text-sm font-black leading-4 ${item.effectiveStatus === "skipped" ? "line-through" : ""}`}>{workout.title}</p>
                 <p className="mt-2 text-[.68rem] font-bold opacity-70">{item.activity ? `${(item.activity.distanceMeters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km Ist · ${workout.plannedDistanceKm?.toLocaleString("de-DE", { maximumFractionDigits: 1 }) ?? "–"} km Soll` : workoutMeta(workout, heartRateZones)}</p>
               </button>
-              <button type="button" onClick={(event) => { event.stopPropagation(); setOpenReasonId(reasonOpen ? null : workout.id); }} aria-label="Warum diese Einheit an diesem Tag?" aria-expanded={reasonOpen} className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-black/10 text-xs font-black leading-none opacity-70 hover:bg-black/20">i</button>
-              {reasonOpen && <p className="mt-1 rounded-lg bg-black/5 px-2 py-1.5 text-[.66rem] leading-4 opacity-80">{reason}</p>}
+              <button type="button" onClick={(event) => { event.stopPropagation(); setOpenReasonId(reasonOpen ? null : workout.id); }} aria-label="Warum ist diese Einheit so geplant?" aria-expanded={reasonOpen} className="absolute right-1 top-1 grid size-8 place-items-center rounded-full bg-black/10 text-xs font-black leading-none opacity-70 hover:bg-black/20">i</button>
+             {reasonOpen && (
+  <div className="mt-1 space-y-1.5 rounded-lg bg-black/5 px-2 py-1.5 text-[.66rem] leading-4 opacity-80">
+    {explanations.map((explanation) => (
+      <p key={`${explanation.kind}-${explanation.text}`}>
+        <strong>{explanation.label}:</strong>{" "}
+        {explanation.text}
+      </p>
+    ))}
+  </div>
+)}
             </div>; })}
             {dayActivities.map((activity) => <Link key={activity.id} href={`/activities/${activity.id}`} className="block rounded-xl border-l-4 border-[var(--accent)] bg-[var(--ink)] p-2.5 text-white shadow-sm"><p className="text-[.65rem] font-black uppercase tracking-wider text-cyan-200/65">Absolviert</p><p className="mt-1 text-sm font-black leading-4">{activity.title}</p><p className="mt-2 text-[.68rem] font-bold text-blue-50/65">{(activity.distanceMeters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km · {Math.round(activity.movingTimeSeconds / 60)} min</p></Link>)}
           </div>
