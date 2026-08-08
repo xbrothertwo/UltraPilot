@@ -88,7 +88,7 @@ body {
 }
 
 a { text-decoration: none; }
-button, input, select, textarea { font: inherit; }
+input, select, textarea { font: inherit; }
 button, a, summary { -webkit-tap-highlight-color: transparent; }
 button, summary { cursor: pointer; }
 ::selection { background: var(--accent-soft); color: var(--ink); }
