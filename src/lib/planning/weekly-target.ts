@@ -1,3 +1,4 @@
+import { eventOverlapsLocalDay } from "../calendar/ics-parser";
 import { calculateDailyAvailability } from "./availability";
 
 export type WeeklyTargetDay = {
@@ -112,7 +113,7 @@ export function buildWeeklyTargetDays(
   afterNightShiftAllowed = true,
 ): WeeklyTargetDay[] {
   return dates.map((date) => {
-    const dayEvents = events.filter((event) => event.eventKind !== "free" && new Date(event.startsAt) < new Date(`${date}T23:59:59`) && new Date(event.endsAt) > new Date(`${date}T00:00:00`));
+    const dayEvents = events.filter((event) => event.eventKind !== "free" && eventOverlapsLocalDay(event, date));
     const windows = calculateDailyAvailability(date, dayEvents, 30, 6, 22, beforeLateShiftAllowed, afterNightShiftAllowed);
     return {
       date,
