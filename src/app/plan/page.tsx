@@ -26,12 +26,35 @@ import {
   buildWeeklyTargetDays,
   recommendWeeklyTarget,
 } from "@/lib/planning/weekly-target";
+import { splitPlanReasons } from "@/lib/format";
 import { generateWeeklyPlan, savePlanningProfile } from "./actions";
 
 export const metadata = { title: "Plan" };
 export const dynamic = "force-dynamic";
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-[var(--line)] bg-white px-3 py-2.5";
+const sportLabels: Record<string, string> = {
+  cycling: "Rad",
+  running: "Lauf",
+  strength: "Kraft",
+  mobility: "Mobility",
+  recovery: "Regeneration",
+  other: "Sonstiges",
+};
+const intensityLabels: Record<string, string> = {
+  recovery: "Regeneration",
+  easy: "Locker",
+  endurance: "Grundlage",
+  tempo: "Tempo",
+  threshold: "Schwelle",
+  vo2: "VO₂max",
+  strength: "Kraft",
+};
+const statusLabels = {
+  planned: "Geplant",
+  completed: "Erledigt",
+  skipped: "Ausgefallen",
+} as const;
 
 function isoDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -139,6 +162,20 @@ export default async function PlanPage({
   );
   const todayKey = isoDate(new Date());
   const todayReadiness = readiness.find((item) => item.date === todayKey);
+  const todayWorkoutItem =
+    reconciled.find((item) => item.workout.scheduledDate === todayKey) ?? null;
+  const remainingWorkouts = activeWorkouts.length - completedPlans;
+  const warnings = reconciled
+    .filter(
+      (item) =>
+        item.effectiveStatus === "planned" &&
+        readiness.find((entry) => entry.date === item.workout.scheduledDate)
+          ?.status === "red",
+    )
+    .map(
+      (item) =>
+        `${item.workout.title} am ${new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" }).format(new Date(`${item.workout.scheduledDate}T12:00:00`))} liegt an einem Tag mit roter Tagesform.`,
+    );
   const selectedBlockWeek =
     profile.primarySport === "cycling"
       ? blockWeekForDate(trainingBlock, week)
@@ -230,6 +267,54 @@ export default async function PlanPage({
           editable={!isDemoMode && recovery.ready}
         />
       )}
+
+      <section className="mb-4 grid gap-4 lg:grid-cols-2">
+        <article
+          className={`card p-5 ${warnings.length > 0 ? "" : "lg:col-span-2"}`}
+        >
+          <p className="eyebrow">Heute</p>
+          {todayWorkoutItem ? (
+            <>
+              <h2 className="mt-2 text-xl font-black">
+                {todayWorkoutItem.workout.title}
+              </h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                {sportLabels[todayWorkoutItem.workout.sportType] ??
+                  todayWorkoutItem.workout.sportType}{" "}
+                · {intensityLabels[todayWorkoutItem.workout.intensity]}
+                {todayWorkoutItem.workout.plannedDurationMinutes
+                  ? ` · ${todayWorkoutItem.workout.plannedDurationMinutes} min`
+                  : ""}
+                {todayWorkoutItem.workout.plannedDistanceKm !== null
+                  ? ` · ${todayWorkoutItem.workout.plannedDistanceKm.toLocaleString("de-DE")} km`
+                  : ""}
+              </p>
+              <p className="mt-2 text-xs font-black uppercase tracking-wider text-[var(--muted)]">
+                {statusLabels[todayWorkoutItem.effectiveStatus]} ·{" "}
+                {todayWorkoutItem.workout.source === "automatic"
+                  ? "Automatisch geplant"
+                  : "Manuell geplant"}
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              Kein Training für heute geplant.
+            </p>
+          )}
+        </article>
+        {warnings.length > 0 && (
+          <article className="card border-amber-200 bg-amber-50/70 p-5 dark:border-amber-400/30 dark:bg-amber-400/10">
+            <p className="eyebrow text-amber-700 dark:text-amber-300">
+              Warnungen
+            </p>
+            <ul className="mt-2 space-y-1.5 text-sm font-semibold text-amber-950 dark:text-amber-100">
+              {warnings.map((warning) => (
+                <li key={warning}>• {warning}</li>
+              ))}
+            </ul>
+          </article>
+        )}
+      </section>
 
       {profile.primarySport === "cycling" ? (
         <>
@@ -328,6 +413,11 @@ export default async function PlanPage({
             detail="zugeordnete Einheiten"
           />
           <Summary
+            label="Verbleibend"
+            value={`${remainingWorkouts}`}
+            detail="noch offene Einheiten"
+          />
+          <Summary
             label="Adaptives Ziel"
             value={`${effectiveWeeklyGoal} km`}
             detail={`${Math.max(0, effectiveWeeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`}
@@ -343,14 +433,13 @@ export default async function PlanPage({
               Regelbasiert · nachvollziehbar
             </span>
           </div>
-          <p className="mt-3 text-sm font-semibold leading-6 text-[var(--ink)]">
-            {generation.summary}
-          </p>
-          {generation.caution && (
-            <p className="mt-2 text-xs leading-5 text-[var(--muted)]">
-              {generation.caution}
-            </p>
-          )}
+          <ul className="mt-3 space-y-1.5 text-sm font-semibold leading-6 text-[var(--ink)]">
+            {splitPlanReasons(generation.summary, generation.caution).map(
+              (reason) => (
+                <li key={reason}>• {reason}</li>
+              ),
+            )}
+          </ul>
         </section>
       )}
 
