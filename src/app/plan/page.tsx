@@ -41,6 +41,7 @@ const sportLabels: Record<string, string> = {
   cycling: "Rad",
   running: "Lauf",
   strength: "Kraft",
+  volleyball: "Volleyball",
   mobility: "Mobility",
   recovery: "Regeneration",
   other: "Sonstiges",

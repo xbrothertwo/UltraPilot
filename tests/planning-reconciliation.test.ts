@@ -50,6 +50,13 @@ describe("planned workout reconciliation", () => {
     expect(reconcilePlannedWorkouts([workout()], [activity({ sportType: "running" })])[0].activity).toBeNull();
   });
 
+  it("marks a planned volleyball session completed from a matching activity", () => {
+    const result = reconcilePlannedWorkouts([
+      workout({ sportType: "volleyball", title: "Volleyball", intensity: "endurance", plannedDistanceKm: null, plannedDurationMinutes: 90 }),
+    ], [activity({ sportType: "volleyball", title: "Volleyball Training", distanceMeters: 0, movingTimeSeconds: 5_400, elapsedTimeSeconds: 5_700, averageSpeedKmh: 0 })])[0];
+    expect(result.effectiveStatus).toBe("completed");
+  });
+
   it("matches a planned run only with a running activity", () => {
     const result = reconcilePlannedWorkouts([workout({ sportType: "running", title: "Dauerlauf", plannedDistanceKm: 10 })], [activity({ sportType: "running", title: "Lauf", distanceMeters: 10_200 })])[0];
     expect(result.effectiveStatus).toBe("completed");

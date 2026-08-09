@@ -48,6 +48,7 @@ const sports = [
   "cycling",
   "running",
   "strength",
+  "volleyball",
   "mobility",
   "recovery",
   "other",
@@ -591,7 +592,7 @@ export async function movePlannedWorkout(
   }
 }
 
-const manuallyCompletableSports = ["strength", "mobility", "recovery", "other"];
+const manuallyCompletableSports = ["strength", "volleyball", "mobility", "recovery", "other"];
 
 export async function setPlannedWorkoutStatus(formData: FormData) {
   let destination = planDestination(formData, "saved=status");
@@ -1142,7 +1143,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           (workout) =>
             workout.status !== "skipped" &&
             (workout.sportType === "strength" ||
-              workout.title.toLowerCase().includes("volleyball")),
+              workout.sportType === "volleyball"),
         )
         .map((workout) => workout.scheduledDate),
     );
@@ -1205,11 +1206,11 @@ export async function generateWeeklyPlan(formData: FormData) {
       const crossTraining =
         crossTrainingActivityDates.has(key) ||
         crossTrainingPlannedDates.has(key);
-      const canPair = (workout: { sportType: string; title: string }) =>
+      const canPair = (workout: { sportType: string }) =>
         primarySport === "running" &&
         planning.profile.easyRunWithCrossTraining &&
         (workout.sportType === "strength" ||
-          workout.title.toLowerCase().includes("volleyball"));
+          workout.sportType === "volleyball");
       return {
         date: key,
         availableMinutes,

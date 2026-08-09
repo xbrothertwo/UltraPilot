@@ -23,7 +23,7 @@ function relativeDifference(actual: number, planned: number | null): number | nu
 }
 
 function compatibleSport(workout: MatchableWorkout, activity: MatchableActivity): boolean {
-  return (workout.sportType === activity.sportType && (workout.sportType === "cycling" || workout.sportType === "running" || workout.sportType === "strength"));
+  return (workout.sportType === activity.sportType && (workout.sportType === "cycling" || workout.sportType === "running" || workout.sportType === "strength" || workout.sportType === "volleyball"));
 }
 
 export function matchPlannedWorkouts(workouts: MatchableWorkout[], activities: MatchableActivity[]): WorkoutActivityMatch[] {
@@ -41,7 +41,7 @@ export function matchPlannedWorkouts(workouts: MatchableWorkout[], activities: M
   }
 
   const candidates = workouts.flatMap((workout) => {
-    if (usedWorkouts.has(workout.id) || workout.status === "skipped" || (workout.sportType !== "cycling" && workout.sportType !== "running" && workout.sportType !== "strength")) return [];
+    if (usedWorkouts.has(workout.id) || workout.status === "skipped" || (workout.sportType !== "cycling" && workout.sportType !== "running" && workout.sportType !== "strength" && workout.sportType !== "volleyball")) return [];
     return activities.flatMap((activity) => {
       if (usedActivities.has(activity.id) || !compatibleSport(workout, activity)) return [];
       const dayDifference = Math.abs(dayNumber(workout.scheduledDate) - dayNumber(activityDateKey(activity.activityDate)));

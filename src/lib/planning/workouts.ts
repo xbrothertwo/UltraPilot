@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export type PlannedWorkout = {
   id: string;
   scheduledDate: string;
-  sportType: "cycling" | "running" | "strength" | "mobility" | "recovery" | "other";
+  sportType: "cycling" | "running" | "strength" | "volleyball" | "mobility" | "recovery" | "other";
   title: string;
   description: string | null;
   personalNote: string | null;
