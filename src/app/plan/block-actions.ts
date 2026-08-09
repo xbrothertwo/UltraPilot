@@ -128,6 +128,88 @@ export async function resumeTrainingBlock(formData: FormData) {
   redirect(target);
 }
 
+export async function updateTrainingBlockGoal(formData: FormData) {
+  let target = destination(formData, "saved=block-goal-updated");
+  try {
+    const id = formData.get("id");
+    if (typeof id !== "string" || !id) throw new Error("Trainingsblock fehlt.");
+    const goal = optionalGoal(formData);
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { error } = await supabase.from("training_blocks").update({ goal }).eq("id", id).eq("user_id", user.id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/plan");
+  } catch (error) {
+    target = destination(formData, `error=${encodeURIComponent(error instanceof Error ? error.message : "Blockziel konnte nicht gespeichert werden.")}`);
+  }
+  redirect(target);
+}
+
+export async function updateTrainingBlockDates(formData: FormData) {
+  let target = destination(formData, "saved=block-dates-updated");
+  try {
+    const id = formData.get("id");
+    if (typeof id !== "string" || !id) throw new Error("Trainingsblock fehlt.");
+    const startDateValue = formData.get("startDate");
+    if (typeof startDateValue !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(startDateValue)) throw new Error("Startdatum ist ungültig.");
+    const newStart = new Date(`${startDateValue}T12:00:00Z`);
+    if (Number.isNaN(newStart.getTime()) || newStart.getUTCDay() !== 1) throw new Error("Ein Trainingsblock muss an einem Montag beginnen.");
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { data: block, error: blockError } = await supabase.from("training_blocks").select("id,start_date,week_count").eq("id", id).eq("user_id", user.id).maybeSingle();
+    if (blockError || !block) throw new Error(blockError?.message ?? "Trainingsblock wurde nicht gefunden.");
+    const oldStart = new Date(`${block.start_date}T12:00:00Z`);
+    const deltaDays = Math.round((newStart.getTime() - oldStart.getTime()) / 86_400_000);
+    if (deltaDays !== 0) {
+      const { data: weeks, error: weeksError } = await supabase.from("training_block_weeks").select("id,week_start").eq("block_id", id);
+      if (weeksError) throw new Error(weeksError.message);
+      for (const week of weeks ?? []) {
+        const shifted = new Date(`${week.week_start}T12:00:00Z`);
+        shifted.setUTCDate(shifted.getUTCDate() + deltaDays);
+        const { error } = await supabase.from("training_block_weeks").update({ week_start: shifted.toISOString().slice(0, 10) }).eq("id", week.id);
+        if (error) throw new Error(error.message);
+      }
+      const newEnd = new Date(newStart);
+      newEnd.setUTCDate(newEnd.getUTCDate() + block.week_count * 7 - 1);
+      const { error: updateError } = await supabase.from("training_blocks").update({ start_date: startDateValue, end_date: newEnd.toISOString().slice(0, 10) }).eq("id", id).eq("user_id", user.id);
+      if (updateError) throw new Error(updateError.message);
+    }
+    revalidatePath("/plan");
+  } catch (error) {
+    target = destination(formData, `error=${encodeURIComponent(error instanceof Error ? error.message : "Zeitraum konnte nicht geändert werden.")}`);
+  }
+  redirect(target);
+}
+
+export async function updateTrainingBlockWeeklyTarget(formData: FormData) {
+  let target = destination(formData, "saved=block-target-updated");
+  try {
+    const id = formData.get("id");
+    if (typeof id !== "string" || !id) throw new Error("Trainingsblock fehlt.");
+    const weeklyDistanceKm = numberField(formData, "weeklyDistanceKm", 20, 2000);
+    const startingLongRideKm = numberField(formData, "startingLongRideKm", 10, Math.min(1000, weeklyDistanceKm));
+    const recoveryWeekPercentage = numberField(formData, "recoveryWeekPercentage", 60, 100);
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { data: block, error: blockError } = await supabase.from("training_blocks").select("id,sport_type,week_count,start_date").eq("id", id).eq("user_id", user.id).maybeSingle();
+    if (blockError || !block) throw new Error(blockError?.message ?? "Trainingsblock wurde nicht gefunden.");
+    const weeks = generateTrainingBlockWeeks({ startDate: block.start_date, sportType: block.sport_type as BlockSport, weekCount: block.week_count, weeklyDistanceKm, startingLongRideKm, recoveryWeekPercentage });
+    for (const week of weeks) {
+      const { error } = await supabase.from("training_block_weeks").update({ phase: week.phase, target_distance_km: week.targetDistanceKm, long_ride_target_km: week.longRideTargetKm, tempo_session_target: week.tempoSessionTarget, purpose: week.purpose }).eq("block_id", id).eq("week_number", week.weekNumber);
+      if (error) throw new Error(error.message);
+    }
+    const { error: updateError } = await supabase.from("training_blocks").update({ base_weekly_distance_km: weeklyDistanceKm, starting_long_ride_km: startingLongRideKm, recovery_week_percentage: recoveryWeekPercentage }).eq("id", id).eq("user_id", user.id);
+    if (updateError) throw new Error(updateError.message);
+    revalidatePath("/plan");
+  } catch (error) {
+    target = destination(formData, `error=${encodeURIComponent(error instanceof Error ? error.message : "Wochenziel konnte nicht aktualisiert werden.")}`);
+  }
+  redirect(target);
+}
+
 export async function completeTrainingBlock(formData: FormData) {
   let target = destination(formData, "saved=block-completed");
   try {
