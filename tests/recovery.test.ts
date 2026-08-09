@@ -12,12 +12,32 @@ describe("daily readiness", () => {
     expect(result.reasons.join(" ")).toContain("HRV");
   });
 
-  it("always treats reported pain or illness as red", () => {
-    const result = calculateReadiness("2026-08-03", metric("2026-08-03"), { date: "2026-08-03", sleepQuality: 10, generalFatigue: 1, legFatigue: 1, motivation: 10, painOrIllness: true, notes: "" }, []);
+  it("always treats 'Training aktuell nicht sinnvoll' as red regardless of otherwise good values", () => {
+    const result = calculateReadiness("2026-08-03", metric("2026-08-03"), { date: "2026-08-03", sleepQuality: 10, generalFreshness: 10, legFreshness: 10, motivation: 10, wellbeing: 10, symptomLevel: "unsuitable", notes: "" }, []);
     expect(result.status).toBe("red");
   });
 
   it("returns unknown without measurements or check-in", () => {
     expect(calculateReadiness("2026-08-03", null, null, []).status).toBe("unknown");
+  });
+
+  it("uses the same 1=sehr schlecht, 10=sehr gut direction for every scale field", () => {
+    const good = calculateReadiness("2026-08-03", null, { date: "2026-08-03", sleepQuality: 10, generalFreshness: 10, legFreshness: 10, motivation: 10, wellbeing: 10, symptomLevel: "none", notes: "" }, []);
+    const bad = calculateReadiness("2026-08-03", null, { date: "2026-08-03", sleepQuality: 1, generalFreshness: 1, legFreshness: 1, motivation: 1, wellbeing: 1, symptomLevel: "none", notes: "" }, []);
+    expect(good.score!).toBeGreaterThan(bad.score!);
+    expect(good.status).toBe("green");
+    expect(bad.status).toBe("red");
+  });
+
+  it("scales symptom severity instead of forcing red for mild complaints", () => {
+    const mild = calculateReadiness("2026-08-03", null, { date: "2026-08-03", sleepQuality: 8, generalFreshness: 8, legFreshness: 8, motivation: 8, wellbeing: 8, symptomLevel: "mild", notes: "" }, []);
+    expect(mild.status).not.toBe("red");
+    expect(mild.reasons.join(" ")).toContain("Leichte Beschwerden");
+  });
+
+  it("pulls significant complaints toward red without unconditionally forcing it", () => {
+    const result = calculateReadiness("2026-08-03", null, { date: "2026-08-03", sleepQuality: 8, generalFreshness: 8, legFreshness: 8, motivation: 8, wellbeing: 8, symptomLevel: "significant", notes: "" }, []);
+    expect(result.reasons.join(" ")).toContain("Deutliche Beschwerden");
+    expect(result.score!).toBeLessThan(80);
   });
 });

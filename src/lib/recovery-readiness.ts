@@ -2,7 +2,9 @@ export type DailyRecoveryMetric = {
   date: string; sleepStart: string | null; sleepEnd: string | null; asleepMinutes: number; coreMinutes: number; deepMinutes: number; remMinutes: number; awakeMinutes: number;
   sleepingAverageHeartRate: number | null; sleepingMinimumHeartRate: number | null; heartRateSampleCount: number; hrvSdnnMs: number | null; hrvSampleCount: number; restingHeartRate: number | null;
 };
-export type DailyReadinessCheckin = { date: string; sleepQuality: number | null; generalFatigue: number | null; legFatigue: number | null; motivation: number | null; painOrIllness: boolean; notes: string };
+export type SymptomLevel = "none" | "mild" | "significant" | "unsuitable";
+// All 1-10 fields share one direction: 1 = sehr schlecht, 10 = sehr gut.
+export type DailyReadinessCheckin = { date: string; sleepQuality: number | null; generalFreshness: number | null; legFreshness: number | null; motivation: number | null; wellbeing: number | null; symptomLevel: SymptomLevel; notes: string };
 export type ReadinessStatus = "green" | "yellow" | "red" | "unknown";
 export type ReadinessResult = { date: string; status: ReadinessStatus; score: number | null; reasons: string[]; metric: DailyRecoveryMetric | null; checkin: DailyReadinessCheckin | null };
 
@@ -38,13 +40,16 @@ export function calculateReadiness(date: string, metric: DailyRecoveryMetric | n
   }
   if (checkin) {
     if (checkin.sleepQuality !== null) score += (checkin.sleepQuality - 5) * 2;
-    if (checkin.generalFatigue !== null && checkin.generalFatigue >= 7) { score -= (checkin.generalFatigue - 6) * 6; reasons.push("Du meldest erhöhte allgemeine Müdigkeit."); }
-    if (checkin.legFatigue !== null && checkin.legFatigue >= 7) { score -= (checkin.legFatigue - 6) * 5; reasons.push("Du meldest schwere Beine."); }
+    if (checkin.generalFreshness !== null && checkin.generalFreshness <= 4) { score -= (5 - checkin.generalFreshness) * 6; reasons.push("Du meldest geringe allgemeine Frische."); }
+    if (checkin.legFreshness !== null && checkin.legFreshness <= 4) { score -= (5 - checkin.legFreshness) * 5; reasons.push("Du meldest geringe Beinfrische."); }
     if (checkin.motivation !== null && checkin.motivation <= 3) { score -= 8; reasons.push("Motivation ist heute niedrig."); }
-    if (checkin.painOrIllness) reasons.push("Beschwerden oder Krankheitssymptome wurden markiert.");
+    if (checkin.wellbeing !== null) score += (checkin.wellbeing - 5) * 2;
+    if (checkin.symptomLevel === "mild") { score -= 8; reasons.push("Leichte Beschwerden gemeldet."); }
+    else if (checkin.symptomLevel === "significant") { score -= 20; reasons.push("Deutliche Beschwerden gemeldet."); }
+    else if (checkin.symptomLevel === "unsuitable") reasons.push("Training aktuell nicht sinnvoll markiert.");
   }
   score = Math.max(0, Math.min(100, Math.round(score)));
-  const status: ReadinessStatus = checkin?.painOrIllness || score < 50 ? "red" : score < 72 ? "yellow" : "green";
+  const status: ReadinessStatus = checkin?.symptomLevel === "unsuitable" || score < 50 ? "red" : score < 72 ? "yellow" : "green";
   if (!reasons.length) reasons.push("Messwerte und Tagesform liegen in deinem üblichen Bereich.");
   return { date, status, score, reasons, metric, checkin };
 }
