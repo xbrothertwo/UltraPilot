@@ -9,6 +9,16 @@ const inputClass =
   "mt-1.5 w-full rounded-xl border border-[var(--line)] bg-white px-3 py-2.5";
 const skipNote =
   "Kannst du überspringen und später in den Einstellungen ergänzen. UltraPilot schätzt nichts.";
+const dataSourceHints: Record<string, string> = {
+  Garmin: "Exportiere deine Aktivität aus Garmin Connect als FIT- oder GPX-Datei und importiere sie danach.",
+  Polar: "Exportiere deine Aktivität aus Polar Flow als FIT- oder GPX-Datei und importiere sie danach.",
+  "Apple Watch / Health": "Verbinde Apple Health über den Kurzbefehl in den Einstellungen, oder importiere eine exportierte GPX- oder FIT-Datei.",
+  "Allgemeine FIT-Datei": "Importiere eine FIT-Datei von einem beliebigen Gerät oder einer beliebigen App.",
+  "Allgemeine GPX-Datei": "Importiere eine GPX-Datei von einem beliebigen Gerät oder einer beliebigen App.",
+  "TCX-Datei": "TCX-Import folgt in einer späteren Phase.",
+  "Manuelle Aktivität": "Trage abgeschlossene Einheiten direkt im Trainingsplan ein — ganz ohne Datei.",
+};
+const dataSources = Object.keys(dataSourceHints);
 
 export function OnboardingWizard({ error }: { error: string | null }) {
   const [heroSport, setHeroSport] = useState<HeroSport | null>(null);
@@ -246,7 +256,7 @@ export function OnboardingWizard({ error }: { error: string | null }) {
           <p className="eyebrow">Datenquellen &amp; Geräte</p>
           <h2 className="mt-1 text-xl font-black">Womit zeichnest du auf?</h2>
           <div className="mt-4 flex flex-wrap gap-2">
-            {["Garmin", "Apple Watch / Health", "Leistungsmesser", "Keins davon"].map(
+            {dataSources.map(
               (device) => (
                 <button
                   key={device}
@@ -260,16 +270,14 @@ export function OnboardingWizard({ error }: { error: string | null }) {
               ),
             )}
           </div>
-          {devices.includes("Apple Watch / Health") && (
-            <p className="mt-3 text-xs text-[var(--muted)]">
-              Apple Health lässt sich direkt im Trainingsplan verbinden — die
-              Exportdatei wird lokal in deinem Browser verarbeitet.
-            </p>
-          )}
-          {devices.includes("Garmin") && (
-            <p className="mt-3 text-xs text-[var(--muted)]">
-              Garmin-Aktivitäten kannst du als FIT- oder GPX-Datei hochladen.
-            </p>
+          {devices.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              {devices.map((device) => (
+                <p key={device} className="text-xs text-[var(--muted)]">
+                  <span className="font-bold">{device}:</span> {dataSourceHints[device]}
+                </p>
+              ))}
+            </div>
           )}
         </section>
 

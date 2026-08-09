@@ -23,7 +23,7 @@ export type ParsedActivityFile = {
 export type MergeResult = {
   metrics: GpxMetrics;
   streams: ActivityStream[];
-  heartRateSource: "primary" | "apple_watch" | "none";
+  heartRateSource: "primary" | "none" | ActivityStream["source"];
   importedHeartRateSamples: number;
   overlapSeconds: number;
 };

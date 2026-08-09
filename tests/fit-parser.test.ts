@@ -73,6 +73,13 @@ describe("heart-rate fusion", () => {
     expect(merged.metrics.maximumHeartRate).toBe(150);
   });
 
+  it("preserves the supplement's own source instead of assuming Apple Watch", () => {
+    const supplement = parseFit(createFitFile({ heartRates: [110, 125, 150] }), "fit");
+    const merged = mergeHeartRate(primary, supplement);
+    expect(merged.heartRateSource).toBe("fit");
+    expect(merged.streams.find((stream) => stream.type === "heart_rate")?.source).toBe("fit");
+  });
+
   it("rejects a watch recording from another time", () => {
     const watch = parseFit(createFitFile({ start: new Date("2026-01-02T10:00:00Z"), heartRates: [110, 120, 130] }), "apple_watch");
     expect(() => mergeHeartRate(primary, watch)).toThrow(/überschneiden/);
