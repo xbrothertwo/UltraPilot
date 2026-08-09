@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { generateTrainingBlockWeeks, type BlockSport } from "@/lib/planning/block-generator";
+import { generateTrainingBlockWeeks, type BlockPhase, type BlockSport } from "@/lib/planning/block-generator";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -206,6 +206,39 @@ export async function updateTrainingBlockWeeklyTarget(formData: FormData) {
     revalidatePath("/plan");
   } catch (error) {
     target = destination(formData, `error=${encodeURIComponent(error instanceof Error ? error.message : "Wochenziel konnte nicht aktualisiert werden.")}`);
+  }
+  redirect(target);
+}
+
+const BLOCK_PHASES: BlockPhase[] = ["foundation", "build", "load", "peak", "recovery"];
+
+export async function updateTrainingBlockWeek(formData: FormData) {
+  const blockId = formData.get("blockId");
+  const blockIdValue = typeof blockId === "string" ? blockId : "";
+  let target = blockIdValue ? `/plan/block/${blockIdValue}?saved=week-updated` : "/plan";
+  try {
+    if (!blockIdValue) throw new Error("Trainingsblock fehlt.");
+    const weekId = formData.get("weekId");
+    if (typeof weekId !== "string" || !weekId) throw new Error("Blockwoche fehlt.");
+    const phaseValue = formData.get("phase");
+    if (typeof phaseValue !== "string" || !BLOCK_PHASES.includes(phaseValue as BlockPhase)) throw new Error("Ungültige Trainingsphase.");
+    const targetDistanceKm = numberField(formData, "targetDistanceKm", 0, 2000);
+    const longRideTargetKm = numberField(formData, "longRideTargetKm", 0, 1000);
+    const tempoSessionTarget = Math.round(numberField(formData, "tempoSessionTarget", 0, 2));
+    const purposeValue = formData.get("purpose");
+    const purpose = typeof purposeValue === "string" ? purposeValue.trim() : "";
+    if (!purpose || purpose.length > 500) throw new Error("Bitte gib eine Wochenbeschreibung mit höchstens 500 Zeichen ein.");
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    await requireBlockOwner(supabase, user.id, blockIdValue);
+    const { error } = await supabase.from("training_block_weeks").update({ phase: phaseValue, target_distance_km: targetDistanceKm, long_ride_target_km: longRideTargetKm, tempo_session_target: tempoSessionTarget, purpose }).eq("id", weekId).eq("block_id", blockIdValue);
+    if (error) throw new Error(error.message);
+    revalidatePath(`/plan/block/${blockIdValue}`);
+    revalidatePath("/plan");
+  } catch (error) {
+    const message = encodeURIComponent(error instanceof Error ? error.message : "Blockwoche konnte nicht gespeichert werden.");
+    target = blockIdValue ? `/plan/block/${blockIdValue}?error=${message}` : `/plan?error=${message}`;
   }
   redirect(target);
 }

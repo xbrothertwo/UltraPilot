@@ -43,3 +43,16 @@ export async function getCurrentTrainingBlock(): Promise<TrainingBlock | null> {
 export function blockWeekForDate(block: TrainingBlock | null, weekStart: string): TrainingBlockWeek | null {
   return block?.weeks.find((week) => week.weekStart === weekStart) ?? null;
 }
+
+// Any status, including completed/archived: for the block detail page, read access isn't limited to "in flight" blocks.
+export async function getTrainingBlockById(id: string): Promise<TrainingBlock | null> {
+  if (isDemoMode) return null;
+  await requireUser();
+  const supabase = await createClient();
+  if (!supabase) return null;
+  const { data: block, error } = await supabase.from("training_blocks").select(BLOCK_COLUMNS).eq("id", id).maybeSingle();
+  if (error || !block) return null;
+  const { data: weeks, error: weeksError } = await supabase.from("training_block_weeks").select(WEEK_COLUMNS).eq("block_id", block.id).order("week_number");
+  if (weeksError) return null;
+  return mapBlock(block, weeks ?? []);
+}
