@@ -18,6 +18,8 @@ function workout(
     linkedActivityId: null,
     source: "automatic",
     generationId: null,
+    personalNote: null,
+    locked: false,
     ...overrides,
   };
 }

@@ -8,6 +8,7 @@ export type PlannedWorkout = {
   sportType: "cycling" | "running" | "strength" | "mobility" | "recovery" | "other";
   title: string;
   description: string | null;
+  personalNote: string | null;
   intensity: "recovery" | "easy" | "endurance" | "tempo" | "threshold" | "vo2" | "strength";
   plannedDurationMinutes: number | null;
   plannedDistanceKm: number | null;
@@ -15,6 +16,7 @@ export type PlannedWorkout = {
   linkedActivityId: string | null;
   source: "manual" | "automatic";
   generationId: string | null;
+  locked: boolean;
 };
 
 export type PlanGeneration = { summary: string; caution: string | null; createdAt: string };
@@ -24,14 +26,15 @@ export async function getPlannedWorkouts(from: string, until: string): Promise<P
   await requireUser();
   const supabase = await createClient();
   if (!supabase) return [];
-  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
-  if (error) throw new Error(`Geplante Einheiten konnten nicht geladen werden: ${error.message}`);
+  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,personal_note,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id,locked").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
+  if (error) return [];
   return (data ?? []).map((row) => ({
     id: row.id,
     scheduledDate: row.scheduled_date,
     sportType: row.sport_type,
     title: row.title,
     description: row.description,
+    personalNote: row.personal_note,
     intensity: row.intensity,
     plannedDurationMinutes: row.planned_duration_minutes,
     plannedDistanceKm: row.planned_distance_km === null ? null : Number(row.planned_distance_km),
@@ -39,6 +42,7 @@ export async function getPlannedWorkouts(from: string, until: string): Promise<P
     linkedActivityId: row.linked_activity_id,
     source: row.source,
     generationId: row.generation_id,
+    locked: row.locked,
   }));
 }
 
