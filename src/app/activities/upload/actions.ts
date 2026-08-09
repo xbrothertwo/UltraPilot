@@ -139,7 +139,7 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     ];
     const [{ error: fileError }, { error: metricsError }, { error: streamsError }] = await Promise.all([
       supabase.from("activity_files").insert(fileRecords),
-      supabase.from("activity_metrics").insert({ activity_id: activityId, user_id: user.id, track_point_count: metrics.trackPointCount, heart_rate_sample_count: metrics.heartRateSampleCount, calculation_version: "multi-source-v1", metrics: { ...metrics, heartRateSource: merged.heartRateSource, overlapSeconds: merged.overlapSeconds } }),
+      supabase.from("activity_metrics").insert({ activity_id: activityId, user_id: user.id, track_point_count: metrics.trackPointCount, heart_rate_sample_count: metrics.heartRateSampleCount, calculation_version: `multi-source-v1+${metrics.parserVersion}`, metrics: { ...metrics, heartRateSource: merged.heartRateSource, overlapSeconds: merged.overlapSeconds } }),
       merged.streams.length ? supabase.from("activity_streams").insert(merged.streams.map((stream) => streamRecord(activityId, user.id, stream))) : Promise.resolve({ error: null }),
     ]);
     if (fileError || metricsError || streamsError) {

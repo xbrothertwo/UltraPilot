@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="UltraPilot test" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk><name>Two separate recordings in one file</name>
+    <trkseg>
+      <trkpt lat="0" lon="0"><ele>50</ele><time>2026-02-01T10:00:00Z</time></trkpt>
+      <trkpt lat="0" lon="0.001"><ele>51</ele><time>2026-02-01T10:01:00Z</time></trkpt>
+      <trkpt lat="0" lon="0.002"><ele>52</ele><time>2026-02-01T10:02:00Z</time></trkpt>
+    </trkseg>
+    <trkseg>
+      <trkpt lat="1" lon="1"><ele>80</ele><time>2026-02-01T11:00:00Z</time></trkpt>
+      <trkpt lat="1" lon="1.001"><ele>81</ele><time>2026-02-01T11:01:00Z</time></trkpt>
+      <trkpt lat="1" lon="1.002"><ele>82</ele><time>2026-02-01T11:02:00Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

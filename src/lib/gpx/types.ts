@@ -9,9 +9,13 @@ export type GpxMetrics = {
   maximumHeartRate: number | null;
   heartRateSampleCount: number;
   trackPointCount: number;
+  /** Trackpoints dropped as exact-duplicate timestamps or implausible GPS jumps, not counted toward trackPointCount. */
+  discardedTrackPointCount: number;
   averagePower: number | null;
   normalizedPower: number | null;
   averageCadence: number | null;
+  /** Identifies which parser/calculation rules produced this activity's metrics, so later rule changes stay traceable per activity. */
+  parserVersion: string;
 };
 
 export type TrackPoint = {

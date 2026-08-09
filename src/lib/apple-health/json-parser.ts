@@ -31,9 +31,11 @@ export function parseHeartRateJson(text: string): ParsedActivityFile {
       maximumHeartRate: Math.max(...samples.map((sample) => sample.value)),
       heartRateSampleCount: samples.length,
       trackPointCount: samples.length,
+      discardedTrackPointCount: 0,
       averagePower: null,
       normalizedPower: null,
       averageCadence: null,
+      parserVersion: "apple-health-json-v1",
     },
   };
 }
