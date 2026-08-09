@@ -3,6 +3,7 @@ import type { GpxMetrics } from "@/lib/gpx/types";
 import type { ActivityStream, ParsedActivityFile, SensorSample, StreamType } from "./types";
 
 const MOVING_THRESHOLD_MPS = 0.5;
+export const FIT_PARSER_VERSION = "fit-v1";
 
 function validNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -103,9 +104,11 @@ export function parseFit(bytes: Uint8Array, source: ActivityStream["source"] = "
     maximumHeartRate: heartRate.maximum,
     heartRateSampleCount: heartRates.length,
     trackPointCount: records.length,
+    discardedTrackPointCount: 0,
     averagePower: validNumber(session?.avgPower) ? session.avgPower : power.length ? power.reduce((sum, sample) => sum + sample.value, 0) / power.length : null,
     normalizedPower: validNumber(session?.normalizedPower) ? session.normalizedPower : null,
     averageCadence: validNumber(session?.avgCadence) ? session.avgCadence : cadence.length ? cadence.reduce((sum, sample) => sum + sample.value, 0) / cadence.length : null,
+    parserVersion: FIT_PARSER_VERSION,
   };
   const streams = [
     makeStream("heart_rate", "bpm", heartRates, source),
