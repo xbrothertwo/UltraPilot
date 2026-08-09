@@ -12,7 +12,7 @@ const chartConfig = {
   altitude: { label: "Höhe", color: "#25875a", decimals: 0 },
 } as const;
 
-const sourceLabels = { garmin_edge: "Garmin Edge", apple_watch: "Apple Watch", gpx: "GPX" } as const;
+const sourceLabels = { garmin_edge: "Garmin Edge", apple_watch: "Apple Watch", gpx: "GPX", fit: "FIT-Datei" } as const;
 
 function elapsedLabel(minutes: number): string {
   const totalMinutes = Math.max(0, Math.round(minutes));

@@ -67,7 +67,7 @@ export default async function ActivityPage({ params, searchParams }: ActivityPag
   const debrief = buildRideDebrief({ workout: matched?.workout ?? null, comparison: matched?.comparison ?? null, load: activityLoad, nutrition: nutritionSummary, nutritionRecorded: journal.entries.length > 0, feedback: journal.feedback, heartRateDriftPercent: heartRateDrift });
   const actionableDate = [addDays(activityDay, 1), localDate(new Date())].sort().at(-1)!;
   const nextWorkout = nearbyWorkouts.find((workout) => workout.id !== matched?.workout.id && workout.sportType === "cycling" && workout.status === "planned" && workout.scheduledDate >= actionableDate) ?? null;
-  const source = activity.source === "demo" ? "Demo-Aktivität" : activity.source === "apple_health_workout" ? "Apple Health · Apple Watch" : activity.source.includes("apple_watch") ? "Garmin Edge + Apple Watch" : activity.source.startsWith("fit") ? "FIT-Upload" : "GPX-Upload";
+  const source = activity.source === "demo" ? "Demo-Aktivität" : activity.source === "apple_health_workout" ? "Apple Health" : activity.source.startsWith("fit") ? (activity.source.includes("apple_watch") ? "FIT-Upload + ergänzende Herzfrequenzdatei" : "FIT-Upload") : activity.source.includes("apple_watch") ? "GPX-Upload + ergänzende Herzfrequenzdatei" : "GPX-Upload";
 
   return (
     <>

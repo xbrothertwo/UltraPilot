@@ -60,7 +60,7 @@ function heartRateMetrics(values: SensorSample[]) {
   };
 }
 
-export function parseFit(bytes: Uint8Array, source: ActivityStream["source"] = "garmin_edge"): ParsedActivityFile {
+export function parseFit(bytes: Uint8Array, source: ActivityStream["source"] = "fit"): ParsedActivityFile {
   const stream = Stream.fromBuffer(bytes);
   const decoder = new Decoder(stream);
   if (!decoder.isFIT()) throw new Error("Die Datei besitzt keine gültige FIT-Signatur.");

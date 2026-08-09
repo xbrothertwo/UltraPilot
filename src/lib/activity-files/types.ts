@@ -9,7 +9,7 @@ export type SensorSample = {
 
 export type ActivityStream = {
   type: StreamType;
-  source: "garmin_edge" | "apple_watch" | "gpx";
+  source: "garmin_edge" | "apple_watch" | "gpx" | "fit";
   unit: "bpm" | "watt" | "rpm" | "mps" | "meter";
   samples: SensorSample[];
 };

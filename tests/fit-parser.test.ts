@@ -51,6 +51,11 @@ describe("FIT parser", () => {
     expect(parsed.streams.find((stream) => stream.type === "heart_rate")?.samples).toHaveLength(3);
   });
 
+  it("does not assume a Garmin device when no source is given", () => {
+    const parsed = parseFit(createFitFile());
+    expect(parsed.streams.every((stream) => stream.source === "fit")).toBe(true);
+  });
+
   it("rejects data without a FIT signature", () => {
     expect(() => parseFit(new Uint8Array([1, 2, 3]))).toThrow(/FIT-Signatur/);
   });

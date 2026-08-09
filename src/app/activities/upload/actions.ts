@@ -59,8 +59,13 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     file = validateFile(formData.get("activityFile"), "eine GPX- oder FIT-Hauptdatei");
     const supplement = validateFile(formData.get("heartRateFile"), "Die Apple-Watch-Datei", true, ["gpx", "fit", "json"]);
     if (!file) throw new Error("Die Hauptdatei fehlt.");
-    const primary = await parseActivityFile(file, fileExtension(file) === "fit" ? "garmin_edge" : "gpx");
-    const watch = supplement ? await parseActivityFile(supplement, "apple_watch") : undefined;
+    const primary = await parseActivityFile(file, fileExtension(file) === "fit" ? "fit" : "gpx");
+    const supplementExtension = supplement ? fileExtension(supplement) : undefined;
+    // Only the Apple Health JSON export path is actually device-specific; a
+    // second FIT or GPX file for heart-rate supplementation can come from any
+    // device, not just an Apple Watch, so its source must not be assumed.
+    const supplementSource = supplementExtension === "fit" ? "fit" : supplementExtension === "gpx" ? "gpx" : "apple_watch";
+    const watch = supplement ? await parseActivityFile(supplement, supplementSource) : undefined;
     const merged = mergeHeartRate(primary, watch);
     const metrics = merged.metrics;
     const mergeMessage = supplement ? `${merged.importedHeartRateSamples} Watch-Herzfrequenzwerte wurden zeitlich zugeordnet.` : merged.heartRateSource === "primary" ? "Herzfrequenz stammt aus der Hauptdatei." : "Keine Herzfrequenzdatei hinzugefügt.";
@@ -129,8 +134,8 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     }
 
     const fileRecords = [
-      { activity_id: activityId, user_id: user.id, storage_path: storagePath, original_filename: file.name.slice(0, 255), file_type: primaryExtension, mime_type: uploads[0].contentType, size_bytes: file.size, file_role: "primary", source_device: primaryExtension === "fit" ? "garmin_edge" : "gpx" },
-      ...(storeSupplementFile && supplementPath ? [{ activity_id: activityId, user_id: user.id, storage_path: supplementPath, original_filename: storeSupplementFile.name.slice(0, 255), file_type: fileExtension(storeSupplementFile)!, mime_type: uploads[1].contentType, size_bytes: storeSupplementFile.size, file_role: "heart_rate_supplement", source_device: "apple_watch" }] : []),
+      { activity_id: activityId, user_id: user.id, storage_path: storagePath, original_filename: file.name.slice(0, 255), file_type: primaryExtension, mime_type: uploads[0].contentType, size_bytes: file.size, file_role: "primary", source_device: primaryExtension },
+      ...(storeSupplementFile && supplementPath ? [{ activity_id: activityId, user_id: user.id, storage_path: supplementPath, original_filename: storeSupplementFile.name.slice(0, 255), file_type: fileExtension(storeSupplementFile)!, mime_type: uploads[1].contentType, size_bytes: storeSupplementFile.size, file_role: "heart_rate_supplement", source_device: supplementSource }] : []),
     ];
     const [{ error: fileError }, { error: metricsError }, { error: streamsError }] = await Promise.all([
       supabase.from("activity_files").insert(fileRecords),
