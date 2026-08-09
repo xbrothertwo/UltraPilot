@@ -1,9 +1,11 @@
 import { eventOverlapsLocalDay } from "../calendar/ics-parser";
 import { calculateDailyAvailability } from "./availability";
+import { effectiveSessionCapacityMinutes } from "./session-capacity";
 
 export type WeeklyTargetDay = {
   date: string;
   availableMinutes: number;
+  longestAvailableWindowMinutes?: number;
   workday: boolean;
   readiness?: "green" | "yellow" | "red" | "unknown";
 };
@@ -118,6 +120,7 @@ export function buildWeeklyTargetDays(
     return {
       date,
       availableMinutes: windows.reduce((sum, window) => sum + window.durationMinutes, 0),
+      longestAvailableWindowMinutes: windows.reduce((longest, window) => Math.max(longest, window.durationMinutes), 0),
       workday: dayEvents.some((event) => event.eventKind.startsWith("work_")),
       readiness: readinessByDate.get(date),
     };
@@ -139,13 +142,21 @@ export function recommendWeeklyTarget(input: WeeklyTargetInput): WeeklyTargetRec
     ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3))
     : 3;
   const usableDays = input.days
-    .filter((day) => day.readiness !== "red" && day.availableMinutes >= minimumMinutes)
+    .filter(
+      (day) =>
+        day.readiness !== "red" &&
+        effectiveSessionCapacityMinutes(day, input.workdayMaxMinutes) >= minimumMinutes,
+    )
     .map((day) => {
-      const cap = day.workday ? input.workdayMaxMinutes : 300;
       const readinessFactor = day.readiness === "yellow" ? .75 : 1;
-      return { ...day, usableMinutes: Math.floor(Math.min(day.availableMinutes, cap) * readinessFactor) };
+      return {
+        ...day,
+        usableMinutes: Math.floor(
+          effectiveSessionCapacityMinutes(day, input.workdayMaxMinutes) *
+            readinessFactor,
+        ),
+      };
     })
-    .filter((day) => day.usableMinutes >= minimumMinutes)
     .sort((a, b) => b.usableMinutes - a.usableMinutes || a.date.localeCompare(b.date));
   const cyclingDays = usableDays.slice(0, sessionCap);
   const usableCyclingMinutes = cyclingDays.reduce((sum, day) => sum + day.usableMinutes, 0);

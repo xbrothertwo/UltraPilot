@@ -1,5 +1,40 @@
 import { describe, expect, it } from "vitest";
 import { calculateRemainingWeeklyDistance, cyclingDescription, generateDeterministicWeek } from "../src/lib/planning/generator";
+import { effectiveSessionCapacityMinutes } from "../src/lib/planning/session-capacity";
+
+describe("effective session capacity", () => {
+  it.each([
+    { availableMinutes: Number.NaN, expected: 0 },
+    { availableMinutes: Number.POSITIVE_INFINITY, expected: 0 },
+    { availableMinutes: Number.NEGATIVE_INFINITY, expected: 0 },
+  ])("normalizes invalid total availability to zero", ({ availableMinutes, expected }) => {
+    expect(effectiveSessionCapacityMinutes({ availableMinutes, workday: false }, 90)).toBe(expected);
+  });
+
+  it.each([
+    { longestAvailableWindowMinutes: Number.NaN, expected: 0 },
+    { longestAvailableWindowMinutes: Number.POSITIVE_INFINITY, expected: 0 },
+    { longestAvailableWindowMinutes: Number.NEGATIVE_INFINITY, expected: 0 },
+  ])("normalizes an invalid longest window to zero", ({ longestAvailableWindowMinutes, expected }) => {
+    expect(effectiveSessionCapacityMinutes({ availableMinutes: 120, longestAvailableWindowMinutes, workday: false }, 90)).toBe(expected);
+  });
+
+  it.each([
+    { workdayMaxMinutes: Number.NaN, expected: 0 },
+    { workdayMaxMinutes: Number.POSITIVE_INFINITY, expected: 0 },
+    { workdayMaxMinutes: Number.NEGATIVE_INFINITY, expected: 0 },
+  ])("normalizes an invalid workday cap to zero", ({ workdayMaxMinutes, expected }) => {
+    expect(effectiveSessionCapacityMinutes({ availableMinutes: 120, workday: true }, workdayMaxMinutes)).toBe(expected);
+  });
+
+  it("ignores an invalid workday cap on a free day", () => {
+    expect(effectiveSessionCapacityMinutes({ availableMinutes: 120, workday: false }, Number.NaN)).toBe(120);
+  });
+
+  it("falls back to total availability when the longest window is missing", () => {
+    expect(effectiveSessionCapacityMinutes({ availableMinutes: 120, workday: true }, 90)).toBe(90);
+  });
+});
 
 describe("deterministic weekly planner", () => {
   it("subtracts completed and manually planned distance from the hard weekly goal", () => {
@@ -25,6 +60,74 @@ describe("deterministic weekly planner", () => {
     expect(result.workouts).toHaveLength(3);
     expect(result.workouts.some((workout) => workout.scheduledDate === "2026-08-05")).toBe(false);
     expect(result.workouts.find((workout) => workout.scheduledDate === "2026-08-04")?.plannedDurationMinutes).toBeLessThanOrEqual(75);
+  });
+
+  it.each([
+    { sport: "cycling" as const, cap: 44, expectedCount: 0, expectedDuration: undefined },
+    { sport: "cycling" as const, cap: 45, expectedCount: 1, expectedDuration: 45 },
+    { sport: "running" as const, cap: 29, expectedCount: 0, expectedDuration: undefined },
+    { sport: "running" as const, cap: 30, expectedCount: 1, expectedDuration: 30 },
+  ])(
+    "$sport respects a $cap minute workday cap",
+    ({ sport, cap, expectedCount, expectedDuration }) => {
+      const result = generateDeterministicWeek({
+        primarySport: sport,
+        runningSessionsPerWeek: 1,
+        days: [{ date: "2026-08-03", availableMinutes: 180, workday: true, occupied: false }],
+        weeklyGoalKm: 100,
+        recentFourWeekDistanceKm: 400,
+        recentAverageSpeedKmh: sport === "running" ? 10 : 25,
+        workdayMaxMinutes: cap,
+        strengthVariants: [],
+      });
+      const workouts = result.workouts.filter((workout) => workout.sportType === sport);
+      expect(workouts).toHaveLength(expectedCount);
+      expect(workouts[0]?.plannedDurationMinutes).toBe(expectedDuration);
+    },
+  );
+
+  it.each([
+    { cap: 59, expected: false },
+    { cap: 60, expected: true },
+  ])("strength eligibility respects a $cap minute workday cap", ({ cap, expected }) => {
+    const result = generateDeterministicWeek({
+      days: [
+        { date: "2026-08-03", availableMinutes: 180, workday: true, occupied: false },
+        { date: "2026-08-04", availableMinutes: 240, workday: false, occupied: false },
+      ],
+      weeklyGoalKm: 50,
+      recentFourWeekDistanceKm: 400,
+      recentAverageSpeedKmh: 25,
+      workdayMaxMinutes: cap,
+      strengthVariants: ["A"],
+    });
+    const strength = result.workouts.find((workout) => workout.sportType === "strength");
+    expect(Boolean(strength)).toBe(expected);
+    if (expected) expect(strength?.plannedDurationMinutes).toBe(60);
+  });
+
+  it("does not apply the workday cap to a free day", () => {
+    const result = generateDeterministicWeek({
+      days: [{ date: "2026-08-03", availableMinutes: 120, workday: false, occupied: false }],
+      weeklyGoalKm: 50,
+      recentFourWeekDistanceKm: 400,
+      recentAverageSpeedKmh: 25,
+      workdayMaxMinutes: 44,
+      strengthVariants: [],
+    });
+    expect(result.workouts[0]?.plannedDurationMinutes).toBe(120);
+  });
+
+  it("uses a shorter contiguous window instead of a higher workday cap", () => {
+    const result = generateDeterministicWeek({
+      days: [{ date: "2026-08-03", availableMinutes: 180, longestAvailableWindowMinutes: 50, workday: true, occupied: false }],
+      weeklyGoalKm: 50,
+      recentFourWeekDistanceKm: 400,
+      recentAverageSpeedKmh: 25,
+      workdayMaxMinutes: 90,
+      strengthVariants: [],
+    });
+    expect(result.workouts[0]?.plannedDurationMinutes).toBe(50);
   });
   it("does not combine separate availability windows into one workout", () => {
   const result = generateDeterministicWeek({

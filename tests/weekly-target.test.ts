@@ -26,6 +26,40 @@ describe("recommendWeeklyTarget", () => {
     expect(result.longWindowDays).toBe(0);
   });
 
+  it.each([
+    { primarySport: "cycling" as const, cap: 44, expectedDays: 0 },
+    { primarySport: "cycling" as const, cap: 45, expectedDays: 1 },
+    { primarySport: "running" as const, cap: 29, expectedDays: 0 },
+    { primarySport: "running" as const, cap: 30, expectedDays: 1 },
+  ])("matches $primarySport generator eligibility at a $cap minute workday cap", ({ primarySport, cap, expectedDays }) => {
+    const result = recommendWeeklyTarget({
+      ...base,
+      primarySport,
+      runningSessionsPerWeek: 1,
+      workdayMaxMinutes: cap,
+      days: [day("2026-08-03", 180, true)],
+    });
+    expect(result.availableRideDays).toBe(expectedDays);
+  });
+
+  it("uses the longest contiguous window for target capacity", () => {
+    const result = recommendWeeklyTarget({
+      ...base,
+      workdayMaxMinutes: 90,
+      days: [{ ...day("2026-08-03", 180, true), longestAvailableWindowMinutes: 50 }],
+    });
+    expect(result.usableCyclingMinutes).toBe(50);
+  });
+
+  it("does not apply the workday cap to a free day", () => {
+    const result = recommendWeeklyTarget({
+      ...base,
+      workdayMaxMinutes: 45,
+      days: [day("2026-08-03", 360)],
+    });
+    expect(result.usableCyclingMinutes).toBe(360);
+  });
+
   it("raises the target cautiously when several long free windows exist", () => {
     const result = recommendWeeklyTarget({ ...base, days: [day("2026-08-03", 600), day("2026-08-04", 600), day("2026-08-05", 300)] });
     expect(result.targetKm).toBe(145);
