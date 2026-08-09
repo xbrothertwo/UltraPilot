@@ -16,6 +16,14 @@ import {
   runningDescription,
 } from "@/lib/planning/generator";
 import { reconcilePlannedWorkouts } from "@/lib/planning/reconciliation";
+import {
+  hasBlockingWorkoutOnDate,
+  plannedCrossTrainingDates,
+  remainingStrengthSessions as calculateRemainingStrengthSessions,
+  retainedLongSessionCovered,
+  retainedPlannedDistanceKm,
+  retainedPlannedWorkouts,
+} from "@/lib/planning/regeneration-accounting";
 import { getPlannedWorkouts } from "@/lib/planning/workouts";
 import {
   strengthSequence,
@@ -1015,6 +1023,7 @@ export async function generateWeeklyPlan(formData: FormData) {
     const averageSpeedKmh =
       recentSeconds > 0 ? recentDistanceKm / (recentSeconds / 3600) : null;
     const reconciled = reconcilePlannedWorkouts(existing, completedThisWeek);
+    const retainedPlanned = retainedPlannedWorkouts(reconciled);
     const automatic = reconciled.filter(
       (item) => item.workout.source === "automatic",
     );
@@ -1032,28 +1041,20 @@ export async function generateWeeklyPlan(formData: FormData) {
       (sum, activity) => sum + activity.distanceMeters / 1000,
       0,
     );
-    const manuallyPlannedDistanceKm = reconciled
-      .filter(
-        (item) =>
-          item.workout.source !== "automatic" &&
-          item.workout.sportType === primarySport &&
-          item.effectiveStatus === "planned",
-      )
-      .reduce((sum, item) => sum + (item.workout.plannedDistanceKm ?? 0), 0);
+    const retainedPlannedDistance = retainedPlannedDistanceKm(
+      retainedPlanned,
+      primarySport,
+    );
     const blockWeek = blockWeekForDate(trainingBlock, week);
     const longRideCovered = blockWeek
       ? completedThisWeek.some(
           (activity) =>
             activity.distanceMeters / 1000 >= blockWeek.longRideTargetKm * 0.8,
         ) ||
-        reconciled.some(
-          (item) =>
-            item.workout.source === "manual" &&
-            item.effectiveStatus !== "skipped" &&
-            item.workout.sportType === primarySport &&
-            (item.workout.title.toLowerCase().includes("lang") ||
-              (item.workout.plannedDistanceKm ?? 0) >=
-                blockWeek.longRideTargetKm * 0.8),
+        retainedLongSessionCovered(
+          retainedPlanned,
+          primarySport,
+          blockWeek.longRideTargetKm,
         )
       : false;
     const summer = start.getMonth() >= 3 && start.getMonth() <= 8;
@@ -1067,6 +1068,13 @@ export async function generateWeeklyPlan(formData: FormData) {
     const manualStrengthVariants = currentStrength
       .map((workout) => strengthVariantFromTitle(workout.title))
       .filter((variant): variant is StrengthVariant => variant !== null);
+    const retainedLockedAutomaticStrength = retainedPlanned.filter(
+      (workout) =>
+        workout.source === "automatic" && workout.sportType === "strength",
+    );
+    const retainedLockedStrengthVariants = retainedLockedAutomaticStrength
+      .map((workout) => strengthVariantFromTitle(workout.title))
+      .filter((variant): variant is StrengthVariant => variant !== null);
     const historicalStrengthVariants = previousWorkouts
       .filter(
         (workout) =>
@@ -1074,22 +1082,26 @@ export async function generateWeeklyPlan(formData: FormData) {
       )
       .map((workout) => strengthVariantFromTitle(workout.title))
       .filter((variant): variant is StrengthVariant => variant !== null);
-    const remainingStrengthSessions = Math.max(
-      0,
-      configuredStrengthSessions -
-        currentStrength.length -
-        completedAutomatic.filter((workout) => workout.sportType === "strength")
-          .length,
+    const remainingStrengthSessions = calculateRemainingStrengthSessions(
+      configuredStrengthSessions,
+      currentStrength.length,
+      completedAutomatic.filter((workout) => workout.sportType === "strength")
+        .length,
+      retainedPlanned,
     );
     const strengthVariants = summer
       ? strengthSequence(
           remainingStrengthSessions,
           true,
-          [...historicalStrengthVariants, ...manualStrengthVariants].at(-1) ??
+          [...historicalStrengthVariants, ...manualStrengthVariants, ...retainedLockedStrengthVariants].at(-1) ??
             null,
         )
       : (["A", "B"] as StrengthVariant[])
-          .filter((variant) => !manualStrengthVariants.includes(variant))
+          .filter(
+            (variant) =>
+              !manualStrengthVariants.includes(variant) &&
+              !retainedLockedStrengthVariants.includes(variant),
+          )
           .slice(0, remainingStrengthSessions);
     const weekDates = Array.from({ length: 7 }, (_, index) => {
       const date = new Date(start);
@@ -1137,16 +1149,12 @@ export async function generateWeeklyPlan(formData: FormData) {
           }).format(new Date(activity.activityDate)),
         ),
     );
-    const crossTrainingPlannedDates = new Set(
-      [...manual, ...completedAutomatic]
-        .filter(
-          (workout) =>
-            workout.status !== "skipped" &&
-            (workout.sportType === "strength" ||
-              workout.sportType === "volleyball"),
-        )
-        .map((workout) => workout.scheduledDate),
-    );
+    const preservedWorkouts = [
+      ...manual,
+      ...completedAutomatic,
+      ...lockedAutomatic,
+    ];
+    const crossTrainingPlannedDates = plannedCrossTrainingDates(preservedWorkouts);
     const loadProtectedDates = new Set<string>();
     const shiftRuleBlockedDates = new Set<string>();
     const hasShiftEvent = (key: string) =>
@@ -1234,21 +1242,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           key < today ||
           (dashboardAction !== null && key < tomorrow) ||
           activityDates.has(key) ||
-          manual.some(
-            (workout) =>
-              workout.scheduledDate === key &&
-              workout.status !== "skipped" &&
-              !canPair(workout),
-          ) ||
-          completedAutomatic.some(
-            (workout) => workout.scheduledDate === key && !canPair(workout),
-          ) ||
-          lockedAutomatic.some(
-            (workout) =>
-              workout.scheduledDate === key &&
-              workout.status !== "skipped" &&
-              !canPair(workout),
-          ),
+          hasBlockingWorkoutOnDate(preservedWorkouts, key, canPair),
       };
     });
     const recommendationDays = dashboardAction
@@ -1274,7 +1268,7 @@ export async function generateWeeklyPlan(formData: FormData) {
     const remainingDistanceKm = calculateRemainingWeeklyDistance(
       weeklyGoalKm,
       completedDistanceKm,
-      manuallyPlannedDistanceKm,
+      retainedPlannedDistance,
     );
     const adaptiveLongRideTargetKm = longRideCovered
       ? undefined
@@ -1304,7 +1298,7 @@ export async function generateWeeklyPlan(formData: FormData) {
         );
     }
     if (remainingDistanceKm === 0) {
-      const summary = `Das Wochenziel von ${weeklyGoalKm.toLocaleString("de-DE")} km ist durch ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} absolvierte und ${manuallyPlannedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} manuell geplante Kilometer bereits vollständig abgedeckt.`;
+      const summary = `Das Wochenziel von ${weeklyGoalKm.toLocaleString("de-DE")} km ist durch ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} absolvierte und ${retainedPlannedDistance.toLocaleString("de-DE", { maximumFractionDigits: 1 })} beibehaltene geplante Kilometer bereits vollständig abgedeckt.`;
       const { data: completedGeneration, error } = await supabase
         .from("training_plan_generations")
         .insert({
@@ -1320,7 +1314,7 @@ export async function generateWeeklyPlan(formData: FormData) {
             blockId: trainingBlock?.id ?? null,
             blockWeek: blockWeek?.weekNumber ?? null,
             completedDistanceKm,
-            manuallyPlannedDistanceKm,
+            retainedPlannedDistanceKm: retainedPlannedDistance,
             remainingDistanceKm: 0,
           },
         })
@@ -1418,7 +1412,7 @@ export async function generateWeeklyPlan(formData: FormData) {
             ? ` Wegen Kalender, Tagesform oder Blockphase wird dein gespeichertes Wochenziel von ${planning.profile.weeklyDistanceGoalKm} km für diese Woche auf ${weeklyGoalKm} km reduziert.`
             : ` Der Plan hält sich an dein gespeichertes Wochenziel von ${weeklyGoalKm} km.`;
 
-      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${manuallyPlannedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km manuell geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${goalContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`;
+      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${retainedPlannedDistance.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km beibehalten geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${goalContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`;
 
       const caution =
         "Verschiebe oder kürze Einheiten bei ungewöhnlicher Müdigkeit, Schmerzen oder unerwarteter Zusatzbelastung. UltraPilot erstellt keine medizinischen Diagnosen.";
@@ -1439,7 +1433,7 @@ export async function generateWeeklyPlan(formData: FormData) {
             longRideTargetKm: weeklyRecommendation.longRideTargetKm,
             tempoSessionTarget: blockWeek?.tempoSessionTarget ?? null,
             completedDistanceKm,
-            manuallyPlannedDistanceKm,
+            retainedPlannedDistanceKm: retainedPlannedDistance,
             remainingDistanceKm,
             recentFourWeekDistanceKm: Math.round(recentDistanceKm),
             sevenDayLoad: trainingLoad.sevenDayLoad,
