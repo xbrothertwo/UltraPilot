@@ -27,7 +27,7 @@ import { buildReadinessRange } from "@/lib/recovery-readiness";
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import {
   blockWeekForDate,
-  getActiveTrainingBlock,
+  getCurrentTrainingBlock,
 } from "@/lib/planning/blocks";
 import {
   recommendWeeklyTarget,
@@ -801,7 +801,7 @@ export async function generateWeeklyPlan(formData: FormData) {
       previousWorkouts,
       recovery,
       trainingLoad,
-      trainingBlock,
+      currentBlock,
     ] = await Promise.all([
       getPlanningData({ from: eventsRangeStart, until: rangeEnd }),
       getPlannedWorkouts(week, until),
@@ -809,9 +809,10 @@ export async function generateWeeklyPlan(formData: FormData) {
       getPlannedWorkouts(iso(historyStart), iso(historyEnd)),
       getRecoveryData(week, until),
       getTrainingLoadSummary(28),
-      getActiveTrainingBlock(),
+      getCurrentTrainingBlock(),
     ]);
     const primarySport = planning.profile.primarySport;
+    const trainingBlock = currentBlock?.status === "active" && currentBlock.sportType === primarySport ? currentBlock : null;
     const dashboardTarget =
       dashboardAction && typeof dashboardWorkoutId === "string"
         ? existing.find((workout) => workout.id === dashboardWorkoutId)
@@ -891,8 +892,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           item.effectiveStatus === "planned",
       )
       .reduce((sum, item) => sum + (item.workout.plannedDistanceKm ?? 0), 0);
-    const blockWeek =
-      primarySport === "cycling" ? blockWeekForDate(trainingBlock, week) : null;
+    const blockWeek = blockWeekForDate(trainingBlock, week);
     const longRideCovered = blockWeek
       ? completedThisWeek.some(
           (activity) =>

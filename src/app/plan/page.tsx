@@ -20,7 +20,7 @@ import { isDemoMode } from "@/lib/demo-data";
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import {
   blockWeekForDate,
-  getActiveTrainingBlock,
+  getCurrentTrainingBlock,
 } from "@/lib/planning/blocks";
 import {
   buildWeeklyTargetDays,
@@ -100,7 +100,7 @@ export default async function PlanPage({
     { profile: trainingProfile },
     recovery,
     trainingLoad,
-    trainingBlock,
+    currentBlock,
   ] = await Promise.all([
     getPlanningData({ from: rangeStart, until: rangeEnd }),
     getPlannedWorkouts(days[0], days[6]),
@@ -109,9 +109,10 @@ export default async function PlanPage({
     getTrainingProfile(),
     getRecoveryData(days[0], days[6]),
     getTrainingLoadSummary(28),
-    getActiveTrainingBlock(),
+    getCurrentTrainingBlock(),
   ]);
   const profile = data.profile ?? defaultPlanningProfile;
+  const trainingBlock = currentBlock?.status === "active" && currentBlock.sportType === profile.primarySport ? currentBlock : null;
   const activities = allActivities.filter((activity) => {
     const time = new Date(activity.activityDate);
     return time >= rangeStart && time <= rangeEnd;
@@ -166,10 +167,7 @@ export default async function PlanPage({
       (item) =>
         `${item.workout.title} am ${new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" }).format(new Date(`${item.workout.scheduledDate}T12:00:00`))} liegt an einem Tag mit roter Tagesform.`,
     );
-  const selectedBlockWeek =
-    profile.primarySport === "cycling"
-      ? blockWeekForDate(trainingBlock, week)
-      : null;
+  const selectedBlockWeek = blockWeekForDate(trainingBlock, week);
   const recentCutoff = new Date(start);
   recentCutoff.setDate(recentCutoff.getDate() - 28);
   const recentPrimary = allActivities.filter(
@@ -408,20 +406,19 @@ export default async function PlanPage({
             />
           )}
 
+          <TrainingBlockOverview
+            block={currentBlock}
+            primarySport={profile.primarySport}
+            selectedWeek={week}
+            activities={allActivities}
+            weeklyDistanceKm={profile.weeklyDistanceGoalKm}
+            editable={!isDemoMode}
+          />
           {profile.primarySport === "cycling" ? (
-            <>
-              <TrainingBlockOverview
-                block={trainingBlock}
-                selectedWeek={week}
-                activities={allActivities}
-                weeklyDistanceKm={profile.weeklyDistanceGoalKm}
-                editable={!isDemoMode}
-              />
-              <WeeklyTargetCard
-                recommendation={weeklyRecommendation}
-                blockWeekNumber={selectedBlockWeek?.weekNumber}
-              />
-            </>
+            <WeeklyTargetCard
+              recommendation={weeklyRecommendation}
+              blockWeekNumber={selectedBlockWeek?.weekNumber}
+            />
           ) : (
             <section className="card p-5">
               <p className="eyebrow">Lauf-Wochenziel</p>

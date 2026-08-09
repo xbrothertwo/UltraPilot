@@ -45,7 +45,7 @@ export type WeeklyTargetInput = {
   workdayMaxMinutes: number;
   blockTargetKm?: number;
   blockLongRideTargetKm?: number;
-  blockPhase?: "foundation" | "build" | "peak" | "recovery";
+  blockPhase?: "foundation" | "build" | "load" | "peak" | "recovery";
 };
 
 function roundFive(value: number): number {
