@@ -14,6 +14,14 @@ function rating(formData: FormData, name: string): number {
   return value;
 }
 
+const symptomLevels = ["none", "mild", "significant", "unsuitable"];
+
+function symptomLevel(formData: FormData): string {
+  const value = formData.get("symptomLevel");
+  if (typeof value !== "string" || !symptomLevels.includes(value)) throw new Error("Beschwerden-Angabe ist ungültig.");
+  return value;
+}
+
 export async function saveDailyReadiness(formData: FormData) {
   const week = formData.get("week");
   const destination = `/plan?${typeof week === "string" ? `week=${week}&` : ""}saved=readiness`;
@@ -26,7 +34,7 @@ export async function saveDailyReadiness(formData: FormData) {
     const user = await requireUser();
     const supabase = await createClient();
     if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
-    const { error } = await supabase.from("daily_readiness_checkins").upsert({ user_id: user.id, checkin_date: date, sleep_quality: rating(formData, "sleepQuality"), general_fatigue: rating(formData, "generalFatigue"), leg_fatigue: rating(formData, "legFatigue"), motivation: rating(formData, "motivation"), pain_or_illness: formData.get("painOrIllness") === "on", notes: notes || null, updated_at: new Date().toISOString() });
+    const { error } = await supabase.from("daily_readiness_checkins").upsert({ user_id: user.id, checkin_date: date, sleep_quality: rating(formData, "sleepQuality"), general_freshness: rating(formData, "generalFreshness"), leg_freshness: rating(formData, "legFreshness"), motivation: rating(formData, "motivation"), wellbeing: rating(formData, "wellbeing"), symptom_level: symptomLevel(formData), notes: notes || null, updated_at: new Date().toISOString() });
     if (error) throw new Error(error.message);
     revalidatePath("/plan");
     revalidatePath("/dashboard");
