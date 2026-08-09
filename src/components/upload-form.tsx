@@ -14,6 +14,13 @@ function selectedFiles(formData: FormData, name: string): File[] {
   return formData.getAll(name).filter((value): value is File => value instanceof File && value.size > 0);
 }
 
+function heartRateSourceLabel(source: UploadState["heartRateSource"], samples: number | undefined): string {
+  if (source === "primary") return "Hauptdatei";
+  if (source === "apple_watch") return `Apple Health (${samples} Samples)`;
+  if (source === "fit" || source === "gpx" || source === "garmin_edge") return `Zusatzdatei (${samples} Samples)`;
+  return "keine";
+}
+
 export function UploadForm() {
   const [localStatus, setLocalStatus] = useState<string | null>(null);
   const [selectedSportType, setSelectedSportType] = useState<"cycling" | "running">("cycling");
@@ -24,10 +31,10 @@ export function UploadForm() {
     const hasHealthExport = healthExport instanceof File && healthExport.size > 0;
     const hasDirectFile = directHeartRateFile instanceof File && directHeartRateFile.size > 0;
     try {
-      if (!primaryFiles.length) return { status: "error", message: "Bitte wähle mindestens eine Garmin-, GPX- oder FIT-Datei aus." };
+      if (!primaryFiles.length) return { status: "error", message: "Bitte wähle mindestens eine GPX- oder FIT-Datei aus." };
       if (primaryFiles.length > MAX_BATCH_FILES) return { status: "error", message: `Pro Durchgang können höchstens ${MAX_BATCH_FILES} Aktivitäten importiert werden.` };
-      if (hasHealthExport && hasDirectFile) return { status: "error", message: "Bitte verwende entweder den Apple-Health-Export oder eine direkte Watch-Datei – nicht beides." };
-      if (hasDirectFile && primaryFiles.length > 1) return { status: "error", message: "Eine einzelne Watch-Datei kann nur einer Hauptdatei zugeordnet werden. Nutze für mehrere Aktivitäten den Apple-Health-Export." };
+      if (hasHealthExport && hasDirectFile) return { status: "error", message: "Bitte verwende entweder den Apple-Health-Export oder eine einzelne Zusatzdatei – nicht beides." };
+      if (hasDirectFile && primaryFiles.length > 1) return { status: "error", message: "Eine einzelne Zusatzdatei kann nur einer Hauptdatei zugeordnet werden. Nutze für mehrere Aktivitäten den Apple-Health-Export." };
 
       let healthSamples: { timestamp: string; value: number }[][] = primaryFiles.map(() => []);
       if (hasHealthExport) {
@@ -36,7 +43,7 @@ export function UploadForm() {
         for (let index = 0; index < primaryFiles.length; index += 1) {
           const file = primaryFiles[index];
           setLocalStatus(`Aktivität ${index + 1} von ${primaryFiles.length} wird lokal gelesen …`);
-          parsed.push(await parseActivityFile(file, file.name.toLowerCase().endsWith(".fit") ? "garmin_edge" : "gpx"));
+          parsed.push(await parseActivityFile(file, file.name.toLowerCase().endsWith(".fit") ? "fit" : "gpx"));
         }
         healthSamples = await extractAppleHealthHeartRateForRanges(
           healthExport,
@@ -93,14 +100,14 @@ export function UploadForm() {
       <p className="mt-2 text-sm leading-6 text-[var(--muted)]">Wähle zuerst die Sportart und anschließend eine oder mehrere Dateien. Jede Datei wird als eigene Aktivität in deinem persönlichen Konto gespeichert.</p>
       <label className="mt-5 block text-sm font-bold">Sportart<select name="sportType" value={selectedSportType} onChange={(event) => setSelectedSportType(event.target.value === "running" ? "running" : "cycling")} className="mt-2 w-full rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-[var(--ink)]"><option value="cycling">Radfahren</option><option value="running">Laufen</option></select></label>
       <FileField id="activityFiles" name="activityFiles" title="GPX- oder FIT-Dateien" hint="Mehrfachauswahl möglich · Herzfrequenz in der GPX-Datei wird automatisch übernommen · jeweils maximal 20 MB" accept=".fit,.gpx,.tcx,application/gpx+xml,application/octet-stream" required multiple />
-      <div className="mt-5 rounded-2xl border border-[var(--line)] p-4"><p className="eyebrow">Schritt 2 · optional</p><p className="mt-2 text-sm font-bold">Apple-Watch-Herzfrequenz ergänzen</p><FileField id="appleHealthFile" name="appleHealthFile" title="Apple-Health-Export für alle ausgewählten Fahrten" hint="export.zip oder export.xml · wird nur einmal lokal gelesen · auch 55 MB sind okay" accept=".zip,.xml,application/zip,text/xml,application/xml" /><FileField id="heartRateFile" name="heartRateFile" title="Einzelne Watch-Datei" hint="Nur bei genau einer Hauptdatei · FIT oder GPX · maximal 20 MB" accept=".fit,.gpx,application/gpx+xml,application/octet-stream" /></div>
-      <div className="mt-5 rounded-xl bg-[#eef4fb] px-4 py-3 text-xs leading-5 text-[var(--muted)]">Enthält die Hauptdatei bereits Herzfrequenzwerte, werden sie direkt für Kurve, Durchschnitt, Maximum, Zonen und Trainingsbelastung verwendet. Eine zusätzliche Watch-Datei ist dann nicht nötig.</div>
+      <div className="mt-5 rounded-2xl border border-[var(--line)] p-4"><p className="eyebrow">Schritt 2 · optional</p><p className="mt-2 text-sm font-bold">Herzfrequenz aus einer zweiten Quelle ergänzen</p><FileField id="appleHealthFile" name="appleHealthFile" title="Apple-Health-Export für alle ausgewählten Fahrten" hint="export.zip oder export.xml · wird nur einmal lokal gelesen · auch 55 MB sind okay" accept=".zip,.xml,application/zip,text/xml,application/xml" /><FileField id="heartRateFile" name="heartRateFile" title="Einzelne Zusatzdatei" hint="Nur bei genau einer Hauptdatei · FIT oder GPX von einem beliebigen Gerät · maximal 20 MB" accept=".fit,.gpx,application/gpx+xml,application/octet-stream" /></div>
+      <div className="mt-5 rounded-xl bg-[#eef4fb] px-4 py-3 text-xs leading-5 text-[var(--muted)]">Enthält die Hauptdatei bereits Herzfrequenzwerte, werden sie direkt für Kurve, Durchschnitt, Maximum, Zonen und Trainingsbelastung verwendet. Eine zusätzliche Datei ist dann nicht nötig.</div>
       {localStatus && <p role="status" className="mt-4 text-sm font-bold text-[var(--accent-dark)]">{localStatus}</p>}
       <button type="submit" disabled={pending} className="mt-5 w-full rounded-xl bg-[var(--accent)] px-5 py-3 font-bold text-white transition hover:bg-[var(--accent-dark)] disabled:cursor-wait disabled:opacity-60">{pending ? "Import läuft …" : "Ausgewählte Aktivitäten importieren"}</button>
       {state.status !== "idle" && <div role="status" className={`mt-5 rounded-xl border px-4 py-3 text-sm ${state.status === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-900" : state.status === "partial" || state.status === "duplicate" ? "border-amber-200 bg-amber-50 text-amber-950" : "border-red-200 bg-red-50 text-red-900"}`}><strong>{state.message}</strong></div>}
       {state.results?.length ? <div className="mt-4 space-y-2">{state.results.map((result, index) => <div key={`${result.fileName}-${index}`} className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${result.status === "success" ? "border-emerald-200 bg-emerald-50/60" : result.status === "duplicate" ? "border-amber-200 bg-amber-50/60" : "border-red-200 bg-red-50/60"}`}><div><p className="font-bold">{result.fileName ?? `Datei ${index + 1}`}</p><p className="mt-0.5 text-xs text-[var(--muted)]">{result.message}</p></div>{result.activityId && <Link href={`/activities/${result.activityId}`} className="font-bold text-[var(--accent)]">Öffnen →</Link>}</div>)}</div> : null}
     </form>
-    <aside className="card p-6"><p className="eyebrow">Letztes Ergebnis</p>{metrics ? <><dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-6"><Metric label="Distanz" value={formatDistance(metrics.distanceMeters)} /><Metric label="Bewegungszeit" value={formatDuration(metrics.movingTimeSeconds)} /><Metric label="Verstrichene Zeit" value={formatDuration(metrics.elapsedTimeSeconds)} /><Metric label={selectedSportType === "running" ? "Ø Pace" : "Ø Geschwindigkeit"} value={selectedSportType === "running" ? formatPace(metrics.averageSpeedKmh) : `${metrics.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} /><Metric label="Höhengewinn" value={`${Math.round(metrics.elevationGainMeters).toLocaleString("de-DE")} m`} /><Metric label="Ø Herzfrequenz" value={metrics.averageHeartRate === null ? "Keine Daten" : `${Math.round(metrics.averageHeartRate)} bpm`} /></dl><p className="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-900">Herzfrequenzquelle: {state.heartRateSource === "apple_watch" ? `Apple Watch (${state.importedHeartRateSamples} Samples)` : state.heartRateSource === "primary" ? "Hauptdatei" : "keine"}</p></> : <p className="mt-4 text-sm leading-6 text-[var(--muted)]">Nach dem Import erscheint hier eine Zusammenfassung der zuletzt erfolgreich verarbeiteten Aktivität.</p>}</aside>
+    <aside className="card p-6"><p className="eyebrow">Letztes Ergebnis</p>{metrics ? <><dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-6"><Metric label="Distanz" value={formatDistance(metrics.distanceMeters)} /><Metric label="Bewegungszeit" value={formatDuration(metrics.movingTimeSeconds)} /><Metric label="Verstrichene Zeit" value={formatDuration(metrics.elapsedTimeSeconds)} /><Metric label={selectedSportType === "running" ? "Ø Pace" : "Ø Geschwindigkeit"} value={selectedSportType === "running" ? formatPace(metrics.averageSpeedKmh) : `${metrics.averageSpeedKmh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km/h`} /><Metric label="Höhengewinn" value={`${Math.round(metrics.elevationGainMeters).toLocaleString("de-DE")} m`} /><Metric label="Ø Herzfrequenz" value={metrics.averageHeartRate === null ? "Keine Daten" : `${Math.round(metrics.averageHeartRate)} bpm`} /></dl><p className="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-900">Herzfrequenzquelle: {heartRateSourceLabel(state.heartRateSource, state.importedHeartRateSamples)}</p></> : <p className="mt-4 text-sm leading-6 text-[var(--muted)]">Nach dem Import erscheint hier eine Zusammenfassung der zuletzt erfolgreich verarbeiteten Aktivität.</p>}</aside>
   </div>;
 }
 

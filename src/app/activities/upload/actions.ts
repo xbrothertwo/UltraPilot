@@ -16,7 +16,7 @@ export type UploadState = {
   fileName?: string;
   metrics?: GpxMetrics;
   activityId?: string;
-  heartRateSource?: "primary" | "apple_watch" | "none";
+  heartRateSource?: "primary" | "none" | ActivityStream["source"];
   importedHeartRateSamples?: number;
   results?: UploadResult[];
 };
@@ -68,7 +68,7 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     const watch = supplement ? await parseActivityFile(supplement, supplementSource) : undefined;
     const merged = mergeHeartRate(primary, watch);
     const metrics = merged.metrics;
-    const mergeMessage = supplement ? `${merged.importedHeartRateSamples} Watch-Herzfrequenzwerte wurden zeitlich zugeordnet.` : merged.heartRateSource === "primary" ? "Herzfrequenz stammt aus der Hauptdatei." : "Keine Herzfrequenzdatei hinzugefügt.";
+    const mergeMessage = supplement ? `${merged.importedHeartRateSamples} Herzfrequenzwerte aus der Zusatzdatei wurden zeitlich zugeordnet.` : merged.heartRateSource === "primary" ? "Herzfrequenz stammt aus der Hauptdatei." : "Keine Herzfrequenzdatei hinzugefügt.";
     if (!isSupabaseConfigured()) return { status: "success", fileName: file.name, message: `Dateien wurden im Demo-Modus analysiert. ${mergeMessage}`, metrics, heartRateSource: merged.heartRateSource, importedHeartRateSamples: merged.importedHeartRateSamples };
 
     const user = await requireUser();
