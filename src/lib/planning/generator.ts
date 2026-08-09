@@ -1,5 +1,6 @@
 import { strengthDescription, type StrengthVariant } from "./strength-plan";
 import type { PrimarySport } from "./data";
+import { effectiveSessionCapacityMinutes } from "./session-capacity";
 
 export type PlanningDay = {
   date: string;
@@ -20,15 +21,6 @@ export function calculateRemainingWeeklyDistance(goalKm: number, completedKm: nu
   return rounded(Math.max(0, goalKm - completedKm - manuallyPlannedKm));
 }
 
-function contiguousAvailableMinutes(day: PlanningDay): number {
-  return Math.max(
-    0,
-    Math.min(
-      day.availableMinutes,
-      day.longestAvailableWindowMinutes ?? day.availableMinutes,
-    ),
-  );
-}
 export function cyclingDescription(intensity: "easy" | "endurance" | "tempo", durationMinutes: number): string {
   if (intensity === "tempo") {
     const repetitions = durationMinutes >= 75 ? 3 : 2;
@@ -49,10 +41,10 @@ export function runningDescription(intensity: "easy" | "endurance" | "tempo", du
 function dayGap(first: string, second: string): number { return Math.abs(new Date(`${first}T12:00:00Z`).getTime() - new Date(`${second}T12:00:00Z`).getTime()) / 86_400_000; }
 function isDayAfter(candidate: string, reference: string): boolean { return new Date(`${candidate}T12:00:00Z`).getTime() - new Date(`${reference}T12:00:00Z`).getTime() === 86_400_000; }
 
-function spacedDays(available: PlanningDay[], count: number, preferredDate?: string): PlanningDay[] {
+function spacedDays(available: PlanningDay[], count: number, workdayMaxMinutes: number, preferredDate?: string): PlanningDay[] {
   if (!available.length || count <= 0) return [];
   const dayValue = (day: PlanningDay) =>
-  contiguousAvailableMinutes(day) -
+  effectiveSessionCapacityMinutes(day, workdayMaxMinutes) -
   (day.readiness === "yellow" ? 180 : 0);
   const preferred = preferredDate ? available.find((day) => day.date === preferredDate) : undefined;
   const selected = [preferred ?? [...available].sort((a, b) => dayValue(b) - dayValue(a) || a.date.localeCompare(b.date))[0]];
@@ -153,7 +145,7 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   (day) =>
     !day.occupied &&
     day.readiness !== "red" &&
-    contiguousAvailableMinutes(day) >= minimumMinutes,
+    effectiveSessionCapacityMinutes(day, input.workdayMaxMinutes) >= minimumMinutes,
 );
   if (!available.length) return { workouts: [], targetDistanceKm: 0, ruleSummary: `Keine freien Zeitfenster von mindestens ${minimumMinutes} Minuten.` };
   const weeklyRecent = input.recentFourWeekDistanceKm / 4;
@@ -172,7 +164,7 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   const reservedStrengthDays = Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
   const requestedEnduranceCount = primarySport === "running" ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3)) : 3;
   const enduranceCount = Math.min(requestedEnduranceCount, available.length - reservedStrengthDays);
-  const selected = spacedDays(available, enduranceCount, input.preferredCyclingDate);
+  const selected = spacedDays(available, enduranceCount, input.workdayMaxMinutes, input.preferredCyclingDate);
   const distances = distributeDistance(targetDistanceKm, enduranceCount, input.longRideTargetKm);
   // Strength or volleyball already on the calendar (recorded or planned,
   // regardless of this run's own gym placement below) — used to keep the
@@ -186,13 +178,10 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
     const desiredMinutes = Math.ceil(
     (requestedDistance / referenceSpeedKmh) * 60,
     );
-    const availableWindowMinutes = contiguousAvailableMinutes(day);
-    const cap = day.workday
-    ? Math.min(availableWindowMinutes, input.workdayMaxMinutes)
-    : availableWindowMinutes;
-    const duration = Math.max(
-      minimumMinutes,
-      Math.min(desiredMinutes, cap),
+    const capacityMinutes = effectiveSessionCapacityMinutes(day, input.workdayMaxMinutes);
+    const duration = Math.min(
+      Math.max(minimumMinutes, desiredMinutes),
+      capacityMinutes,
     );
     const distance = rounded(
       Math.min(
@@ -212,12 +201,12 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   // strength onto an endurance day only happens as a fallback, once there
   // genuinely aren't enough separate days left for it (or the user has
   // explicitly opted into same-day pairing for easy runs).
-  const separateGymCandidates = available.filter((day) => !usedDates.has(day.date) && contiguousAvailableMinutes(day) >= 60);
+  const separateGymCandidates = available.filter((day) => !usedDates.has(day.date) && effectiveSessionCapacityMinutes(day, input.workdayMaxMinutes) >= 60);
   const needsFallbackPairing = pairCrossTraining && separateGymCandidates.length < input.strengthVariants.length;
   const gymCandidates = needsFallbackPairing
-    ? available.filter((day) => contiguousAvailableMinutes(day) >= 60)
+    ? available.filter((day) => effectiveSessionCapacityMinutes(day, input.workdayMaxMinutes) >= 60)
     : separateGymCandidates;
-  const gym = spacedDays(gymCandidates, input.strengthVariants.length).map((day, index): GeneratedWorkout => { const variant = input.strengthVariants[index]; return { scheduledDate: day.date, sportType: "strength", title: `Krafttraining ${variant}`, description: strengthDescription(variant), intensity: "strength", plannedDurationMinutes: 60, plannedDistanceKm: null }; });
+  const gym = spacedDays(gymCandidates, input.strengthVariants.length, input.workdayMaxMinutes).map((day, index): GeneratedWorkout => { const variant = input.strengthVariants[index]; return { scheduledDate: day.date, sportType: "strength", title: `Krafttraining ${variant}`, description: strengthDescription(variant), intensity: "strength", plannedDurationMinutes: 60, plannedDistanceKm: null }; });
   // Adjacency protection covers both this run's own newly placed strength
   // sessions and whatever strength/volleyball is already on the calendar,
   // so a hard endurance session never lands next to a leg-heavy day either
