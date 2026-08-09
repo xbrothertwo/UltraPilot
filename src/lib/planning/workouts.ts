@@ -17,6 +17,9 @@ export type PlannedWorkout = {
   source: "manual" | "automatic";
   generationId: string | null;
   locked: boolean;
+  preferredStartTime: string | null;
+  targetHeartRateZone: string | null;
+  targetPowerZone: string | null;
 };
 
 export type PlanGeneration = { summary: string; caution: string | null; createdAt: string };
@@ -26,7 +29,7 @@ export async function getPlannedWorkouts(from: string, until: string): Promise<P
   await requireUser();
   const supabase = await createClient();
   if (!supabase) return [];
-  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,personal_note,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id,locked").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
+  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,personal_note,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id,locked,preferred_start_time,target_heart_rate_zone,target_power_zone").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
   if (error) return [];
   return (data ?? []).map((row) => ({
     id: row.id,
@@ -43,6 +46,9 @@ export async function getPlannedWorkouts(from: string, until: string): Promise<P
     source: row.source,
     generationId: row.generation_id,
     locked: row.locked,
+    preferredStartTime: typeof row.preferred_start_time === "string" ? row.preferred_start_time.slice(0, 5) : null,
+    targetHeartRateZone: row.target_heart_rate_zone,
+    targetPowerZone: row.target_power_zone,
   }));
 }
 
