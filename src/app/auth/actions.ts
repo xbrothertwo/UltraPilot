@@ -3,7 +3,15 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/recovery";
+import {
+  createIsolatedReauthenticationClient,
+  findActiveAccountDeletionJob,
+  prepareAccountDeletionJobForSignOut,
+  processAccountDeletionJob,
+  releaseAccountDeletionJobAfterSignOut,
+} from "@/lib/account-deletion";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 function loginRedirect(kind: "error" | "notice", code: string): never {
@@ -20,10 +28,44 @@ function credentials(formData: FormData) {
 
 export async function signIn(formData: FormData) {
   if (!isSupabaseConfigured()) loginRedirect("error", "supabase-unavailable");
+  const passwordCredentials = credentials(formData);
+  const passwordClient = createIsolatedReauthenticationClient();
+  if (!passwordClient) loginRedirect("error", "supabase-unavailable");
+  const { data, error } = await passwordClient.auth.signInWithPassword(passwordCredentials);
+  if (error || !data.user || !data.session) loginRedirect("error", "invalid-credentials");
+
+  const admin = createAdminClient();
+  if (!admin) {
+    await passwordClient.auth.signOut({ scope: "global" });
+    loginRedirect("error", "account-status-unavailable");
+  }
+  let deletionJob;
+  try {
+    deletionJob = await findActiveAccountDeletionJob(admin, data.user.id);
+  } catch {
+    await passwordClient.auth.signOut({ scope: "global" });
+    loginRedirect("error", "account-status-unavailable");
+  }
+  if (deletionJob && !(deletionJob.status === "failed" && deletionJob.sessions_revoked_at === null)) {
+    if (!deletionJob.sessions_revoked_at) {
+      await prepareAccountDeletionJobForSignOut(admin, deletionJob.id, data.user.id);
+    }
+    const { error: signOutError } = await passwordClient.auth.signOut({ scope: "global" });
+    if (signOutError) loginRedirect("error", "account-status-unavailable");
+    if (!deletionJob.sessions_revoked_at) {
+      await releaseAccountDeletionJobAfterSignOut(admin, deletionJob.id, data.user.id);
+    }
+    await processAccountDeletionJob(admin, deletionJob.id);
+    loginRedirect("notice", "account-deletion-processing");
+  }
+
   const supabase = await createClient();
   if (!supabase) loginRedirect("error", "supabase-unavailable");
-  const { error } = await supabase.auth.signInWithPassword(credentials(formData));
-  if (error) loginRedirect("error", "invalid-credentials");
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: data.session.access_token,
+    refresh_token: data.session.refresh_token,
+  });
+  if (sessionError) loginRedirect("error", "invalid-credentials");
   redirect("/dashboard");
 }
 

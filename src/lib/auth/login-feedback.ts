@@ -7,12 +7,15 @@ const LOGIN_ERRORS: Readonly<Record<string, string>> = {
   "invalid-password": "Das Passwort muss mindestens acht Zeichen lang sein.",
   "signup-failed": "Das Konto konnte nicht erstellt werden. Bitte versuche es erneut.",
   "supabase-unavailable": "Supabase ist nicht konfiguriert.",
+  "account-status-unavailable": "Der Kontostatus konnte nicht sicher geprüft werden. Bitte versuche es später erneut.",
 };
 
 const LOGIN_NOTICES: Readonly<Record<string, string>> = {
   "account-created": "Konto erstellt. Bitte bestätige jetzt den Link in deiner E-Mail.",
   "password-reset-success": "Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.",
   "signed-out": "Du bist abgemeldet.",
+  "account-deletion-started": "Die Löschung deines Kontos wurde gestartet.",
+  "account-deletion-processing": "Die Löschung deines Kontos wird noch verarbeitet.",
 };
 
 export function getLoginFeedback(errorCode: string | undefined, noticeCode: string | undefined): LoginFeedback | null {
