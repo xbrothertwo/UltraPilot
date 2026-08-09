@@ -15,7 +15,7 @@ describe("dashboard analysis", () => {
       [activity("a", "2026-08-01T08:00:00Z"), activity("b", "2026-08-02T08:00:00Z", { movingTimeSeconds: 3600, distanceMeters: 30_000, averageHeartRate: null, normalizedPower: null })],
       [{ activityId: "a", carbohydratesGrams: 120, fluidMilliliters: 1000, sodiumMilligrams: 600 }],
       [{ activityId: "a", perceivedExertion: 6, fatigue: 7, mood: 8 }, { activityId: "b", perceivedExertion: 8, fatigue: null, mood: 6 }],
-      [], profile,
+      [], profile, "cycling",
     );
     expect(summary.activityCount).toBe(2);
     expect(summary.distanceMeters).toBe(80_000);
@@ -31,18 +31,29 @@ describe("dashboard analysis", () => {
     const summary = buildDashboardSummary(
       [activity("a", "2026-08-01T08:00:00Z", { movingTimeSeconds: 3600 }), activity("b", "2026-08-01T16:00:00Z", { movingTimeSeconds: 3600 })],
       [{ activityId: "a", carbohydratesGrams: 60, fluidMilliliters: 0, sodiumMilligrams: 0 }, { activityId: "b", carbohydratesGrams: 100, fluidMilliliters: 0, sodiumMilligrams: 0 }],
-      [], [], profile,
+      [], [], profile, "cycling",
     );
     expect(summary.trend).toHaveLength(1);
     expect(summary.trend[0].carbohydratesPerHour).toBe(80);
   });
 
   it("keeps optional metrics absent instead of treating them as zero", () => {
-    const summary = buildDashboardSummary([activity("a", "2026-08-01T08:00:00Z", { averageHeartRate: null, averagePower: null, normalizedPower: null })], [], [], [], { ...profile, ftpWatts: null });
+    const summary = buildDashboardSummary([activity("a", "2026-08-01T08:00:00Z", { averageHeartRate: null, averagePower: null, normalizedPower: null })], [], [], [], { ...profile, ftpWatts: null }, "cycling");
     expect(summary.averageHeartRate).toBeNull();
     expect(summary.averagePower).toBeNull();
     expect(summary.totalTss).toBeNull();
     expect(summary.carbohydratesPerHour).toBeNull();
     expect(summary.averageRpe).toBeNull();
+  });
+
+  it("only counts activities matching the primary sport", () => {
+    const summary = buildDashboardSummary(
+      [activity("a", "2026-08-01T08:00:00Z", { sportType: "running", distanceMeters: 10_000, averageSpeedKmh: 12 }), activity("b", "2026-08-02T08:00:00Z", { sportType: "cycling", distanceMeters: 50_000 })],
+      [], [], [], profile, "running",
+    );
+    expect(summary.primarySport).toBe("running");
+    expect(summary.activityCount).toBe(1);
+    expect(summary.distanceMeters).toBe(10_000);
+    expect(summary.averageSpeedKmh).toBe(12);
   });
 });
