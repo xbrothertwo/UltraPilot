@@ -2,13 +2,12 @@ import type { Activity } from "./demo-data";
 import type { SensorSample } from "./activity-files/types";
 import type { TrainingProfile, ZoneTime } from "./training-zones";
 import { calculateTimeInZones, calculateTrainingLoad, getHeartRateZones, getPowerZones } from "./training-zones";
+import type { PrimarySport } from "./sports";
 
 export type DashboardNutrition = { activityId: string; carbohydratesGrams: number; fluidMilliliters: number; sodiumMilligrams: number };
 export type DashboardFeedback = { activityId: string; perceivedExertion: number | null; fatigue: number | null; mood: number | null };
 export type DashboardStream = { activityId: string; type: "heart_rate" | "power"; samples: SensorSample[] };
 export type DashboardTrend = { date: string; distanceKilometers: number; movingHours: number; elevationMeters: number; tss: number; carbohydratesPerHour: number | null };
-export type PrimarySport = "cycling" | "running";
-
 export type DashboardSummary = {
   primarySport: PrimarySport;
   activityCount: number;

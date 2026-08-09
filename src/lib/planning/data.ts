@@ -1,6 +1,7 @@
 import { isDemoMode } from "@/lib/demo-data";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
+import { parsePrimarySport, type PrimarySport } from "@/lib/sports";
 
 export type PlanningEvent = {
   id: string;
@@ -11,9 +12,25 @@ export type PlanningEvent = {
   allDay: boolean;
 };
 
-export type PrimarySport = "cycling" | "running";
-
 export type SupportMode = "supported" | "nonsupported" | "open";
+export type PrimarySportResolution =
+  | { status: "valid"; value: PrimarySport }
+  | { status: "missing" | "invalid" | "load_error"; value: null };
+export type WeeklyGoalResolution =
+  | { status: "valid"; value: number }
+  | { status: "missing" | "invalid" | "load_error"; value: null };
+
+export function resolvePrimarySport(
+  value: unknown,
+  loadError = false,
+): PrimarySportResolution {
+  if (loadError) return { status: "load_error", value: null };
+  const primarySport = parsePrimarySport(value);
+  if (primarySport) return { status: "valid", value: primarySport };
+  return value === null || value === undefined
+    ? { status: "missing", value: null }
+    : { status: "invalid", value: null };
+}
 
 export type PlanningProfile = {
   primarySport: PrimarySport;
@@ -100,12 +117,16 @@ export async function getPlanningData(range?: {
   until: Date;
 }): Promise<{
   profile: PlanningProfile;
+  primarySport: PrimarySportResolution;
+  weeklyGoal: WeeklyGoalResolution;
   events: PlanningEvent[];
   ready: boolean;
 }> {
   if (isDemoMode) {
     return {
       profile: defaultPlanningProfile,
+      primarySport: { status: "valid", value: defaultPlanningProfile.primarySport },
+      weeklyGoal: { status: "valid", value: defaultPlanningProfile.weeklyDistanceGoalKm },
       events: [],
       ready: false,
     };
@@ -118,6 +139,8 @@ export async function getPlanningData(range?: {
   if (!supabase) {
     return {
       profile: defaultPlanningProfile,
+      primarySport: resolvePrimarySport(undefined, true),
+      weeklyGoal: { status: "load_error", value: null },
       events: [],
       ready: false,
     };
@@ -149,14 +172,16 @@ export async function getPlanningData(range?: {
     supabase
       .from("calendar_events")
       .select("id,title,event_kind,starts_at,ends_at,all_day")
-      .gte("ends_at", from.toISOString())
-      .lte("starts_at", until.toISOString())
+      .gt("ends_at", from.toISOString())
+      .lt("starts_at", until.toISOString())
       .order("starts_at"),
   ]);
 
   if (goalResult.error || preferencesResult.error || eventsResult.error) {
     return {
       profile: defaultPlanningProfile,
+      primarySport: resolvePrimarySport(undefined, true),
+      weeklyGoal: { status: "load_error", value: null },
       events: [],
       ready: false,
     };
@@ -164,6 +189,14 @@ export async function getPlanningData(range?: {
 
   const goal = goalResult.data;
   const preferences = preferencesResult.data;
+  const primarySport = resolvePrimarySport(preferences?.primary_sport);
+  const parsedPrimarySport = primarySport.value;
+  const rawWeeklyGoal = goal?.weekly_distance_goal_km;
+  const weeklyGoal: WeeklyGoalResolution = rawWeeklyGoal === null || rawWeeklyGoal === undefined
+    ? { status: "missing", value: null }
+    : typeof rawWeeklyGoal === "number" && Number.isFinite(rawWeeklyGoal) && rawWeeklyGoal > 0
+      ? { status: "valid", value: rawWeeklyGoal }
+      : { status: "invalid", value: null };
 
   const supportMode: SupportMode | null =
     goal?.support_mode === "supported" ||
@@ -174,10 +207,11 @@ export async function getPlanningData(range?: {
 
   return {
     ready: true,
+    primarySport,
+    weeklyGoal,
 
     profile: {
-      primarySport:
-        preferences?.primary_sport === "running" ? "running" : "cycling",
+      primarySport: parsedPrimarySport ?? defaultPlanningProfile.primarySport,
 
       runningSessionsPerWeek: preferences?.running_sessions_per_week ?? 3,
 

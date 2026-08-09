@@ -46,6 +46,14 @@ describe("daily cockpit", () => {
     expect(result.title).toContain("Mobility");
   });
 
+  it("uses sport-specific readiness wording", () => {
+    const cycling = buildDailyDecision(readiness("yellow"), workout, false, false);
+    const running = buildDailyDecision(readiness("yellow"), { ...workout, sportType: "running", title: "Tempolauf" }, false, false);
+    expect(cycling.title).toContain("fahren");
+    expect(running.title).toContain("laufen");
+    expect(`${running.title} ${running.summary}`).not.toContain("fahren");
+  });
+
   it("turns a ride into a shorter deterministic recovery session", () => {
     const result = adaptWorkoutForLowReadiness({ ...workout, plannedDurationMinutes: 120, plannedDistanceKm: 50 });
     expect(result).toMatchObject({ title: "Sehr lockere Regenerationsfahrt", intensity: "recovery", plannedDurationMinutes: 60, plannedDistanceKm: 25 });

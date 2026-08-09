@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { parsePrimarySport, type PrimarySport } from "@/lib/sports";
 
 export type MissionSource =
   | "derived"
@@ -16,7 +17,7 @@ export type SavedMission = {
   derivedKey: string | null;
   title: string;
   description: string | null;
-  sportType: "cycling" | "running";
+  sportType: PrimarySport;
   status: MissionStatus;
   targetDate: string | null;
   startAt: string | null;
@@ -39,7 +40,7 @@ type MissionRow = {
   derived_key: string | null;
   title: string;
   description: string | null;
-  sport_type: "cycling" | "running";
+  sport_type: unknown;
   status: MissionStatus;
   target_date: string | null;
   start_at: string | null;
@@ -72,14 +73,16 @@ function optionalNumber(
 
 function mapMission(
   row: MissionRow,
-): SavedMission {
+): SavedMission | null {
+  const sportType = parsePrimarySport(row.sport_type);
+  if (!sportType) return null;
   return {
     id: row.id,
     source: row.source,
     derivedKey: row.derived_key,
     title: row.title,
     description: row.description,
-    sportType: row.sport_type,
+    sportType,
     status: row.status,
     targetDate: row.target_date,
     startAt: row.start_at,
@@ -134,9 +137,10 @@ export async function getMissions(): Promise<
     );
   }
 
-  return ((data ?? []) as MissionRow[]).map(
-    mapMission,
-  );
+  return ((data ?? []) as MissionRow[]).flatMap((row) => {
+    const mission = mapMission(row);
+    return mission ? [mission] : [];
+  });
 }
 
 export async function getMission(
@@ -160,7 +164,5 @@ export async function getMission(
     );
   }
 
-  return data
-    ? mapMission(data as MissionRow)
-    : null;
+  return data ? mapMission(data as MissionRow) : null;
 }

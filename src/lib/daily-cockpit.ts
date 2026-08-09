@@ -64,11 +64,12 @@ export function buildDailyDecision(
   }
 
   if (largestAvailableWindowMinutes !== null && workout.plannedDurationMinutes && largestAvailableWindowMinutes < workout.plannedDurationMinutes) {
+    const minimumUsefulMinutes = workout.sportType === "running" ? 30 : 45;
     return {
       level: "adjust",
       eyebrow: "Kalender hat sich verändert",
-      title: largestAvailableWindowMinutes < 45 ? "Die Einheit passt heute nicht mehr sinnvoll hinein." : `${workout.title} heute kürzen oder verschieben.`,
-      summary: largestAvailableWindowMinutes < 45 ? "Es gibt heute kein zusammenhängendes Trainingsfenster von mindestens 45 Minuten." : `Dein größtes freies Fenster umfasst ${largestAvailableWindowMinutes} Minuten; geplant sind ${workout.plannedDurationMinutes} Minuten.`,
+      title: largestAvailableWindowMinutes < minimumUsefulMinutes ? "Die Einheit passt heute nicht mehr sinnvoll hinein." : `${workout.title} heute kürzen oder verschieben.`,
+      summary: largestAvailableWindowMinutes < minimumUsefulMinutes ? `Es gibt heute kein zusammenhängendes Trainingsfenster von mindestens ${minimumUsefulMinutes} Minuten.` : `Dein größtes freies Fenster umfasst ${largestAvailableWindowMinutes} Minuten; geplant sind ${workout.plannedDurationMinutes} Minuten.`,
       reasons: ["Neue Arbeitszeiten und Termine haben Vorrang vor einer erzwungenen Einheit.", "Offene Kilometer werden nur in realistisch verfügbare Fenster verteilt."],
     };
   }
@@ -85,13 +86,25 @@ export function buildDailyDecision(
 
   if ((readiness.status === "yellow" && demanding) || (highLoadWithin48Hours && demanding)) {
     const strength = workout.sportType === "strength";
+    const running = workout.sportType === "running";
+    const cycling = workout.sportType === "cycling";
     return {
       level: "adjust",
       eyebrow: "Heute anpassen",
-      title: strength ? `${workout.title} heute durch Mobility ersetzen.` : `${workout.title} lieber locker fahren.`,
+      title: strength
+        ? `${workout.title} heute durch Mobility ersetzen.`
+        : running
+          ? `${workout.title} lieber locker laufen.`
+          : cycling
+            ? `${workout.title} lieber locker fahren.`
+            : `${workout.title} heute deutlich lockerer angehen.`,
       summary: strength
         ? "Heute keine schweren Sätze erzwingen. Eine kurze Mobility-Einheit schützt die Erholung und hält die Routine aufrecht."
-        : "Behalte den Termin, streiche aber die harten Abschnitte und fahre im lockeren Grundlagenbereich.",
+        : running
+          ? "Behalte den Termin, streiche aber die harten Abschnitte und laufe nur locker."
+          : cycling
+            ? "Behalte den Termin, streiche aber die harten Abschnitte und fahre im lockeren Grundlagenbereich."
+            : "Behalte den Termin nur, wenn du die Belastung klar reduzieren kannst.",
       reasons: highLoadWithin48Hours
         ? ["In den letzten 48 Stunden lag bereits eine hohe Trainingsbelastung.", ...readiness.reasons].slice(0, 3)
         : readiness.reasons.slice(0, 3),
@@ -120,6 +133,18 @@ export function adaptWorkoutForLowReadiness(workout: PlannedWorkout): LowReadine
       sportType: "cycling",
       title: "Sehr lockere Regenerationsfahrt",
       description: "Nur locker in Z1 fahren. Keine Intervalle und keine Belastungsspitzen. Wenn du dich nach 15 Minuten nicht besser fühlst, Einheit beenden.",
+      intensity: "recovery",
+      plannedDurationMinutes: duration,
+      plannedDistanceKm: distance,
+    };
+  }
+  if (workout.sportType === "running") {
+    const duration = Math.min(45, roundedFive(originalDuration * .6));
+    const distance = workout.plannedDistanceKm === null ? null : Math.round(workout.plannedDistanceKm * duration / Math.max(1, originalDuration) * 10) / 10;
+    return {
+      sportType: "running",
+      title: "Sehr lockerer Regenerationslauf",
+      description: "Nur locker laufen, ohne Tempoabschnitte oder Leistungsziel. Bei anhaltender Müdigkeit abbrechen und vollständig pausieren.",
       intensity: "recovery",
       plannedDurationMinutes: duration,
       plannedDistanceKm: distance,

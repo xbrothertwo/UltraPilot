@@ -10,7 +10,7 @@ export type Activity = {
   movingTimeSeconds: number;
   elapsedTimeSeconds: number;
   elevationGainMeters: number;
-  averageSpeedKmh: number;
+  averageSpeedKmh: number | null;
   averageHeartRate: number | null;
   maximumHeartRate: number | null;
   averagePower: number | null;

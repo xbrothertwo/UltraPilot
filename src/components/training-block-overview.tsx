@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Activity } from "@/lib/demo-data";
-import type { PrimarySport } from "@/lib/planning/data";
+import type { PrimarySport } from "@/lib/sports";
 import type { TrainingBlock } from "@/lib/planning/blocks";
 import { completeTrainingBlock, createTrainingBlock, deleteTrainingBlock, pauseTrainingBlock, renameTrainingBlock, resumeTrainingBlock, updateTrainingBlockDates, updateTrainingBlockGoal, updateTrainingBlockWeeklyTarget } from "@/app/plan/block-actions";
 

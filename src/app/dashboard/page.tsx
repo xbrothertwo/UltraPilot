@@ -2,6 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getActivities } from "@/lib/activities";
 import { eventOverlapsLocalDay } from "@/lib/calendar/ics-parser";
+import {
+  addBerlinCalendarDays,
+  berlinDateKey,
+  berlinDayInterval,
+  berlinWeekRange,
+} from "@/lib/calendar/berlin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { hasCompletedOnboarding } from "@/lib/onboarding";
 import {
@@ -10,7 +16,7 @@ import {
   type DailyDecisionLevel,
 } from "@/lib/daily-cockpit";
 import { isDemoMode } from "@/lib/demo-data";
-import { formatDistance, formatDuration, formatPace } from "@/lib/format";
+import { formatDuration } from "@/lib/format";
 import { getNutritionLibrary } from "@/lib/nutrition-planner";
 import {
   blockWeekForDate,
@@ -42,7 +48,13 @@ import {
   getPlannedHeartRateTarget,
 } from "@/lib/training-zones";
 import { generateWeeklyPlan } from "@/app/plan/actions";
-import { buildMissionControl } from "@/lib/mission-control";
+import { getMissions } from "@/lib/missions";
+import {
+  buildDashboardViewModel,
+  buildDashboardMissionControl,
+  dashboardSportIcon,
+  selectDashboardMission,
+} from "@/lib/dashboard-view-model";
 import {
   buildWeeklyTargetDays,
   recommendWeeklyTarget,
@@ -52,35 +64,16 @@ import {
   acceptTodayPlan,
   adaptTodayForLowReadiness,
 } from "@/app/dashboard/actions";
+import {
+  DashboardMissionSummary,
+  DashboardPrimarySportError,
+} from "@/components/dashboard-states";
 
 export const metadata = { title: "Heute" };
 export const dynamic = "force-dynamic";
 
-function dateKey(value: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Europe/Berlin",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(value);
-}
-
 function dateAtNoon(key: string): Date {
-  return new Date(`${key}T12:00:00`);
-}
-function addDays(key: string, count: number): string {
-  const date = dateAtNoon(key);
-  date.setDate(date.getDate() + count);
-  return dateKey(date);
-}
-function weekStartKey(key: string): string {
-  const date = dateAtNoon(key);
-  const weekday = date.getDay() || 7;
-  date.setDate(date.getDate() - weekday + 1);
-  return dateKey(date);
-}
-function activityKey(value: string): string {
-  return dateKey(new Date(value));
+  return new Date(`${key}T12:00:00Z`);
 }
 function localTime(value: string): string {
   return new Intl.DateTimeFormat("de-DE", {
@@ -137,14 +130,13 @@ export default async function DashboardPage({
   if (isSupabaseConfigured() && !(await hasCompletedOnboarding()))
     redirect("/onboarding");
   const today = new Date();
-  const todayKey = dateKey(today);
-  const weekStart = weekStartKey(todayKey);
-  const weekEnd = addDays(weekStart, 6);
-  const previewEnd = addDays(todayKey, 3);
-  const rangeStart = dateAtNoon(weekStart);
-  rangeStart.setHours(0, 0, 0, 0);
-  const rangeEnd = dateAtNoon(previewEnd > weekEnd ? previewEnd : weekEnd);
-  rangeEnd.setHours(23, 59, 59, 999);
+  const berlinWeek = berlinWeekRange(today);
+  const todayKey = berlinWeek.today;
+  const weekStart = berlinWeek.start;
+  const weekEnd = berlinWeek.end;
+  const previewEnd = addBerlinCalendarDays(todayKey, 3);
+  const rangeStart = berlinWeek.startsAt;
+  const rangeEnd = berlinDayInterval(previewEnd > weekEnd ? previewEnd : weekEnd).endExclusive;
 
   const [
     planning,
@@ -155,6 +147,7 @@ export default async function DashboardPage({
     currentBlock,
     trainingProfile,
     nutrition,
+    missions,
   ] = await Promise.all([
     getPlanningData({ from: rangeStart, until: rangeEnd }),
     getPlannedWorkouts(weekStart, previewEnd),
@@ -164,10 +157,15 @@ export default async function DashboardPage({
     getCurrentTrainingBlock(),
     getTrainingProfile(),
     getNutritionLibrary(),
+    getMissions(),
   ]);
 
+  if (planning.primarySport.status !== "valid") {
+    return <DashboardPrimarySportError resolution={planning.primarySport} />;
+  }
+
   const weekActivities = activities.filter((activity) => {
-    const key = activityKey(activity.activityDate);
+    const key = berlinDateKey(activity.activityDate);
     return key >= weekStart && key <= weekEnd;
   });
   const reconciled = reconcilePlannedWorkouts(workouts, activities);
@@ -201,7 +199,7 @@ export default async function DashboardPage({
     recovery.metrics,
     recovery.checkins,
   )[0];
-  const previousTwoDays = [addDays(todayKey, -1), addDays(todayKey, -2)];
+  const previousTwoDays = [addBerlinCalendarDays(todayKey, -1), addBerlinCalendarDays(todayKey, -2)];
   const highLoadWithin48Hours = load.highLoadDates.some((key) =>
     previousTwoDays.includes(key),
   );
@@ -241,11 +239,10 @@ export default async function DashboardPage({
   const hrTarget = primaryWorkout
     ? getPlannedHeartRateTarget(zones, primaryWorkout.intensity)
     : null;
-  const primarySport = planning.profile.primarySport;
+  const primarySport = planning.primarySport.value;
   const block = currentBlock?.status === "active" && currentBlock.sportType === primarySport ? currentBlock : null;
   const selectedBlockWeek = blockWeekForDate(block, weekStart);
-  const recentCutoff = dateAtNoon(weekStart);
-  recentCutoff.setDate(recentCutoff.getDate() - 28);
+  const recentCutoff = berlinDayInterval(addBerlinCalendarDays(weekStart, -28)).startInclusive;
   const recentPrimary = activities.filter(
     (activity) =>
       activity.sportType === primarySport &&
@@ -261,7 +258,7 @@ export default async function DashboardPage({
     0,
   );
   const recommendationDays = buildWeeklyTargetDays(
-    Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)),
+    Array.from({ length: 7 }, (_, index) => addBerlinCalendarDays(weekStart, index)),
     planning.events,
     new Map([[todayKey, readiness.status]]),
     planning.profile.beforeLateShiftAllowed,
@@ -280,14 +277,17 @@ export default async function DashboardPage({
     blockLongRideTargetKm: selectedBlockWeek?.longRideTargetKm,
     blockPhase: selectedBlockWeek?.phase,
   });
-    const weeklyGoal = weeklyRecommendation.planningTargetKm;
-  const actualKm = weekActivities
-    .filter((activity) => activity.sportType === primarySport)
-    .reduce((sum, activity) => sum + activity.distanceMeters / 1000, 0);
-  const progress = Math.min(
-    100,
-    weeklyGoal > 0 ? (actualKm / weeklyGoal) * 100 : 0,
-  );
+  const dashboard = buildDashboardViewModel({
+    primarySport,
+    weeklyGoalKm: planning.weeklyGoal.status === "valid" ? weeklyRecommendation.planningTargetKm : null,
+    weekActivities,
+    reconciledWorkouts: reconciled,
+    today: todayKey,
+    latestActivities: activities.slice(0, 5),
+  });
+  const weeklyGoal = dashboard.weeklyGoal.targetKm;
+  const actualKm = dashboard.weeklyGoal.actualKm;
+  const progress = dashboard.weeklyGoal.progressPercent ?? 0;
   const upcomingPrimary =
     reconciled.find(
       (item) =>
@@ -306,11 +306,11 @@ export default async function DashboardPage({
     ? strengthVariantFromTitle(primaryWorkout.title)
     : null;
   const strength = strengthVariant ? STRENGTH_WORKOUTS[strengthVariant] : null;
-  const latest = activities[0];
+  const latest = dashboard.latestActivities[0];
   const previewDays = [
-    addDays(todayKey, 1),
-    addDays(todayKey, 2),
-    addDays(todayKey, 3),
+    addBerlinCalendarDays(todayKey, 1),
+    addBerlinCalendarDays(todayKey, 2),
+    addBerlinCalendarDays(todayKey, 3),
   ];
   const autopilotActionsAvailable =
     primaryWorkout?.source === "automatic" &&
@@ -318,21 +318,16 @@ export default async function DashboardPage({
       primaryWorkout.sportType === "strength") &&
     primaryItem?.effectiveStatus === "planned" &&
     query.saved !== "accepted";
-  const mission = buildMissionControl({
+  const missionSelection = selectDashboardMission(missions, primarySport);
+  const mission = buildDashboardMissionControl({
+    selection: missionSelection,
     activities,
-    nutrition: [],
-    feedback: [],
-    drifts: [],
-    weeklyGoalKm: planning.profile.weeklyDistanceGoalKm,
-    eventName: planning.profile.eventName,
-    targetDistanceKm: planning.profile.eventDistanceKm,
     supportMode: planning.profile.supportMode,
     targetYear: planning.profile.targetYear,
     today: todayKey,
     recoveryTrackedNights: recovery.metrics.filter(
       (metric) => metric.asleepMinutes > 0,
     ).length,
-    recoveryStableNights: 0,
   });
 
   return (
@@ -375,9 +370,8 @@ export default async function DashboardPage({
             accepted: "Passt – die heutige Einheit bleibt genau so im Plan.",
             worse:
               "Die Einheit wurde regenerativ angepasst. Gekürzte Kilometer werden nicht erzwungen nachgeholt.",
-            easy: "Die heutige Fahrt wurde in eine lockere Ausdauerfahrt geändert.",
-            shift:
-              "Die Fahrt wurde auf morgen gelegt und die offene Woche neu verteilt.",
+            easy: dashboard.savedMessages.easy,
+            shift: dashboard.savedMessages.shift,
             pause:
               "Heute bleibt trainingsfrei. Die restliche Woche wurde anhand deiner echten Zeitfenster neu geplant.",
           }[query.saved] ?? "Plan wurde angepasst."}
@@ -389,6 +383,26 @@ export default async function DashboardPage({
           {query.error}
         </div>
       )}
+
+      <section className="card mb-4 p-5 sm:mb-6 sm:p-6" aria-labelledby="primary-sport-week">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
+            <DashboardIcon name={dashboard.sportIcon} />
+          </span>
+          <div>
+            <p className="eyebrow">{dashboard.sportLabel}</p>
+            <h2 id="primary-sport-week" className="mt-1 text-xl font-black">{dashboard.weekTitle}</h2>
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {dashboard.metrics.map((metric) => (
+            <div key={metric.label} className="min-w-0 rounded-2xl bg-slate-50/80 p-4 dark:bg-white/[.04]">
+              <Metric label={metric.label} value={metric.value} />
+            </div>
+          ))}
+        </div>
+        {dashboard.metrics[0].value === "–" && <p className="mt-3 text-sm text-[var(--muted)]">{dashboard.emptyText}</p>}
+      </section>
 
       <section className="grid gap-4 xl:grid-cols-12">
         <article className="cut-corner rise-in relative order-2 overflow-hidden bg-[#0b2145] p-5 text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] sm:p-8 xl:order-2 xl:col-span-7">
@@ -432,11 +446,7 @@ export default async function DashboardPage({
               <div className="flex items-start gap-4">
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-400/15 text-blue-100">
                   <DashboardIcon
-                    name={
-                      primaryWorkout?.sportType === "strength"
-                        ? "strength"
-                        : "bike"
-                    }
+                    name={primaryWorkout ? dashboardSportIcon(primaryWorkout.sportType) : dashboard.sportIcon}
                   />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -446,7 +456,7 @@ export default async function DashboardPage({
                     </p>
                     {primaryWorkout && (
                       <span className="rounded-full bg-white/10 px-2.5 py-1 text-[.65rem] font-bold text-blue-50">
-                        {intensityLabels[primaryWorkout.intensity]}
+                        {dashboard.today.find((item) => item.workout.id === primaryWorkout.id)?.sportLabel ?? dashboard.sportLabel} · {intensityLabels[primaryWorkout.intensity]}
                       </span>
                     )}
                   </div>
@@ -545,7 +555,7 @@ export default async function DashboardPage({
         <article className="cut-corner rise-in relative order-1 flex flex-col items-center overflow-hidden bg-[#0b2145] p-6 text-center text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] xl:order-1 xl:col-span-5 xl:row-span-2 xl:justify-center">
           <div className="aurora-drift pointer-events-none absolute -left-16 -top-16 size-72 rounded-full bg-cyan-300/20 blur-3xl" style={{ animationDelay: "-3s" }} />
           <div className="aurora-drift pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-blue-400/20 blur-3xl" style={{ animationDelay: "-11s" }} />
-          <p className="eyebrow relative text-blue-200/60">Wochenziel · adaptiv</p>
+          <p className="eyebrow relative text-blue-200/60">{dashboard.weeklyGoal.label} · adaptiv</p>
           <div
             className="glow-ring-lg relative mt-5 grid size-48 shrink-0 place-items-center rounded-full sm:size-56"
             style={{
@@ -554,28 +564,22 @@ export default async function DashboardPage({
           >
             <div className="grid size-[85%] place-items-center rounded-full bg-[#0b2145]">
               <span className="font-display font-data text-[3.4rem] leading-none sm:text-[4rem]">
-                {Math.round(progress)}%
+                {weeklyGoal === null ? "–" : `${Math.round(progress)}%`}
               </span>
             </div>
           </div>
           <h2 className="font-data relative mt-5 text-2xl font-black tracking-tight sm:text-3xl">
-            {actualKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })}{" "}
-            <span className="text-base font-bold text-blue-200/50">
-              / {weeklyGoal} km
-            </span>
+            {weeklyGoal === null ? "Kein Wochenziel" : dashboard.weeklyGoal.summary}
           </h2>
           <p className="relative mt-1 text-xs text-blue-200/50">
-            Noch{" "}
-            {Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", {
-              maximumFractionDigits: 1,
-            })}{" "}
-            km · Korridor {weeklyRecommendation.lowerKm}–
-            {weeklyRecommendation.upperKm}
+            {weeklyGoal === null
+              ? <Link href="/plan#planning-rules" className="font-bold text-blue-100">Wochenziel in den Planungsregeln festlegen →</Link>
+              : <>Noch {Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km · Korridor {weeklyRecommendation.lowerKm}–{weeklyRecommendation.upperKm}</>}
           </p>
-          <div className="relative mt-6 grid w-full grid-cols-2 gap-3 border-t border-white/10 pt-5">
+          {weeklyGoal !== null && <div className="relative mt-6 grid w-full grid-cols-2 gap-3 border-t border-white/10 pt-5">
             <div>
               <p className="text-[.62rem] font-black uppercase tracking-[.08em] text-blue-200/45">
-                {primarySport === "running" ? "Langer Lauf" : "Lange Fahrt"}
+                {dashboard.longLabel}
               </p>
               <p className="font-data mt-1 text-lg font-black">
                 ca. {weeklyRecommendation.longRideTargetKm} km
@@ -583,13 +587,13 @@ export default async function DashboardPage({
             </div>
             <div>
               <p className="text-[.62rem] font-black uppercase tracking-[.08em] text-blue-200/45">
-                {primarySport === "running" ? "Laufenster" : "Radfenster"}
+                {dashboard.windowLabel}
               </p>
               <p className="font-data mt-1 text-lg font-black">
                 {weeklyRecommendation.availableRideDays} Tage
               </p>
             </div>
-          </div>
+          </div>}
         </article>
 
         <article className="card order-3 p-5 xl:order-3 xl:col-span-7 sm:p-6">
@@ -680,11 +684,7 @@ export default async function DashboardPage({
                   <summary className="flex list-none items-center gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-600 text-white">
                       <DashboardIcon
-                        name={
-                          primaryWorkout.sportType === "strength"
-                            ? "strength"
-                            : "bike"
-                        }
+                        name={dashboardSportIcon(primaryWorkout.sportType)}
                       />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -829,11 +829,12 @@ export default async function DashboardPage({
             </div>
             <div className="mt-4 divide-y divide-[var(--line)]">
               {previewDays.map((key) => {
-                const dayWorkout = reconciled.find(
+                const dayItem = reconciled.find(
                   (item) =>
                     item.workout.scheduledDate === key &&
                     item.effectiveStatus !== "skipped",
-                )?.workout;
+                );
+                const dayWorkout = dayItem?.workout;
                 const events = planning.events.filter(
                   (event) =>
                     overlapsDay(event, key) && event.eventKind !== "free",
@@ -852,7 +853,7 @@ export default async function DashboardPage({
                       </p>
                       <p className="mt-1 text-xs text-[var(--muted)]">
                         {dayWorkout
-                          ? `${dayWorkout.plannedDurationMinutes ?? "–"} min${dayWorkout.plannedDistanceKm !== null ? ` · ${dayWorkout.plannedDistanceKm} km` : ""}`
+                          ? `${dashboard.upcoming.find((item) => item.workout.id === dayWorkout.id)?.sportLabel ?? "Training"} · ${dayWorkout.plannedDurationMinutes ?? "–"} min${dayWorkout.plannedDistanceKm !== null ? ` · ${dayWorkout.plannedDistanceKm} km` : ""}`
                           : "Erholung eingeplant"}
                         {events.length
                           ? ` · ${events.map((event) => event.title).join(" · ")}`
@@ -867,7 +868,7 @@ export default async function DashboardPage({
         </div>
 
         <aside className="grid content-start gap-4">
-          <article className="card p-5 sm:p-6">
+          {dashboard.showFueling && <article className="card p-5 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-cyan-50 text-cyan-700">
                 <DashboardIcon name="fuel" />
@@ -933,7 +934,7 @@ export default async function DashboardPage({
             >
               Verpflegung öffnen →
             </Link>
-          </article>
+          </article>}
 
           {strengthProgress && (
             <article className="card p-5 sm:p-6">
@@ -967,83 +968,39 @@ export default async function DashboardPage({
             </article>
           )}
 
-          <article className="card p-5 sm:p-6">
-            <div className="flex items-start gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600">
-                <DashboardIcon name="flag" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-bold text-[var(--muted)]">
-                    Deine Ausdauer-Mission
-                  </p>
-                  <span className="text-xs font-black text-violet-600">
-                    {mission.achievedMilestones}/{mission.milestones.length}
-                  </span>
-                </div>
-                <h2 className="mt-1 text-lg font-black">
-                  {mission.nextMilestone?.title ?? "Roadmap vollständig"}
-                </h2>
-              </div>
-            </div>
-            {mission.nextMilestone && (
-              <>
-                <p className="mt-3 text-sm text-[var(--muted)]">
-                  {mission.nextMilestone.evidence}
-                </p>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-violet-100">
-                  <div
-                    className="h-full rounded-full bg-violet-500"
-                    style={{
-                      width: `${mission.nextMilestone.progressPercent}%`,
-                    }}
-                  />
-                </div>
-              </>
-            )}
-            <Link
-              href="/mission"
-              className="mt-4 inline-flex text-sm font-black text-violet-600"
-            >
-              Mission öffnen →
-            </Link>
-          </article>
+          <DashboardMissionSummary selection={missionSelection} control={mission} />
 
           <article className="card p-5 sm:p-6">
             <div className="flex items-center gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
-                <DashboardIcon name="activity" />
+                <DashboardIcon name={latest?.icon ?? "activity"} />
               </span>
               <div>
                 <p className="text-xs font-bold text-[var(--muted)]">
                   Letzte Aktivität
                 </p>
                 <h2 className="mt-0.5 line-clamp-1 text-lg font-black">
-                  {latest?.title ?? "Noch keine Aktivität"}
+                  {latest?.activity.title ?? "Noch keine Aktivität"}
                 </h2>
               </div>
             </div>
             {latest ? (
               <Link
-                href={`/activities/${latest.id}`}
+                href={`/activities/${latest.activity.id}`}
                 className="mt-4 block rounded-2xl bg-slate-50/80 p-4 transition hover:bg-blue-50 dark:bg-white/[.04] dark:hover:bg-blue-400/10"
               >
                 <div className="grid grid-cols-3 gap-3">
                   <Metric
                     label="Distanz"
-                    value={formatDistance(latest.distanceMeters)}
+                    value={latest.activity.sportType === "strength" || latest.activity.sportType === "volleyball" || latest.activity.sportType === "other" || latest.activity.distanceMeters <= 0 ? "–" : `${(latest.activity.distanceMeters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`}
                   />
                   <Metric
                     label="Zeit"
-                    value={formatDuration(latest.movingTimeSeconds)}
+                    value={formatDuration(latest.activity.movingTimeSeconds)}
                   />
                   <Metric
-                    label={latest.sportType === "running" ? "Pace" : "Anstieg"}
-                    value={
-                      latest.sportType === "running"
-                        ? formatPace(latest.averageSpeedKmh)
-                        : `${Math.round(latest.elevationGainMeters)} m`
-                    }
+                    label={latest.metricLabel}
+                    value={latest.metricValue}
                   />
                 </div>
                 <p className="mt-3 text-sm font-black text-[var(--accent)]">
@@ -1084,6 +1041,8 @@ function DashboardIcon({
     | "flag"
     | "fuel"
     | "pulse"
+    | "run"
+    | "volleyball"
     | "strength";
 }) {
   const paths = {
@@ -1126,6 +1085,18 @@ function DashboardIcon({
     pulse: (
       <>
         <path d="M3 12h4l2-6 4 12 2-6h6" />
+      </>
+    ),
+    run: (
+      <>
+        <circle cx="13" cy="5" r="2" />
+        <path d="m10 9 3-2 3 3m-6-1-2 5 4 2 2 5m-2-5-4 4m5-9-2 4" />
+      </>
+    ),
+    volleyball: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 3c2 3 3 6 2 9M4 8c4 0 7 1 10 4m6 4c-4 0-7-1-10-4" />
       </>
     ),
     strength: (
