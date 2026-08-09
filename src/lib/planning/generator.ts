@@ -47,6 +47,7 @@ export function runningDescription(intensity: "easy" | "endurance" | "tempo", du
 }
 
 function dayGap(first: string, second: string): number { return Math.abs(new Date(`${first}T12:00:00Z`).getTime() - new Date(`${second}T12:00:00Z`).getTime()) / 86_400_000; }
+function isDayAfter(candidate: string, reference: string): boolean { return new Date(`${candidate}T12:00:00Z`).getTime() - new Date(`${reference}T12:00:00Z`).getTime() === 86_400_000; }
 
 function spacedDays(available: PlanningDay[], count: number, preferredDate?: string): PlanningDay[] {
   if (!available.length || count <= 0) return [];
@@ -164,12 +165,22 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   input.recentAverageSpeedKmh > (primarySport === "running" ? 3 : 5)
     ? input.recentAverageSpeedKmh
     : fallbackSpeedKmh;
+  // "Easy run on a strength day" pairing is opt-in and running-specific; even
+  // when enabled it is only actually used once separate days genuinely don't
+  // fit, not as a default — see the fallback check on gymCandidates below.
   const pairCrossTraining = primarySport === "running" && input.easyRunWithCrossTraining === true;
-  const reservedStrengthDays = pairCrossTraining ? 0 : Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
+  const reservedStrengthDays = Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
   const requestedEnduranceCount = primarySport === "running" ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3)) : 3;
   const enduranceCount = Math.min(requestedEnduranceCount, available.length - reservedStrengthDays);
   const selected = spacedDays(available, enduranceCount, input.preferredCyclingDate);
   const distances = distributeDistance(targetDistanceKm, enduranceCount, input.longRideTargetKm);
+  // Strength or volleyball already on the calendar (recorded or planned,
+  // regardless of this run's own gym placement below) — used to keep the
+  // long session off of and off the day right after a leg-heavy day.
+  const existingCrossTrainingDates = input.days.filter((day) => day.crossTraining).map((day) => day.date);
+  const riskyLongDay = (date: string) => existingCrossTrainingDates.some((crossTrainingDate) => crossTrainingDate === date || isDayAfter(date, crossTrainingDate));
+  const preferredLongIndex = selected.findIndex((day) => !riskyLongDay(day.date));
+  const longIndex = preferredLongIndex === -1 ? 0 : preferredLongIndex;
   const enduranceWorkouts = selected.map((day, index): GeneratedWorkout => {
     const requestedDistance = distances[index];
     const desiredMinutes = Math.ceil(
@@ -189,7 +200,7 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
       referenceSpeedKmh * (duration / 60),
     ),
   );
-    const isLong = index === 0 && !input.longRideCovered;
+    const isLong = index === longIndex && !input.longRideCovered;
     const tempoRequested = input.tempoSessionTarget === undefined ? weeklyRecent >= (primarySport === "running" ? 15 : 100) : input.tempoSessionTarget > 0;
     const intensity = pairCrossTraining && day.crossTraining ? "easy" : !isLong && tempoRequested && index === 1 && day.readiness !== "yellow" && day.highIntensityAllowed !== false ? "tempo" : isLong ? "endurance" : "easy";
     const description = primarySport === "running" ? runningDescription(intensity, duration) : cyclingDescription(intensity, duration);
@@ -197,16 +208,25 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
     return { scheduledDate: day.date, sportType: primarySport, title, description, intensity, plannedDurationMinutes: duration, plannedDistanceKm: distance };
   });
   const usedDates = new Set(enduranceWorkouts.map((workout) => workout.scheduledDate));
-  const gymCandidates = available.filter(
-  (day) =>
-    (pairCrossTraining || !usedDates.has(day.date)) &&
-    contiguousAvailableMinutes(day) >= 60,
-);
+  // Separate days from the endurance sessions are the default; combining
+  // strength onto an endurance day only happens as a fallback, once there
+  // genuinely aren't enough separate days left for it (or the user has
+  // explicitly opted into same-day pairing for easy runs).
+  const separateGymCandidates = available.filter((day) => !usedDates.has(day.date) && contiguousAvailableMinutes(day) >= 60);
+  const needsFallbackPairing = pairCrossTraining && separateGymCandidates.length < input.strengthVariants.length;
+  const gymCandidates = needsFallbackPairing
+    ? available.filter((day) => contiguousAvailableMinutes(day) >= 60)
+    : separateGymCandidates;
   const gym = spacedDays(gymCandidates, input.strengthVariants.length).map((day, index): GeneratedWorkout => { const variant = input.strengthVariants[index]; return { scheduledDate: day.date, sportType: "strength", title: `Krafttraining ${variant}`, description: strengthDescription(variant), intensity: "strength", plannedDurationMinutes: 60, plannedDistanceKm: null }; });
+  // Adjacency protection covers both this run's own newly placed strength
+  // sessions and whatever strength/volleyball is already on the calendar,
+  // so a hard endurance session never lands next to a leg-heavy day either
+  // way, for either primary sport.
+  const crossTrainingDates = new Set([...gym.map((strength) => strength.scheduledDate), ...existingCrossTrainingDates]);
   const adjustedEndurance = enduranceWorkouts.map((workout) => {
-    const sameDayCrossTraining = primarySport === "running" && pairCrossTraining && (gym.some((strength) => strength.scheduledDate === workout.scheduledDate) || available.find((day) => day.date === workout.scheduledDate)?.crossTraining);
-    const strengthAdjacent = gym.some((strength) => dayGap(strength.scheduledDate, workout.scheduledDate) <= 1);
-    if (!sameDayCrossTraining && (workout.intensity !== "tempo" || !strengthAdjacent)) return workout;
+    const sameDayCrossTraining = gym.some((strength) => strength.scheduledDate === workout.scheduledDate) || (available.find((day) => day.date === workout.scheduledDate)?.crossTraining ?? false);
+    const crossTrainingAdjacent = [...crossTrainingDates].some((crossTrainingDate) => dayGap(crossTrainingDate, workout.scheduledDate) <= 1);
+    if (!sameDayCrossTraining && (workout.intensity !== "tempo" || !crossTrainingAdjacent)) return workout;
     return { ...workout, title: primarySport === "running" ? "Lockerer Dauerlauf" : "Lockere Ausdauerfahrt", intensity: "easy" as const, description: primarySport === "running" ? runningDescription("easy", workout.plannedDurationMinutes) : cyclingDescription("easy", workout.plannedDurationMinutes) };
   });
   const plannedDistanceKm = rounded(
@@ -235,6 +255,6 @@ return {
     a.scheduledDate.localeCompare(b.scheduledDate),
   ),
   targetDistanceKm,
-  ruleSummary: `${distanceSummary} Geplant wurden ${sessionSummary}; die längste Einheit liegt im größten freien Fenster. Arbeitstage sind auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Kraft-Nachbartage erhalten keine Tempoeinheit.`,
+  ruleSummary: `${distanceSummary} Geplant wurden ${sessionSummary}; die längste Einheit liegt im größten freien Fenster und meidet den Tag nach Kraft oder Volleyball. Arbeitstage sind auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Tage neben Kraft oder Volleyball erhalten keine Tempoeinheit.`,
 };
 }

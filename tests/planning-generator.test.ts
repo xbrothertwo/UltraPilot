@@ -301,4 +301,33 @@ it("reduces cycling distance when the requested distance does not fit the availa
     expect(pairedRun?.intensity).toBe("easy");
     expect(pairedRun?.title).toBe("Lockerer Dauerlauf");
   });
+
+  it("keeps strength on its own day even with pairing enabled, when enough separate days exist", () => {
+    const days = ["03", "04", "05", "06"].map((day) => ({ date: `2026-08-${day}`, availableMinutes: 180, workday: false, occupied: false }));
+    const result = generateDeterministicWeek({ primarySport: "running", runningSessionsPerWeek: 3, easyRunWithCrossTraining: true, days, weeklyGoalKm: 30, recentFourWeekDistanceKm: 120, recentAverageSpeedKmh: 10, workdayMaxMinutes: 75, strengthVariants: ["A"] });
+    const strength = result.workouts.find((workout) => workout.sportType === "strength");
+    const sameDayRun = result.workouts.find((workout) => workout.sportType === "running" && workout.scheduledDate === strength?.scheduledDate);
+    expect(sameDayRun).toBeUndefined();
+  });
+
+  it("protects tempo from a cross-training day that already exists on the calendar, not just a newly placed one", () => {
+    const days = [
+      { date: "2026-08-03", availableMinutes: 240, workday: false, occupied: false, crossTraining: true },
+      { date: "2026-08-04", availableMinutes: 240, workday: false, occupied: false },
+    ];
+    const result = generateDeterministicWeek({ days, weeklyGoalKm: 125, recentFourWeekDistanceKm: 500, recentAverageSpeedKmh: 25, workdayMaxMinutes: 90, strengthVariants: [] });
+    expect(result.workouts.some((workout) => workout.intensity === "tempo")).toBe(false);
+  });
+
+  it("avoids scheduling the long ride the day right after cross-training", () => {
+    const days = [
+      { date: "2026-08-03", availableMinutes: 240, workday: false, occupied: false, crossTraining: true },
+      { date: "2026-08-04", availableMinutes: 300, workday: false, occupied: false },
+      { date: "2026-08-05", availableMinutes: 240, workday: false, occupied: false },
+    ];
+    const result = generateDeterministicWeek({ days, weeklyGoalKm: 90, recentFourWeekDistanceKm: 300, recentAverageSpeedKmh: 25, workdayMaxMinutes: 90, strengthVariants: [], longRideTargetKm: 50, tempoSessionTarget: 0 });
+    const longRide = result.workouts.find((workout) => workout.title === "Lange ruhige Ausfahrt");
+    expect(longRide?.scheduledDate).not.toBe("2026-08-04");
+    expect(longRide?.scheduledDate).toBe("2026-08-05");
+  });
 });
