@@ -14,7 +14,7 @@ import { formatDistance, formatDuration, formatPace } from "@/lib/format";
 import { getNutritionLibrary } from "@/lib/nutrition-planner";
 import {
   blockWeekForDate,
-  getActiveTrainingBlock,
+  getCurrentTrainingBlock,
 } from "@/lib/planning/blocks";
 import { getPlanningData, type PlanningEvent } from "@/lib/planning/data";
 import {
@@ -152,7 +152,7 @@ export default async function DashboardPage({
     activities,
     recovery,
     load,
-    block,
+    currentBlock,
     trainingProfile,
     nutrition,
   ] = await Promise.all([
@@ -161,7 +161,7 @@ export default async function DashboardPage({
     getActivities(),
     getRecoveryData(todayKey, todayKey),
     getTrainingLoadSummary(28),
-    getActiveTrainingBlock(),
+    getCurrentTrainingBlock(),
     getTrainingProfile(),
     getNutritionLibrary(),
   ]);
@@ -242,8 +242,8 @@ export default async function DashboardPage({
     ? getPlannedHeartRateTarget(zones, primaryWorkout.intensity)
     : null;
   const primarySport = planning.profile.primarySport;
-  const selectedBlockWeek =
-    primarySport === "cycling" ? blockWeekForDate(block, weekStart) : null;
+  const block = currentBlock?.status === "active" && currentBlock.sportType === primarySport ? currentBlock : null;
+  const selectedBlockWeek = blockWeekForDate(block, weekStart);
   const recentCutoff = dateAtNoon(weekStart);
   recentCutoff.setDate(recentCutoff.getDate() - 28);
   const recentPrimary = activities.filter(
