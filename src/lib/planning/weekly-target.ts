@@ -1,6 +1,7 @@
 import { eventOverlapsLocalDay } from "../calendar/ics-parser";
 import { calculateDailyAvailability } from "./availability";
 import { effectiveSessionCapacityMinutes } from "./session-capacity";
+import type { PrimarySport } from "../sports";
 
 export type WeeklyTargetDay = {
   date: string;
@@ -38,7 +39,7 @@ export type WeeklyTargetRecommendation = {
 };
 
 export type WeeklyTargetInput = {
-  primarySport: "cycling" | "running";
+  primarySport: PrimarySport;
   runningSessionsPerWeek?: number;
   referenceGoalKm: number;
   days: WeeklyTargetDay[];

@@ -36,6 +36,12 @@ const testGoal = {
 };
 
 describe("endurance mission control", () => {
+  it("uses only running activities and contains no cycling mission wording", () => {
+    const run = { ...ride("run", "2026-07-20", 30, 3), sportType: "running" as const };
+    const result = buildMissionControl({ primarySport: "running", activities: [run, ride("ride", "2026-07-21", 250)], nutrition: [], feedback: [], drifts: [], weeklyGoalKm: 30, ...testGoal, today: "2026-08-03", recoveryTrackedNights: 0, recoveryStableNights: 0 });
+    expect(result.longestRideKm).toBe(30);
+    expect(JSON.stringify(result)).not.toMatch(/Fahrt|Nachtfahrt/);
+  });
   it("detects longest ride and consecutive-day distance", () => {
     const result = buildMissionControl({
       activities: [

@@ -53,6 +53,15 @@ describe("eventOverlapsLocalDay", () => {
     expect(eventOverlapsLocalDay(event, "2026-01-16")).toBe(false);
   });
 
+  it("assigns an event starting exactly at midnight only to the new day", () => {
+    const event = {
+      startsAt: zonedLocalTimeToIso("20260115T000000", "Europe/Berlin"),
+      endsAt: zonedLocalTimeToIso("20260115T010000", "Europe/Berlin"),
+    };
+    expect(eventOverlapsLocalDay(event, "2026-01-14")).toBe(false);
+    expect(eventOverlapsLocalDay(event, "2026-01-15")).toBe(true);
+  });
+
   it("attributes an activity to the correct day across the spring DST transition", () => {
     const event = { startsAt: zonedLocalTimeToIso("20260329T110000", "Europe/Berlin"), endsAt: zonedLocalTimeToIso("20260329T120000", "Europe/Berlin") };
     expect(eventOverlapsLocalDay(event, "2026-03-29")).toBe(true);

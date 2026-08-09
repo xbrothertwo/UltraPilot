@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
+import { validatePrimarySportAndWeeklyGoal } from "@/lib/planning/profile-input";
 import { allDayEventBounds, eventOverlapsLocalDay, zonedLocalTimeToIso } from "@/lib/calendar/ics-parser";
 import { getActivities } from "@/lib/activities";
 import { calculateDailyAvailability } from "@/lib/planning/availability";
@@ -183,8 +184,17 @@ export async function savePlanningProfile(formData: FormData) {
     if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
     const indoorMonth = integer(formData, "indoorMonth", 1, 12);
     const indoorYear = integer(formData, "indoorYear", 2026, 2100);
-    const primarySport =
-      formData.get("primarySport") === "running" ? "running" : "cycling";
+    const { data: currentPreferences, error: currentPreferencesError } = await supabase
+      .from("training_preferences")
+      .select("primary_sport")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (currentPreferencesError) throw new Error("Die aktuelle Hauptsportart konnte nicht geladen werden.");
+    const { primarySport, weeklyGoalKm } = validatePrimarySportAndWeeklyGoal({
+      currentPrimarySport: currentPreferences?.primary_sport,
+      submittedPrimarySport: formData.get("primarySport"),
+      submittedWeeklyGoal: formData.get("weeklyDistance"),
+    });
     const [{ error: goalError }, { error: preferenceError }] =
       await Promise.all([
         supabase
@@ -215,12 +225,7 @@ event_elevation_meters: optionalInteger(
 ),
 
 support_mode: optionalSupportMode(formData),
-            weekly_distance_goal_km: integer(
-              formData,
-              "weeklyDistance",
-              0,
-              2000,
-            ),
+            weekly_distance_goal_km: weeklyGoalKm,
             updated_at: new Date().toISOString(),
           }),
         supabase

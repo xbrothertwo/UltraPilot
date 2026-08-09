@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import type { ActivitySportType } from "@/lib/sports";
 
-type ActivityRow = {
+export type ActivityRow = {
   id: string;
   user_id: string;
   sport_type: ActivitySportType;
@@ -26,7 +26,7 @@ type ActivityRow = {
 
 const activityColumns = "id,user_id,sport_type,activity_date,title,distance_meters,moving_time_seconds,elapsed_time_seconds,elevation_gain_meters,average_speed_kmh,average_heart_rate,maximum_heart_rate,average_power,normalized_power,source,created_at";
 
-function mapActivity(row: ActivityRow): Activity {
+export function mapActivityRow(row: ActivityRow): Activity {
   return {
     id: row.id,
     userId: row.user_id,
@@ -37,7 +37,7 @@ function mapActivity(row: ActivityRow): Activity {
     movingTimeSeconds: row.moving_time_seconds,
     elapsedTimeSeconds: row.elapsed_time_seconds,
     elevationGainMeters: row.elevation_gain_meters,
-    averageSpeedKmh: row.average_speed_kmh ?? 0,
+    averageSpeedKmh: row.average_speed_kmh,
     averageHeartRate: row.average_heart_rate,
     maximumHeartRate: row.maximum_heart_rate,
     averagePower: row.average_power,
@@ -54,7 +54,7 @@ export async function getActivities(): Promise<Activity[]> {
   if (!supabase) return [];
   const { data, error } = await supabase.from("activities").select(activityColumns).order("activity_date", { ascending: false });
   if (error) throw new Error(`Aktivitäten konnten nicht geladen werden: ${error.message}`);
-  return (data as ActivityRow[]).map(mapActivity);
+  return (data as ActivityRow[]).map(mapActivityRow);
 }
 
 export async function getActivityById(id: string): Promise<Activity | null> {
@@ -64,5 +64,5 @@ export async function getActivityById(id: string): Promise<Activity | null> {
   if (!supabase) return null;
   const { data, error } = await supabase.from("activities").select(activityColumns).eq("id", id).maybeSingle();
   if (error) throw new Error(`Aktivität konnte nicht geladen werden: ${error.message}`);
-  return data ? mapActivity(data as ActivityRow) : null;
+  return data ? mapActivityRow(data as ActivityRow) : null;
 }

@@ -60,8 +60,9 @@ export function allDayEventBounds(startsAtLocal: string, endsAtLocal: string, ti
 export function eventOverlapsLocalDay(event: { startsAt: string; endsAt: string }, date: string, timezone = "Europe/Berlin"): boolean {
   const compact = date.replaceAll("-", "");
   const dayStart = new Date(zonedLocalTimeToIso(`${compact}T000000`, timezone)).getTime();
-  const dayEnd = new Date(zonedLocalTimeToIso(`${compact}T235959`, timezone)).getTime();
-  return new Date(event.startsAt).getTime() <= dayEnd && new Date(event.endsAt).getTime() >= dayStart;
+  const nextDay = shiftDateOnly(date, 1);
+  const dayEndExclusive = new Date(zonedLocalTimeToIso(`${nextDay}T000000`, timezone)).getTime();
+  return new Date(event.startsAt).getTime() < dayEndExclusive && new Date(event.endsAt).getTime() > dayStart;
 }
 
 function property(line: string): { name: string; parameters: Record<string, string>; value: string } | null {

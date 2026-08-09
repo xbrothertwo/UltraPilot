@@ -2,8 +2,8 @@ export function formatDistance(meters: number): string {
   return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 }).format(meters / 1000) + " km";
 }
 
-export function formatPace(speedKmh: number): string {
-  if (!Number.isFinite(speedKmh) || speedKmh <= 0) return "–";
+export function formatPace(speedKmh: number | null): string {
+  if (speedKmh === null || !Number.isFinite(speedKmh) || speedKmh <= 0) return "–";
   const totalSecondsPerKilometer = Math.round(3600 / speedKmh);
   const minutes = Math.floor(totalSecondsPerKilometer / 60);
   const seconds = totalSecondsPerKilometer % 60;

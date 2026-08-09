@@ -1,5 +1,5 @@
 import { strengthDescription, type StrengthVariant } from "./strength-plan";
-import type { PrimarySport } from "./data";
+import type { PrimarySport } from "../sports";
 import { effectiveSessionCapacityMinutes } from "./session-capacity";
 
 export type PlanningDay = {

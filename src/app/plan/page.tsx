@@ -488,7 +488,7 @@ export default async function PlanPage({
             <CalendarImport />
           </div>
         </details>
-        <details className="card p-6">
+        <details id="planning-rules" className="card p-6">
           <summary className="cursor-pointer list-none text-xl font-black">
             Planungsregeln{" "}
             <span className="float-right text-[var(--accent)]">+</span>
@@ -603,7 +603,7 @@ export default async function PlanPage({
             </label>
 
             <label className="text-sm font-semibold">
-              Wochenziel (km)
+              Wochenziel der gewählten Hauptsportart (km)
               <input
                 className={inputClass}
                 name="weeklyDistance"
@@ -611,6 +611,9 @@ export default async function PlanPage({
                 min="0"
                 defaultValue={profile.weeklyDistanceGoalKm}
               />
+              <span className="mt-1.5 block text-xs font-normal leading-5 text-[var(--muted)]">
+                Beim Wechsel zwischen Radfahren und Laufen gibst du hier bewusst das neue Ziel an. Es wird nicht automatisch umgerechnet.
+              </span>
             </label>
             <label className="text-sm font-semibold">
               Max. Arbeitstag (min)

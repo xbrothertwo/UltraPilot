@@ -1,4 +1,5 @@
 import type { Activity } from "./demo-data";
+import type { PrimarySport } from "./sports";
 
 export type MissionNutrition = {
   activityId: string;
@@ -89,11 +90,12 @@ function statusFromProgress(value: number | null): CapabilityStatus {
 }
 
 export function buildMissionControl(input: {
+  primarySport?: PrimarySport;
   activities: Activity[];
   nutrition: MissionNutrition[];
   feedback: MissionFeedback[];
   drifts: MissionDrift[];
-  weeklyGoalKm: number;
+  weeklyGoalKm: number | null;
   eventName: string | null;
   targetDistanceKm: number | null;
   supportMode: "supported" | "nonsupported" | "open" | null;
@@ -102,8 +104,27 @@ export function buildMissionControl(input: {
   recoveryTrackedNights: number;
   recoveryStableNights: number;
 }): MissionControl {
+  const primarySport = input.primarySport ?? "cycling";
+  const running = primarySport === "running";
+  const sessionSingular = running ? "Lauf" : "Fahrt";
+  const sessionPlural = running ? "Läufe" : "Fahrten";
+  const longSession = running ? "langer Lauf" : "lange Fahrt";
+  const darkSession = running ? "Lauf bei Dunkelheit" : "Nachtfahrt";
+  const backToBackMinimumKm = running ? 5 : 40;
+  const validMissionTargetKm = typeof input.targetDistanceKm === "number" &&
+    Number.isFinite(input.targetDistanceKm) && input.targetDistanceKm > 0
+    ? input.targetDistanceKm
+    : null;
+  const validWeeklyGoalKm = typeof input.weeklyGoalKm === "number" &&
+    Number.isFinite(input.weeklyGoalKm) && input.weeklyGoalKm > 0
+    ? input.weeklyGoalKm
+    : null;
+  const longCapabilityTargetKm = running ? validMissionTargetKm : 300;
+  const backToBackCapabilityTargetKm = running
+    ? validMissionTargetKm === null ? null : validMissionTargetKm * 1.5
+    : 300;
   const rides = input.activities
-    .filter((activity) => activity.sportType === "cycling")
+    .filter((activity) => activity.sportType === primarySport)
     .sort((a, b) => a.activityDate.localeCompare(b.activityDate));
   const longestRideKm = rounded(
     Math.max(0, ...rides.map((activity) => activity.distanceMeters / 1000)),
@@ -120,7 +141,7 @@ export function buildMissionControl(input: {
       [...byDay].find(
         ([candidate]) => dayNumber(candidate) === dayNumber(date) + 1,
       )?.[1] ?? 0;
-    if (distance >= 40 && next >= 40)
+    if (distance >= backToBackMinimumKm && next >= backToBackMinimumKm)
       bestBackToBackKm = Math.max(bestBackToBackKm, distance + next);
   }
   bestBackToBackKm = rounded(bestBackToBackKm, 1);
@@ -139,8 +160,8 @@ export function buildMissionControl(input: {
     date.setUTCDate(date.getUTCDate() - (index + 1) * 7);
     return date.toISOString().slice(0, 10);
   });
-  const consistentWeeks = previousWeeks.filter(
-    (week) => (weeklyDistances.get(week) ?? 0) >= input.weeklyGoalKm * 0.8,
+  const consistentWeeks = validWeeklyGoalKm === null ? 0 : previousWeeks.filter(
+    (week) => (weeklyDistances.get(week) ?? 0) >= validWeeklyGoalKm * 0.8,
   ).length;
 
   const nutritionTotals = new Map<string, { carbs: number; fluid: number }>();
@@ -154,7 +175,7 @@ export function buildMissionControl(input: {
     nutritionTotals.set(entry.activityId, current);
   }
   const qualifyingFuelingRides = rides.filter((ride) => {
-    if (ride.movingTimeSeconds < 3 * 3600) return false;
+    if (ride.movingTimeSeconds < (running ? 90 * 60 : 3 * 3600)) return false;
     const totals = nutritionTotals.get(ride.id);
     if (!totals) return false;
     const carbsPerHour = totals.carbs / (ride.movingTimeSeconds / 3600);
@@ -183,28 +204,30 @@ export function buildMissionControl(input: {
     {
       key: "consistency",
       label: "Trainingskonstanz",
-      status: statusFromProgress(progress(consistentWeeks, 4)),
-      progressPercent: progress(consistentWeeks, 4),
-      evidence: `${consistentWeeks} von 4 abgeschlossenen Wochen mit mindestens 80 % des ${input.weeklyGoalKm}-km-Ziels.`,
+      status: validWeeklyGoalKm === null ? "untracked" : statusFromProgress(progress(consistentWeeks, 4)),
+      progressPercent: validWeeklyGoalKm === null ? null : progress(consistentWeeks, 4),
+      evidence: validWeeklyGoalKm === null
+        ? "Kein Wochenziel für diese Missionsauswertung hinterlegt."
+        : `${consistentWeeks} von 4 abgeschlossenen Wochen mit mindestens 80 % des ${validWeeklyGoalKm}-km-Ziels.`,
       nextTarget: "Vier stabile Wochen ohne Nachholzwang.",
     },
     {
       key: "long_ride",
       label: "Langstreckenfähigkeit",
-      status: statusFromProgress(progress(longestRideKm, 300)),
-      progressPercent: progress(longestRideKm, 300),
-      evidence: `Längste gespeicherte Fahrt: ${longestRideKm.toLocaleString("de-DE")} km.`,
+      status: statusFromProgress(longCapabilityTargetKm === null ? null : progress(longestRideKm, longCapabilityTargetKm)),
+      progressPercent: longCapabilityTargetKm === null ? null : progress(longestRideKm, longCapabilityTargetKm),
+      evidence: `Längster gespeicherter ${sessionSingular}: ${longestRideKm.toLocaleString("de-DE")} km.`,
       nextTarget:
         "Kontrolliert auf den nächsten Distanz-Meilenstein hinarbeiten.",
     },
     {
       key: "back_to_back",
       label: "Back-to-back",
-      status: statusFromProgress(progress(bestBackToBackKm, 300)),
-      progressPercent: progress(bestBackToBackKm, 300),
+      status: statusFromProgress(backToBackCapabilityTargetKm === null ? null : progress(bestBackToBackKm, backToBackCapabilityTargetKm)),
+      progressPercent: backToBackCapabilityTargetKm === null ? null : progress(bestBackToBackKm, backToBackCapabilityTargetKm),
       evidence: bestBackToBackKm
         ? `Bestes Wochenende an zwei aufeinanderfolgenden Tagen: ${bestBackToBackKm.toLocaleString("de-DE")} km.`
-        : "Noch keine zwei aufeinanderfolgenden Tage mit jeweils mindestens 40 km.",
+        : `Noch keine zwei aufeinanderfolgenden Tage mit jeweils mindestens ${backToBackMinimumKm} km.`,
       nextTarget:
         "Zwei längere Tage mit guter Erholung und Versorgung dokumentieren.",
     },
@@ -213,7 +236,7 @@ export function buildMissionControl(input: {
       label: "Verpflegungstoleranz",
       status: statusFromProgress(progress(qualifyingFuelingRides, 3)),
       progressPercent: progress(qualifyingFuelingRides, 3),
-      evidence: `${qualifyingFuelingRides} Fahrt(en) über 3 Stunden mit mindestens 40 g KH/h und ohne schlecht bewerteten Magen.`,
+      evidence: `${qualifyingFuelingRides} ${sessionPlural} mit dokumentierter, belastbarer Verpflegung.`,
       nextTarget: "Drei reproduzierbare lange Verpflegungsproben.",
     },
     {
@@ -224,18 +247,18 @@ export function buildMissionControl(input: {
         : "untracked",
       progressPercent: longRideDrifts ? progress(stableDrifts, 3) : null,
       evidence: longRideDrifts
-        ? `${stableDrifts} von ${longRideDrifts} auswertbaren Fahrten mit höchstens 10 % Drift.`
-        : "Noch keine langen Fahrten mit gleichzeitig ausreichenden HF- und Leistungsdaten.",
-      nextTarget: "Drei vergleichbare lange Fahrten mit auswertbarer Drift.",
+        ? `${stableDrifts} von ${longRideDrifts} auswertbaren ${sessionPlural} mit höchstens 10 % Drift.`
+        : `Noch keine vergleichbaren Daten für einen ${longSession}.`,
+      nextTarget: `Drei vergleichbare ${sessionPlural} mit auswertbarer Drift.`,
     },
     {
       key: "night",
-      label: "Nachtfahrerfahrung",
+      label: running ? "Laufen bei Dunkelheit" : "Nachtfahrerfahrung",
       status: statusFromProgress(progress(nightRides, 2)),
       progressPercent: progress(nightRides, 2),
-      evidence: `${nightRides} gespeicherte Fahrt(en) über zwei Stunden mit Start zwischen 21 und 5 Uhr.`,
+      evidence: `${nightRides} gespeicherte ${sessionPlural} bei Dunkelheit.`,
       nextTarget:
-        "Nachtfahrten schrittweise und sicher im unterstützten Umfeld testen.",
+        `${darkSession} schrittweise und sicher im unterstützten Umfeld testen.`,
     },
     {
       key: "recovery",
@@ -262,7 +285,7 @@ export function buildMissionControl(input: {
     label,
     met,
   });
-  const definitions = [
+  const cyclingDefinitions = [
     {
       key: "consistency",
       title: "Vier stabile Trainingswochen",
@@ -419,6 +442,54 @@ export function buildMissionControl(input: {
       ],
     },
   ];
+  const runningDefinitions = validMissionTargetKm === null ? [] : [
+    {
+      key: "consistency",
+      title: "Vier stabile Trainingswochen",
+      horizon: "Jetzt",
+      achieved: consistentWeeks >= 4,
+      value: consistentWeeks,
+      target: 4,
+      evidence: `${consistentWeeks}/4 Wochen`,
+      purpose: "Konstanz schafft eine belastbare Grundlage für längere Läufe.",
+      requirements: [requirement("Wochenziel in vier abgeschlossenen Wochen zu mindestens 80 %", consistentWeeks >= 4)],
+    },
+    {
+      key: "run_long",
+      title: `${validMissionTargetKm}-km-Lauf`,
+      horizon: "Ausdauer",
+      achieved: longestRideKm >= validMissionTargetKm,
+      value: longestRideKm,
+      target: validMissionTargetKm,
+      evidence: `Längster Lauf ${longestRideKm} km`,
+      purpose: "Kontrollierter langer Lauf als Nachweis für die gewählte Laufmission.",
+      requirements: [requirement("Mindestens zwei stabile Trainingswochen", consistentWeeks >= 2)],
+    },
+    {
+      key: "run_back_to_back",
+      title: "Back-to-back-Laufwochenende",
+      horizon: "Aufbau",
+      achieved: bestBackToBackKm >= validMissionTargetKm * 1.5,
+      value: bestBackToBackKm,
+      target: validMissionTargetKm * 1.5,
+      evidence: `Bestwert ${bestBackToBackKm} km an zwei aufeinanderfolgenden Tagen`,
+      purpose: "Belastbarkeit an aufeinanderfolgenden Lauftagen nachvollziehbar aufbauen.",
+      requirements: [requirement("Langer Lauf dokumentiert", longestRideKm >= validMissionTargetKm * .6)],
+    },
+    {
+      key: "dark_run",
+      title: "Kontrollierter Lauf bei Dunkelheit",
+      horizon: "Spezifisch",
+      achieved: nightRides >= 1,
+      value: nightRides,
+      target: 1,
+      evidence: `${nightRides} passender Lauf bei Dunkelheit`,
+      purpose: "Beleuchtung, Untergrund und Sicherheit unter kontrollierten Bedingungen erproben.",
+      requirements: [requirement("Sicherer Lauf bei Dunkelheit dokumentiert", nightRides >= 1)],
+    },
+  ];
+  const definitions = (running ? runningDefinitions : cyclingDefinitions)
+    .filter((item) => validWeeklyGoalKm !== null || item.key !== "consistency");
   const milestones: MissionMilestone[] = definitions.map((item) => ({
     key: item.key,
     title: item.title,
