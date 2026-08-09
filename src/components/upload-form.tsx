@@ -27,7 +27,7 @@ export function UploadForm() {
       if (!primaryFiles.length) return { status: "error", message: "Bitte wähle mindestens eine Garmin-, GPX- oder FIT-Datei aus." };
       if (primaryFiles.length > MAX_BATCH_FILES) return { status: "error", message: `Pro Durchgang können höchstens ${MAX_BATCH_FILES} Aktivitäten importiert werden.` };
       if (hasHealthExport && hasDirectFile) return { status: "error", message: "Bitte verwende entweder den Apple-Health-Export oder eine direkte Watch-Datei – nicht beides." };
-      if (hasDirectFile && primaryFiles.length > 1) return { status: "error", message: "Eine einzelne Watch-Datei kann nur einer Hauptdatei zugeordnet werden. Nutze für mehrere Fahrten den Apple-Health-Export." };
+      if (hasDirectFile && primaryFiles.length > 1) return { status: "error", message: "Eine einzelne Watch-Datei kann nur einer Hauptdatei zugeordnet werden. Nutze für mehrere Aktivitäten den Apple-Health-Export." };
 
       let healthSamples: { timestamp: string; value: number }[][] = primaryFiles.map(() => []);
       if (hasHealthExport) {
