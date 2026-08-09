@@ -4,6 +4,7 @@ import { getTrainingProfile } from "@/lib/training-profile";
 import { getHeartRateZones, getPaceZones, getPowerZones } from "@/lib/training-zones";
 import { saveTrainingSettings } from "./actions";
 import { HealthShortcutSetup } from "@/components/health-shortcut-setup";
+import { AccountDataExport } from "@/components/account-data-export";
 import { getHealthShortcutStatus } from "@/lib/apple-health/shortcut-connection";
 
 export const metadata = { title: "Einstellungen" };
@@ -69,6 +70,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
         {isDemoMode && <p className="mt-3 text-sm text-[var(--muted)]">Im Demo-Modus werden persönliche Einstellungen nicht gespeichert.</p>}
       </form>
       <HealthShortcutSetup status={shortcutStatus} endpointUrl={`${(process.env.NEXT_PUBLIC_APP_URL ?? "https://ultra-pilot.vercel.app").replace(/\/$/, "")}/api/health/shortcut`} />
+      {!isDemoMode && <AccountDataExport />}
       <section className="card mt-6 max-w-4xl p-6"><div className="flex items-center justify-between gap-4"><div><h2 className="font-bold">Supabase</h2><p className="mt-1 text-sm text-[var(--muted)]">Authentifizierung, Datenbank und Dateispeicher</p></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${isDemoMode ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-900"}`}>{isDemoMode ? "Demo-Modus" : "Konfiguriert"}</span></div></section>
     </>
   );
