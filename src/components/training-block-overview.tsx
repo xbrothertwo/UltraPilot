@@ -53,6 +53,7 @@ export function TrainingBlockOverview({ block, primarySport, selectedWeek, activ
         <h2 className="mt-2 text-2xl font-black">{block.name}</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">{new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short" }).format(new Date(`${block.startDate}T12:00:00`))} – {new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${block.endDate}T12:00:00`))} · {block.weekCount} Wochen</p>
         {block.goal && <p className="mt-2 text-sm leading-5 text-[var(--ink)]"><span className="font-bold">Ziel:</span> {block.goal}</p>}
+        <Link href={`/plan/block/${block.id}`} className="mt-2 inline-block text-sm font-bold text-[var(--accent)] underline">Details & Wochen manuell bearbeiten →</Link>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {editable && <form action={renameTrainingBlock} className="flex items-center gap-1.5"><input type="hidden" name="id" value={block.id}/><input type="hidden" name="selectedWeek" value={selectedWeek}/><input name="name" defaultValue={block.name} maxLength={120} aria-label="Blockname" className="w-40 rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-sm"/><button className="rounded-xl border border-[var(--line)] bg-white px-3 py-2 text-sm font-bold text-[var(--muted)] hover:bg-blue-50/45">Umbenennen</button></form>}
