@@ -7,6 +7,7 @@ const workout: PlannedWorkout = {
   id: "ride", scheduledDate: "2026-08-03", sportType: "cycling", title: "Tempo 70 km", description: null, personalNote: null,
   intensity: "tempo", plannedDurationMinutes: 180, plannedDistanceKm: 70, status: "planned", linkedActivityId: null,
   source: "automatic", generationId: "generation", locked: false,
+  preferredStartTime: null, targetHeartRateZone: null, targetPowerZone: null,
 };
 
 function readiness(status: ReadinessResult["status"]): ReadinessResult {

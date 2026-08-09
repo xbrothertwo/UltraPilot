@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildRideDebrief } from "../src/lib/ride-debrief";
 import type { PlannedWorkout } from "../src/lib/planning/workouts";
 
-const workout: PlannedWorkout = { id: "w", scheduledDate: "2026-08-03", sportType: "cycling", title: "Grundlage", description: null, personalNote: null, intensity: "endurance", plannedDurationMinutes: 120, plannedDistanceKm: 50, status: "planned", linkedActivityId: null, source: "automatic", generationId: null, locked: false };
+const workout: PlannedWorkout = { id: "w", scheduledDate: "2026-08-03", sportType: "cycling", title: "Grundlage", description: null, personalNote: null, intensity: "endurance", plannedDurationMinutes: 120, plannedDistanceKm: 50, status: "planned", linkedActivityId: null, source: "automatic", generationId: null, locked: false, preferredStartTime: null, targetHeartRateZone: null, targetPowerZone: null };
 const nutrition = { carbohydratesGrams: 120, fluidMilliliters: 1000, sodiumMilligrams: 500, calories: 500, carbohydratesPerHour: 60, fluidPerHour: 500, sodiumPerHour: 250, gaps: [] };
 const feedback = { perceivedExertion: 4, fatigue: 4, mood: 7, stomachTolerance: 8, sleepQuality: 7, painNotes: "", notes: "" };
 const comparison = { distanceDeltaKm: 0, durationDeltaMinutes: 0, distanceRatio: 1, durationRatio: 1 };

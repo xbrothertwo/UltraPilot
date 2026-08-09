@@ -20,6 +20,9 @@ function workout(
     generationId: null,
     personalNote: null,
     locked: false,
+    preferredStartTime: null,
+    targetHeartRateZone: null,
+    targetPowerZone: null,
     ...overrides,
   };
 }

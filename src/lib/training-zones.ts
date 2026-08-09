@@ -68,10 +68,23 @@ export function getPlannedHeartRateTarget(zones: ZoneDefinition[] | null, intens
   return { label: zone.name, lower: zone.lower, upper: zone.upper };
 }
 
+// Direct zone-name lookup, for a manual override that bypasses the intensity mapping above.
+export function getZoneTarget(zones: ZoneDefinition[] | null, zoneName: string): HeartRateTarget | null {
+  const zone = zones?.find((candidate) => candidate.name === zoneName);
+  return zone ? { label: zone.name, lower: zone.lower, upper: zone.upper } : null;
+}
+
 export function formatHeartRateTarget(target: HeartRateTarget): string {
   if (target.lower !== null && target.upper !== null) return `${target.lower}–${target.upper} bpm (${target.label})`;
   if (target.upper !== null) return `bis ${target.upper} bpm (${target.label})`;
   if (target.lower !== null) return `ab ${target.lower} bpm (${target.label})`;
+  return target.label;
+}
+
+export function formatPowerTarget(target: HeartRateTarget): string {
+  if (target.lower !== null && target.upper !== null) return `${target.lower}–${target.upper} W (${target.label})`;
+  if (target.upper !== null) return `bis ${target.upper} W (${target.label})`;
+  if (target.lower !== null) return `ab ${target.lower} W (${target.label})`;
   return target.label;
 }
 

@@ -18,6 +18,9 @@ function workout(overrides: Partial<PlannedWorkout>): PlannedWorkout {
     source: "automatic",
     generationId: null,
     locked: false,
+    preferredStartTime: null,
+    targetHeartRateZone: null,
+    targetPowerZone: null,
     ...overrides,
   };
 }

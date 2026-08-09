@@ -4,7 +4,7 @@ import type { PlannedWorkout } from "../src/lib/planning/workouts";
 import { reconcilePlannedWorkouts } from "../src/lib/planning/reconciliation";
 
 function workout(overrides: Partial<PlannedWorkout> = {}): PlannedWorkout {
-  return { id: "workout-1", scheduledDate: "2026-08-03", sportType: "cycling", title: "Ausdauer", description: null, personalNote: null, intensity: "endurance", plannedDurationMinutes: 120, plannedDistanceKm: 50, status: "planned", linkedActivityId: null, source: "automatic", generationId: null, locked: false, ...overrides };
+  return { id: "workout-1", scheduledDate: "2026-08-03", sportType: "cycling", title: "Ausdauer", description: null, personalNote: null, intensity: "endurance", plannedDurationMinutes: 120, plannedDistanceKm: 50, status: "planned", linkedActivityId: null, source: "automatic", generationId: null, locked: false, preferredStartTime: null, targetHeartRateZone: null, targetPowerZone: null, ...overrides };
 }
 
 function activity(overrides: Partial<Activity> = {}): Activity {

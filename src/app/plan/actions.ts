@@ -445,6 +445,23 @@ function planDestination(formData: FormData, query: string): string {
   return `/plan?${typeof week === "string" && /^\d{4}-\d{2}-\d{2}$/.test(week) ? `week=${week}&` : ""}${query}`;
 }
 
+function optionalStartTime(formData: FormData, name: string): string | null {
+  const raw = formData.get(name);
+  if (typeof raw !== "string" || raw.trim() === "") return null;
+  if (!/^\d{2}:\d{2}$/.test(raw)) throw new Error("Bevorzugte Startzeit ist ungültig.");
+  return raw;
+}
+
+const heartRateZoneValues = ["Z1", "Z2", "Z3", "Z4", "Z5"];
+const powerZoneValues = ["Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7"];
+
+function optionalZone(formData: FormData, name: string, allowed: string[], label: string): string | null {
+  const raw = formData.get(name);
+  if (typeof raw !== "string" || raw.trim() === "") return null;
+  if (!allowed.includes(raw)) throw new Error(`${label} ist ungültig.`);
+  return raw;
+}
+
 export async function savePlannedWorkout(formData: FormData) {
   let destination = planDestination(formData, "saved=workout");
   try {
@@ -477,6 +494,9 @@ export async function savePlannedWorkout(formData: FormData) {
       !intensities.includes(intensityValue as (typeof intensities)[number])
     )
       throw new Error("Intensität ist ungültig.");
+    const preferredStartTime = optionalStartTime(formData, "preferredStartTime");
+    const targetHeartRateZone = optionalZone(formData, "targetHeartRateZone", heartRateZoneValues, "Herzfrequenzzone");
+    const targetPowerZone = optionalZone(formData, "targetPowerZone", powerZoneValues, "Leistungszone");
     const record = {
       user_id: user.id,
       scheduled_date: dateValue(formData.get("scheduledDate")),
@@ -487,6 +507,9 @@ export async function savePlannedWorkout(formData: FormData) {
       intensity: intensityValue,
       planned_duration_minutes: optionalPlanNumber(formData, "duration", 1440),
       planned_distance_km: optionalPlanNumber(formData, "distance", 2000),
+      preferred_start_time: preferredStartTime,
+      target_heart_rate_zone: targetHeartRateZone,
+      target_power_zone: targetPowerZone,
       // Editing an automatically generated workout is itself a deliberate user
       // decision, so it must stop being treated as replaceable on the next
       // automatic plan generation, exactly like a workout created from scratch.
