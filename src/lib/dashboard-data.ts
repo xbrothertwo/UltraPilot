@@ -1,5 +1,6 @@
 import { getActivities } from "@/lib/activities";
 import { isDemoMode } from "@/lib/demo-data";
+import { getPlanningData } from "@/lib/planning/data";
 import { createClient } from "@/lib/supabase/server";
 import { getTrainingProfile } from "@/lib/training-profile";
 import { buildDashboardSummary, type DashboardFeedback, type DashboardNutrition, type DashboardStream } from "@/lib/dashboard-analysis";
@@ -24,10 +25,11 @@ export async function getDashboardSummary(days: 7 | 28 | 90) {
   const allActivities = await getActivities();
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
   const activities = allActivities.filter((activity) => new Date(activity.activityDate).getTime() >= cutoff);
-  const { profile } = await getTrainingProfile();
-  if (isDemoMode || activities.length === 0) return buildDashboardSummary(activities, [], [], [], profile);
+  const [{ profile }, planning] = await Promise.all([getTrainingProfile(), getPlanningData()]);
+  const primarySport = planning.profile.primarySport;
+  if (isDemoMode || activities.length === 0) return buildDashboardSummary(activities, [], [], [], profile, primarySport);
   const supabase = await createClient();
-  if (!supabase) return buildDashboardSummary(activities, [], [], [], profile);
+  if (!supabase) return buildDashboardSummary(activities, [], [], [], profile, primarySport);
   const ids = activities.map((activity) => activity.id);
   const [nutritionResult, feedbackResult, streamResult] = await Promise.all([
     supabase.from("nutrition_entries").select("activity_id,carbohydrates_grams,fluid_milliliters,sodium_milligrams").in("activity_id", ids),
@@ -42,6 +44,6 @@ export async function getDashboardSummary(days: 7 | 28 | 90) {
     const validSamples = samples(row.samples);
     return validSamples.length ? [{ activityId: row.activity_id, type: row.stream_type, samples: validSamples }] : [];
   });
-  return buildDashboardSummary(activities, nutrition, feedback, streams, profile);
+  return buildDashboardSummary(activities, nutrition, feedback, streams, profile, primarySport);
 }
 
