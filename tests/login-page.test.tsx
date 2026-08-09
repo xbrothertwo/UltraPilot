@@ -35,6 +35,14 @@ describe("login recovery feedback", () => {
   });
 
   it.each([
+    ["account-deletion-started", "deines Kontos wurde gestartet."],
+    ["account-deletion-processing", "deines Kontos wird noch verarbeitet."],
+  ])("renders the fixed account-deletion notice %s", async (notice, text) => {
+    const html = await renderLogin({ notice });
+    expect(html).toContain(text);
+  });
+
+  it.each([
     { notice: "unknown-notice" },
     { message: "Beliebiger Erfolgstext" },
     { message: "<script>alert('x')</script>" },
