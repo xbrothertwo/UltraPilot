@@ -3,7 +3,7 @@ import type { Activity } from "../src/lib/demo-data";
 import { calculateActivityLoads, compareLoadToPlan, summarizeTrainingLoad, type LoadStream } from "../src/lib/training-load";
 import type { TrainingProfile } from "../src/lib/training-zones";
 
-const profile: TrainingProfile = { maxHeartRate: 200, restingHeartRate: 50, ftpWatts: 200, heartRateZoneMethod: "max_hr", customHeartRateBoundaries: null, customPowerBoundaries: null };
+const profile: TrainingProfile = { maxHeartRate: 200, restingHeartRate: 50, ftpWatts: 200, thresholdPaceSecondsPerKm: null, heartRateZoneMethod: "max_hr", customHeartRateBoundaries: null, customPowerBoundaries: null };
 const activity = (overrides: Partial<Activity> = {}): Activity => ({ id: "a1", userId: "u1", sportType: "cycling", activityDate: "2026-08-03T08:00:00Z", title: "Fahrt", distanceMeters: 25_000, movingTimeSeconds: 3600, elapsedTimeSeconds: 3600, elevationGainMeters: 100, averageSpeedKmh: 25, averageHeartRate: null, maximumHeartRate: null, averagePower: null, normalizedPower: null, source: "fit", createdAt: "2026-08-03T09:00:00Z", ...overrides });
 
 function heartRateStream(activityId = "a1", durationSeconds = 600, stepSeconds = 5): LoadStream {

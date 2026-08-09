@@ -3,7 +3,7 @@ import { buildDashboardSummary } from "../src/lib/dashboard-analysis";
 import type { Activity } from "../src/lib/demo-data";
 import type { TrainingProfile } from "../src/lib/training-zones";
 
-const profile: TrainingProfile = { maxHeartRate: 200, restingHeartRate: 50, ftpWatts: 300, heartRateZoneMethod: "max_hr", customHeartRateBoundaries: null, customPowerBoundaries: null };
+const profile: TrainingProfile = { maxHeartRate: 200, restingHeartRate: 50, ftpWatts: 300, thresholdPaceSecondsPerKm: null, heartRateZoneMethod: "max_hr", customHeartRateBoundaries: null, customPowerBoundaries: null };
 
 function activity(id: string, date: string, overrides: Partial<Activity> = {}): Activity {
   return { id, userId: "user", sportType: "cycling", activityDate: date, title: id, distanceMeters: 50_000, movingTimeSeconds: 7200, elapsedTimeSeconds: 7500, elevationGainMeters: 500, averageSpeedKmh: 25, averageHeartRate: 140, maximumHeartRate: 170, averagePower: 200, normalizedPower: 240, source: "fit_upload", createdAt: date, ...overrides };

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { calculateHeartRateDrift, calculateTimeInZones, calculateTrainingLoad, formatHeartRateTarget, getHeartRateZones, getPlannedHeartRateTarget, getPowerZones, type TrainingProfile } from "../src/lib/training-zones";
+import { calculateHeartRateDrift, calculateTimeInZones, calculateTrainingLoad, formatHeartRateTarget, formatPaceTarget, getHeartRateZones, getPaceZones, getPlannedHeartRateTarget, getPlannedPaceTarget, getPowerZones, type TrainingProfile } from "../src/lib/training-zones";
 
-const profile: TrainingProfile = { maxHeartRate: 200, restingHeartRate: 50, ftpWatts: 300, heartRateZoneMethod: "max_hr", customHeartRateBoundaries: null, customPowerBoundaries: null };
+const profile: TrainingProfile = { maxHeartRate: 200, restingHeartRate: 50, ftpWatts: 300, thresholdPaceSecondsPerKm: 260, heartRateZoneMethod: "max_hr", customHeartRateBoundaries: null, customPowerBoundaries: null };
 
 describe("training zones", () => {
   it("derives boundaries from explicit reference values", () => {
@@ -21,6 +21,20 @@ describe("training zones", () => {
   it("does not derive zones when required values are absent", () => {
     expect(getHeartRateZones({ ...profile, maxHeartRate: null })).toBeNull();
     expect(getPowerZones({ ...profile, ftpWatts: null })).toBeNull();
+    expect(getPaceZones({ ...profile, thresholdPaceSecondsPerKm: null })).toBeNull();
+  });
+  it("derives running pace zones from threshold pace, slowest first", () => {
+    const zones = getPaceZones(profile)!;
+    expect(zones.map((zone) => [zone.fasterBoundSecondsPerKm, zone.slowerBoundSecondsPerKm])).toEqual([
+      [335, null], [305, 335], [280, 305], [265, 280], [null, 265],
+    ]);
+  });
+  it("maps planned run intensity to explicit pace zones", () => {
+    const zones = getPaceZones(profile)!;
+    expect(formatPaceTarget(getPlannedPaceTarget(zones, "endurance")!)).toBe("5:05–5:35 min/km (Z2)");
+    expect(formatPaceTarget(getPlannedPaceTarget(zones, "easy")!)).toBe("langsamer als 5:05 min/km (Z1–Z2)");
+    expect(getPlannedPaceTarget(zones, "strength")).toBeNull();
+    expect(getPlannedPaceTarget(null, "endurance")).toBeNull();
   });
   it("assigns intervals and ignores gaps over ten seconds", () => {
     const result = calculateTimeInZones([{ timestamp: "2026-01-01T00:00:00.000Z", value: 110 }, { timestamp: "2026-01-01T00:00:05.000Z", value: 130 }, { timestamp: "2026-01-01T00:00:10.000Z", value: 170 }, { timestamp: "2026-01-01T00:00:30.000Z", value: 180 }], getHeartRateZones(profile)!);

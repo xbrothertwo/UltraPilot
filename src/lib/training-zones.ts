@@ -6,10 +6,14 @@ export type TrainingProfile = {
   maxHeartRate: number | null;
   restingHeartRate: number | null;
   ftpWatts: number | null;
+  thresholdPaceSecondsPerKm: number | null;
   heartRateZoneMethod: HeartRateZoneMethod;
   customHeartRateBoundaries: number[] | null;
   customPowerBoundaries: number[] | null;
 };
+
+export type PaceZone = { name: string; fasterBoundSecondsPerKm: number | null; slowerBoundSecondsPerKm: number | null };
+export type PaceTarget = { label: string; fasterSecondsPerKm: number | null; slowerSecondsPerKm: number | null };
 
 export type ZoneDefinition = {
   name: string;
@@ -77,6 +81,41 @@ export function getPowerZones(profile: TrainingProfile): ZoneDefinition[] | null
   }
   if (profile.ftpWatts === null) return null;
   return definitions([0.55, 0.75, 0.9, 1.05, 1.2, 1.5].map((factor) => Math.round(profile.ftpWatts! * factor)), POWER_COLORS);
+}
+
+// Boundaries are seconds/km slower than threshold pace, marking the edges between Z1|Z2, Z2|Z3, Z3|Z4 and Z4|Z5.
+const PACE_ZONE_OFFSETS_SECONDS_PER_KM = [75, 45, 20, 5];
+
+export function getPaceZones(profile: TrainingProfile): PaceZone[] | null {
+  if (profile.thresholdPaceSecondsPerKm === null || profile.thresholdPaceSecondsPerKm <= 0) return null;
+  const threshold = profile.thresholdPaceSecondsPerKm;
+  const [z1z2, z2z3, z3z4, z4z5] = PACE_ZONE_OFFSETS_SECONDS_PER_KM.map((offset) => threshold + offset);
+  return [
+    { name: "Z1", fasterBoundSecondsPerKm: z1z2, slowerBoundSecondsPerKm: null },
+    { name: "Z2", fasterBoundSecondsPerKm: z2z3, slowerBoundSecondsPerKm: z1z2 },
+    { name: "Z3", fasterBoundSecondsPerKm: z3z4, slowerBoundSecondsPerKm: z2z3 },
+    { name: "Z4", fasterBoundSecondsPerKm: z4z5, slowerBoundSecondsPerKm: z3z4 },
+    { name: "Z5", fasterBoundSecondsPerKm: null, slowerBoundSecondsPerKm: z4z5 },
+  ];
+}
+
+export function getPlannedPaceTarget(zones: PaceZone[] | null, intensity: string): PaceTarget | null {
+  if (!zones?.length || intensity === "strength") return null;
+  if (intensity === "easy") return { label: "Z1–Z2", fasterSecondsPerKm: zones[1]?.fasterBoundSecondsPerKm ?? zones[0].fasterBoundSecondsPerKm, slowerSecondsPerKm: zones[0].slowerBoundSecondsPerKm };
+  const index = intensity === "recovery" ? 0 : intensity === "endurance" ? 1 : intensity === "tempo" ? 2 : intensity === "threshold" ? 3 : intensity === "vo2" ? 4 : 1;
+  const zone = zones[Math.min(index, zones.length - 1)];
+  return { label: zone.name, fasterSecondsPerKm: zone.fasterBoundSecondsPerKm, slowerSecondsPerKm: zone.slowerBoundSecondsPerKm };
+}
+
+function formatPaceValue(secondsPerKm: number): string {
+  return `${Math.floor(secondsPerKm / 60)}:${String(Math.round(secondsPerKm % 60)).padStart(2, "0")}`;
+}
+
+export function formatPaceTarget(target: PaceTarget): string {
+  if (target.fasterSecondsPerKm !== null && target.slowerSecondsPerKm !== null) return `${formatPaceValue(target.fasterSecondsPerKm)}–${formatPaceValue(target.slowerSecondsPerKm)} min/km (${target.label})`;
+  if (target.fasterSecondsPerKm !== null) return `langsamer als ${formatPaceValue(target.fasterSecondsPerKm)} min/km (${target.label})`;
+  if (target.slowerSecondsPerKm !== null) return `schneller als ${formatPaceValue(target.slowerSecondsPerKm)} min/km (${target.label})`;
+  return target.label;
 }
 
 export function calculateTimeInZones(samples: SensorSample[], zones: ZoneDefinition[], maximumGapSeconds = 10): ZoneTime[] {

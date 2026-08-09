@@ -14,6 +14,16 @@ function optionalInteger(formData: FormData, name: string, minimum: number, maxi
   return value;
 }
 
+function optionalPaceSecondsPerKm(formData: FormData, name: string): number | null {
+  const raw = formData.get(name);
+  if (typeof raw !== "string" || raw.trim() === "") return null;
+  const match = /^(\d{1,2}):([0-5]\d)$/.exec(raw.trim());
+  if (!match) throw new Error(`${name} muss im Format MM:SS angegeben werden.`);
+  const seconds = Number(match[1]) * 60 + Number(match[2]);
+  if (seconds < 150 || seconds > 720) throw new Error(`${name} liegt außerhalb eines plausiblen Bereichs (2:30–12:00 min/km).`);
+  return seconds;
+}
+
 function boundaries(formData: FormData, prefix: string, count: number, maximum: number): number[] | null {
   const values = Array.from({ length: count }, (_, index) => optionalInteger(formData, `${prefix}${index + 1}`, 1, maximum));
   if (values.every((value) => value === null)) return null;
@@ -33,6 +43,7 @@ export async function saveTrainingSettings(formData: FormData) {
     const maxHeartRate = optionalInteger(formData, "maxHeartRate", 80, 240);
     const restingHeartRate = optionalInteger(formData, "restingHeartRate", 25, 120);
     const ftpWatts = optionalInteger(formData, "ftpWatts", 50, 1000);
+    const thresholdPaceSecondsPerKm = optionalPaceSecondsPerKm(formData, "thresholdPace");
     if (maxHeartRate !== null && restingHeartRate !== null && restingHeartRate >= maxHeartRate) throw new Error("Der Ruhepuls muss unter dem Maximalpuls liegen.");
     const heartRateBoundaries = boundaries(formData, "hrBoundary", 4, 240);
     const powerBoundaries = boundaries(formData, "powerBoundary", 6, 1500);
@@ -41,6 +52,7 @@ export async function saveTrainingSettings(formData: FormData) {
       max_heart_rate: maxHeartRate,
       resting_heart_rate: restingHeartRate,
       ftp_watts: ftpWatts,
+      threshold_pace_seconds_per_km: thresholdPaceSecondsPerKm,
       heart_rate_zone_method: method,
       custom_heart_rate_boundaries: heartRateBoundaries,
       custom_power_boundaries: powerBoundaries,

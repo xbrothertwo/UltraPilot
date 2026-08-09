@@ -13,7 +13,7 @@ import {
 } from "@/lib/planning/workouts";
 import { reconcilePlannedWorkouts } from "@/lib/planning/reconciliation";
 import { getTrainingProfile } from "@/lib/training-profile";
-import { getHeartRateZones } from "@/lib/training-zones";
+import { getHeartRateZones, getPaceZones } from "@/lib/training-zones";
 import { getRecoveryData } from "@/lib/recovery";
 import { buildReadinessRange } from "@/lib/recovery-readiness";
 import { isDemoMode } from "@/lib/demo-data";
@@ -389,6 +389,7 @@ export default async function PlanPage({
         events={data.events}
         activities={activities}
         heartRateZones={getHeartRateZones(trainingProfile)}
+        paceZones={getPaceZones(trainingProfile)}
         readiness={readiness}
         activityLoads={trainingLoad.activities}
       />
