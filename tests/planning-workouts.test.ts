@@ -9,6 +9,7 @@ function workout(overrides: Partial<PlannedWorkout>): PlannedWorkout {
     sportType: "strength",
     title: "Krafttraining A",
     description: null,
+    personalNote: null,
     intensity: "strength",
     plannedDurationMinutes: 60,
     plannedDistanceKm: null,
@@ -16,6 +17,7 @@ function workout(overrides: Partial<PlannedWorkout>): PlannedWorkout {
     linkedActivityId: null,
     source: "automatic",
     generationId: null,
+    locked: false,
     ...overrides,
   };
 }

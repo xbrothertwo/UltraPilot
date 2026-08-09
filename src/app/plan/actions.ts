@@ -460,6 +460,11 @@ export async function savePlannedWorkout(formData: FormData) {
       typeof descriptionValue === "string" ? descriptionValue.trim() : "";
     if (description.length > 3000)
       throw new Error("Die Beschreibung ist zu lang.");
+    const personalNoteValue = formData.get("personalNote");
+    const personalNote =
+      typeof personalNoteValue === "string" ? personalNoteValue.trim() : "";
+    if (personalNote.length > 1000)
+      throw new Error("Die persönliche Notiz ist zu lang.");
     const sportValue = formData.get("sportType");
     const intensityValue = formData.get("intensity");
     if (
@@ -478,9 +483,14 @@ export async function savePlannedWorkout(formData: FormData) {
       sport_type: sportValue,
       title,
       description: description || null,
+      personal_note: personalNote || null,
       intensity: intensityValue,
       planned_duration_minutes: optionalPlanNumber(formData, "duration", 1440),
       planned_distance_km: optionalPlanNumber(formData, "distance", 2000),
+      // Editing an automatically generated workout is itself a deliberate user
+      // decision, so it must stop being treated as replaceable on the next
+      // automatic plan generation, exactly like a workout created from scratch.
+      source: "manual" as const,
       updated_at: new Date().toISOString(),
     };
     const id = formData.get("id");
@@ -604,6 +614,117 @@ export async function setPlannedWorkoutStatus(formData: FormData) {
     destination = planDestination(
       formData,
       `error=${encodeURIComponent(error instanceof Error ? error.message : "Status konnte nicht gespeichert werden.")}`,
+    );
+  }
+  redirect(destination);
+}
+
+export async function setPlannedWorkoutLock(formData: FormData) {
+  const locked = formData.get("locked") === "true";
+  let destination = planDestination(formData, `saved=${locked ? "locked" : "unlocked"}`);
+  try {
+    const id = formData.get("id");
+    if (typeof id !== "string" || !id) throw new Error("Einheit fehlt.");
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { data, error } = await supabase
+      .from("planned_workouts")
+      .update({ locked, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
+    if (error || !data)
+      throw new Error(error?.message ?? "Einheit wurde nicht gefunden.");
+    revalidatePath("/plan");
+  } catch (error) {
+    destination = planDestination(
+      formData,
+      `error=${encodeURIComponent(error instanceof Error ? error.message : "Sperre konnte nicht gespeichert werden.")}`,
+    );
+  }
+  redirect(destination);
+}
+
+async function adjustPlannedWorkoutLength(formData: FormData, factor: number, errorLabel: string, savedKey: string) {
+  let destination = planDestination(formData, `saved=${savedKey}`);
+  try {
+    const id = formData.get("id");
+    if (typeof id !== "string" || !id) throw new Error("Einheit fehlt.");
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { data: workout, error: fetchError } = await supabase
+      .from("planned_workouts")
+      .select("planned_duration_minutes,planned_distance_km")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (fetchError || !workout)
+      throw new Error(fetchError?.message ?? "Einheit wurde nicht gefunden.");
+    if (workout.planned_duration_minutes === null)
+      throw new Error(`Diese Einheit hat keine Dauer und kann nicht ${errorLabel} werden.`);
+    const nextDuration = Math.min(1440, Math.max(10, Math.round(workout.planned_duration_minutes * factor)));
+    const nextDistance = workout.planned_distance_km === null ? null : Math.round(Number(workout.planned_distance_km) * factor * 10) / 10;
+    const { error } = await supabase
+      .from("planned_workouts")
+      .update({ planned_duration_minutes: nextDuration, planned_distance_km: nextDistance, source: "manual", updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("user_id", user.id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/plan");
+  } catch (error) {
+    destination = planDestination(
+      formData,
+      `error=${encodeURIComponent(error instanceof Error ? error.message : `Einheit konnte nicht ${errorLabel} werden.`)}`,
+    );
+  }
+  redirect(destination);
+}
+
+export async function shortenPlannedWorkout(formData: FormData) {
+  return adjustPlannedWorkoutLength(formData, 0.75, "gekürzt", "shortened");
+}
+
+export async function extendPlannedWorkout(formData: FormData) {
+  return adjustPlannedWorkoutLength(formData, 1.25, "verlängert", "extended");
+}
+
+const INTENSITY_LADDER = ["recovery", "easy", "endurance", "tempo", "threshold", "vo2"];
+
+export async function reduceWorkoutIntensity(formData: FormData) {
+  let destination = planDestination(formData, "saved=intensity-reduced");
+  try {
+    const id = formData.get("id");
+    if (typeof id !== "string" || !id) throw new Error("Einheit fehlt.");
+    const user = await requireUser();
+    const supabase = await createClient();
+    if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
+    const { data: workout, error: fetchError } = await supabase
+      .from("planned_workouts")
+      .select("intensity")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (fetchError || !workout)
+      throw new Error(fetchError?.message ?? "Einheit wurde nicht gefunden.");
+    if (workout.intensity === "strength")
+      throw new Error("Die Intensität von Krafteinheiten kann hier nicht reduziert werden.");
+    const index = INTENSITY_LADDER.indexOf(workout.intensity);
+    if (index <= 0)
+      throw new Error("Die Intensität dieser Einheit kann nicht weiter reduziert werden.");
+    const { error } = await supabase
+      .from("planned_workouts")
+      .update({ intensity: INTENSITY_LADDER[index - 1], source: "manual", updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("user_id", user.id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/plan");
+  } catch (error) {
+    destination = planDestination(
+      formData,
+      `error=${encodeURIComponent(error instanceof Error ? error.message : "Intensität konnte nicht reduziert werden.")}`,
     );
   }
   redirect(destination);
@@ -874,7 +995,10 @@ export async function generateWeeklyPlan(formData: FormData) {
       (item) => item.workout.source === "automatic",
     );
     const replaceableAutomatic = automatic
-      .filter((item) => item.effectiveStatus !== "completed")
+      .filter((item) => item.effectiveStatus !== "completed" && !item.workout.locked)
+      .map((item) => item.workout);
+    const lockedAutomatic = automatic
+      .filter((item) => item.effectiveStatus !== "completed" && item.workout.locked)
       .map((item) => item.workout);
     const completedAutomatic = automatic
       .filter((item) => item.effectiveStatus === "completed")
@@ -1094,6 +1218,12 @@ export async function generateWeeklyPlan(formData: FormData) {
           ) ||
           completedAutomatic.some(
             (workout) => workout.scheduledDate === key && !canPair(workout),
+          ) ||
+          lockedAutomatic.some(
+            (workout) =>
+              workout.scheduledDate === key &&
+              workout.status !== "skipped" &&
+              !canPair(workout),
           ),
       };
     });

@@ -22,16 +22,18 @@ async function getTodayWorkout(formData: FormData) {
   const user = await requireUser();
   const supabase = await createClient();
   if (!supabase) throw new Error("Supabase ist nicht verfügbar.");
-  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id").eq("id", id).eq("user_id", user.id).maybeSingle();
+  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,personal_note,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id,locked").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (error || !data) throw new Error(error?.message ?? "Die heutige Einheit wurde nicht gefunden.");
   if (data.scheduled_date !== todayKey() || data.status !== "planned") throw new Error("Diese Aktion gilt nur für eine heute geplante, noch offene Einheit.");
   if (data.source !== "automatic" || (data.sport_type !== "cycling" && data.sport_type !== "strength")) throw new Error("Der Tages-Autopilot passt nur automatisch geplante Rad- und Krafteinheiten an.");
+  if (data.locked) throw new Error("Diese Einheit ist gesperrt und wird vom Tages-Autopilot nicht angepasst.");
   const workout: PlannedWorkout = {
     id: data.id,
     scheduledDate: data.scheduled_date,
     sportType: data.sport_type,
     title: data.title,
     description: data.description,
+    personalNote: data.personal_note,
     intensity: data.intensity,
     plannedDurationMinutes: data.planned_duration_minutes,
     plannedDistanceKm: data.planned_distance_km === null ? null : Number(data.planned_distance_km),
@@ -39,6 +41,7 @@ async function getTodayWorkout(formData: FormData) {
     linkedActivityId: data.linked_activity_id,
     source: data.source,
     generationId: data.generation_id,
+    locked: data.locked,
   };
   return { supabase, user, workout };
 }
