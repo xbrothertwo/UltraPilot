@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { DashboardMissionSummary, DashboardPrimarySportError } from "../src/components/dashboard-states";
+import { DashboardMissionSummary, DashboardPrimarySportError, DashboardRecoverySummary } from "../src/components/dashboard-states";
 import { buildDashboardMissionControl, selectDashboardMission } from "../src/lib/dashboard-view-model";
 import type { Activity } from "../src/lib/demo-data";
 import type { SavedMission } from "../src/lib/missions";
@@ -49,5 +49,48 @@ describe("dashboard error and mission states", () => {
     expect(html).toContain("50-km-Lauf");
     expect(html).toContain("50%");
     expect(html).not.toContain("125");
+  });
+});
+
+describe("dashboard recovery summary", () => {
+  const baseReadiness = {
+    date: "2026-08-10",
+    status: "green" as const,
+    score: 82,
+    reasons: [],
+    checkin: null,
+  };
+
+  it.each(["cycling", "running"])("keeps sport-neutral recovery data visible for %s", () => {
+    const html = renderToStaticMarkup(<DashboardRecoverySummary readiness={{
+      ...baseReadiness,
+      metric: {
+        date: "2026-08-10",
+        sleepStart: "2026-08-09T22:30:00Z",
+        sleepEnd: "2026-08-10T05:35:00Z",
+        asleepMinutes: 425,
+        coreMinutes: 250,
+        sleepingAverageHeartRate: 48,
+        sleepingMinimumHeartRate: 42,
+        hrvSdnnMs: 61,
+        deepMinutes: 80,
+        remMinutes: 95,
+        awakeMinutes: 15,
+        heartRateSampleCount: 120,
+        hrvSampleCount: 40,
+        restingHeartRate: 47,
+      },
+    }} />);
+    expect(html.match(/7 h 5 min/g)).toHaveLength(1);
+    expect(html.match(/48 bpm/g)).toHaveLength(1);
+    expect(html.match(/61 ms/g)).toHaveLength(1);
+    expect(html).toContain("Recovery-Verlauf öffnen");
+    expect(html).not.toContain("hidden");
+  });
+
+  it("renders an honest empty recovery state", () => {
+    const html = renderToStaticMarkup(<DashboardRecoverySummary readiness={{ ...baseReadiness, metric: null }} />);
+    expect(html).toContain("Noch keine Schlaf-, Herzfrequenz- oder HRV-Daten");
+    expect(html).toContain("Recovery-Verlauf öffnen");
   });
 });

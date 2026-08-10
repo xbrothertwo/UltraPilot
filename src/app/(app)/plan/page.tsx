@@ -31,7 +31,7 @@ import {
   generateWeeklyPlan,
   increaseWeeklyGoal,
   savePlanningProfile,
-} from "./actions";
+} from "@/app/plan/actions";
 
 export const metadata = { title: "Plan" };
 export const dynamic = "force-dynamic";

@@ -2,66 +2,98 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  --background: #f3f7fc;
-  --foreground: #17243a;
-  --muted: #65758b;
+  --background: #fffafa;
+  --foreground: #2d2428;
+  --muted: #74676d;
   --card: #ffffff;
-  --line: #dce6f2;
-  --accent: #2563eb;
-  --accent-dark: #1746b4;
-  --accent-soft: #e8f0ff;
-  --ink: #091a33;
-  --ink-soft: #122a4d;
-  --signal: #f97362;
-  --cyan: #10b9d6;
-  --violet: #7759e8;
-  --surface: rgba(255, 255, 255, .78);
+  --line: #eadedf;
+  --accent: #a8385a;
+  --accent-dark: #7b2842;
+  --accent-soft: #fff0f3;
+  --ink: #241b1f;
+  --ink-soft: #514349;
+  --brand-blossom: #ffb7c5;
+  --brand-rose: #f2c7c7;
+  --brand-mint: #d5f3d8;
+  --signal: #b84355;
+  --cyan: #4f8f78;
+  --violet: #8e4585;
+  --success: #237a4b;
+  --success-soft: #e8f7ed;
+  --warning: #966215;
+  --warning-soft: #fff6df;
+  --danger: #b43a4b;
+  --danger-soft: #fff0f1;
+  --focus: #8e4585;
+  --disabled: #c8bec2;
+  --button-primary-text: #ffffff;
+  --surface: rgba(255, 255, 255, .82);
   --surface-strong: #ffffff;
-  --card-glass: rgba(255, 255, 255, .86);
-  --grid-line: rgba(29, 78, 216, .026);
+  --surface-raised: #fff7f8;
+  --card-glass: rgba(255, 255, 255, .9);
+  --shell: #fffdfd;
+  --shell-active: #fff0f3;
+  --shell-hover: #fff6f7;
+  --shadow-color: rgba(81, 52, 63, .09);
+  --grid-line: rgba(168, 56, 90, .024);
   color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --background: #060b18;
-  --foreground: #eaf1ff;
-  --muted: #8d9ac0;
-  --card: #0f1730;
-  --line: rgba(234, 241, 255, .1);
-  --accent: #4c8dff;
-  --accent-dark: #2a5bff;
-  --accent-soft: rgba(76, 141, 255, .14);
-  --ink: #eaf1ff;
-  --ink-soft: #aab6d8;
-  --signal: #ff8a72;
-  --cyan: #22d8f0;
-  --violet: #9f8dff;
-  --surface: rgba(234, 241, 255, .06);
-  --surface-strong: #0f1730;
-  --card-glass: rgba(15, 23, 48, .72);
-  --grid-line: rgba(234, 241, 255, .04);
+  --background: #242124;
+  --foreground: #f7eef1;
+  --muted: #b9a9af;
+  --card: #343034;
+  --line: #51494e;
+  --accent: #dca1a1;
+  --accent-dark: #f0c7c7;
+  --accent-soft: rgba(220, 161, 161, .14);
+  --ink: #fff8fa;
+  --ink-soft: #d9c9cf;
+  --brand-blossom: #dca1a1;
+  --brand-rose: #996666;
+  --brand-mint: #526a59;
+  --signal: #d9828e;
+  --cyan: #8ab9a4;
+  --violet: #c17ab7;
+  --success: #8bd0a5;
+  --success-soft: rgba(75, 139, 95, .18);
+  --warning: #efc475;
+  --warning-soft: rgba(180, 125, 35, .18);
+  --danger: #ef9aa5;
+  --danger-soft: rgba(180, 58, 75, .2);
+  --focus: #dca1a1;
+  --disabled: #756b70;
+  --button-primary-text: #2d2428;
+  --surface: rgba(255, 255, 255, .055);
+  --surface-strong: #343034;
+  --surface-raised: #3d373c;
+  --card-glass: rgba(52, 48, 52, .9);
+  --shell: #2b282b;
+  --shell-active: rgba(142, 69, 133, .24);
+  --shell-hover: rgba(255, 255, 255, .06);
+  --shadow-color: rgba(0, 0, 0, .28);
+  --grid-line: rgba(220, 161, 161, .03);
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --background: #060b18;
-    --foreground: #eaf1ff;
-    --muted: #8d9ac0;
-    --card: #0f1730;
-    --line: rgba(234, 241, 255, .1);
-    --accent: #4c8dff;
-    --accent-dark: #2a5bff;
-    --accent-soft: rgba(76, 141, 255, .14);
-    --ink: #eaf1ff;
-    --ink-soft: #aab6d8;
-    --signal: #ff8a72;
-    --cyan: #22d8f0;
-    --violet: #9f8dff;
-    --surface: rgba(234, 241, 255, .06);
-    --surface-strong: #0f1730;
-    --card-glass: rgba(15, 23, 48, .72);
-    --grid-line: rgba(234, 241, 255, .04);
+    --background: #242124; --foreground: #f7eef1; --muted: #b9a9af;
+    --card: #343034; --line: #51494e; --accent: #dca1a1;
+    --accent-dark: #f0c7c7; --accent-soft: rgba(220,161,161,.14);
+    --ink: #fff8fa; --ink-soft: #d9c9cf; --brand-blossom: #dca1a1;
+    --brand-rose: #996666; --brand-mint: #526a59; --signal: #d9828e;
+    --cyan: #8ab9a4; --violet: #c17ab7; --success: #8bd0a5;
+    --success-soft: rgba(75,139,95,.18); --warning: #efc475;
+    --warning-soft: rgba(180,125,35,.18); --danger: #ef9aa5;
+    --danger-soft: rgba(180,58,75,.2); --focus: #dca1a1;
+    --disabled: #756b70; --button-primary-text: #2d2428;
+    --surface: rgba(255,255,255,.055);
+    --surface-strong: #343034; --surface-raised: #3d373c;
+    --card-glass: rgba(52,48,52,.9); --shell: #2b282b;
+    --shell-active: rgba(142,69,133,.24); --shell-hover: rgba(255,255,255,.06);
+    --shadow-color: rgba(0,0,0,.28); --grid-line: rgba(220,161,161,.03);
     color-scheme: dark;
   }
 }
@@ -72,8 +104,8 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(circle at 88% -8%, rgba(37, 99, 235, .13), transparent 31rem),
-    radial-gradient(circle at 8% 35%, rgba(16, 185, 214, .07), transparent 25rem),
+    radial-gradient(circle at 88% -8%, color-mix(in srgb, var(--brand-blossom) 28%, transparent), transparent 31rem),
+    radial-gradient(circle at 8% 35%, color-mix(in srgb, var(--brand-mint) 24%, transparent), transparent 25rem),
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
     var(--background);
@@ -92,7 +124,7 @@ input, select, textarea { font: inherit; }
 button, a, summary { -webkit-tap-highlight-color: transparent; }
 button, summary { cursor: pointer; }
 ::selection { background: var(--accent-soft); color: var(--ink); }
-:focus-visible { outline: 3px solid rgba(37, 99, 235, .24); outline-offset: 3px; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 38%, transparent); outline-offset: 3px; }
 
 input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 select,
@@ -116,7 +148,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   border: 1px solid var(--line);
   border-radius: 1.35rem;
   background: var(--card-glass);
-  box-shadow: 0 14px 38px rgba(24, 51, 88, .065), 0 2px 7px rgba(24, 51, 88, .035);
+  box-shadow: 0 16px 40px var(--shadow-color), 0 2px 8px color-mix(in srgb, var(--shadow-color) 45%, transparent);
   backdrop-filter: blur(16px);
 }
 [data-theme="dark"] .card { box-shadow: 0 14px 38px rgba(0, 0, 0, .3), 0 2px 7px rgba(0, 0, 0, .18); }
@@ -129,7 +161,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   font-size: .68rem;
   font-weight: 850;
   letter-spacing: .19em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .font-display {
@@ -201,11 +233,14 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 }
 .primary-button {
   border: 1px solid rgba(255, 255, 255, .16);
-  background: linear-gradient(135deg, #2f73f3, #1d54d7);
-  box-shadow: 0 9px 22px rgba(37, 99, 235, .22);
-  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  box-shadow: 0 9px 22px color-mix(in srgb, var(--accent) 26%, transparent);
+  color: var(--button-primary-text);
 }
-.primary-button:hover { box-shadow: 0 13px 28px rgba(37, 99, 235, .3); transform: translateY(-1px); }
+.primary-button:hover { box-shadow: 0 13px 28px color-mix(in srgb, var(--accent) 34%, transparent); transform: translateY(-1px); }
+.primary-button:active { box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 22%, transparent); transform: translateY(0); }
+.primary-button:disabled,
+.primary-button[aria-disabled="true"] { cursor: not-allowed; opacity: .55; box-shadow: none; transform: none; }
 .secondary-button {
   border: 1px solid var(--line);
   background: var(--surface);
