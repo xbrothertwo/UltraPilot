@@ -38,7 +38,6 @@ import {
 import { getRecoveryData } from "@/lib/recovery";
 import {
   buildReadinessRange,
-  type ReadinessResult,
 } from "@/lib/recovery-readiness";
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import { getTrainingProfile } from "@/lib/training-profile";
@@ -67,7 +66,10 @@ import {
 import {
   DashboardMissionSummary,
   DashboardPrimarySportError,
+  DashboardRecoverySummary,
 } from "@/components/dashboard-states";
+import { DashboardCheckIn } from "@/components/dashboard-check-in";
+import { InlineAlert, Metric as BloomMetric, PageHeader, Progress, SectionHeader } from "@/components/ui";
 
 export const metadata = { title: "Heute" };
 export const dynamic = "force-dynamic";
@@ -89,10 +91,6 @@ function dayLabel(key: string): string {
     month: "2-digit",
   }).format(dateAtNoon(key));
 }
-function sleepLabel(minutes: number): string {
-  return minutes ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : "–";
-}
-
 function overlapsDay(event: PlanningEvent, key: string): boolean {
   return eventOverlapsLocalDay(event, key);
 }
@@ -105,12 +103,6 @@ const decisionPillStyles: Record<DailyDecisionLevel, string> = {
   open: "bg-blue-300/15 text-blue-100 ring-blue-200/20",
 };
 
-const readinessLabels: Record<ReadinessResult["status"], string> = {
-  green: "Grün",
-  yellow: "Gelb",
-  red: "Rot",
-  unknown: "Offen",
-};
 const intensityLabels: Record<PlannedWorkout["intensity"], string> = {
   recovery: "Regeneration",
   easy: "Locker",
@@ -332,40 +324,32 @@ export default async function DashboardPage({
 
   return (
     <>
-      <header className="mb-5 flex flex-col gap-4 sm:mb-7 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow">
-            {new Intl.DateTimeFormat("de-DE", {
+      <PageHeader
+        eyebrow={new Intl.DateTimeFormat("de-DE", {
               weekday: "long",
               day: "numeric",
               month: "long",
             }).format(today)}
-          </p>
-          <h1 className="font-display mt-2 text-[2.2rem] leading-none text-[var(--ink)] sm:text-5xl">
-            Dein Cockpit.
-          </h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted)] sm:text-base">
-            Eine Entscheidung für heute. Der Rest bleibt im Hintergrund.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
+        title="Heute"
+        description="Tagesform, Training und die eine Entscheidung, die jetzt zählt."
+        actions={<div className="grid grid-cols-2 gap-2 sm:flex">
           <Link href="/plan" className="secondary-button">
             Woche ansehen
           </Link>
           <Link href="/activities/upload" className="primary-button">
             Aktivität +
           </Link>
-        </div>
-      </header>
+        </div>}
+      />
 
       {isDemoMode && (
-        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
+        <InlineAlert tone="warning">
           <strong>Demo-Modus:</strong> Verbinde Supabase, um deine persönlichen
           Empfehlungen zu sehen.
-        </div>
+        </InlineAlert>
       )}
       {query.saved && (
-        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-950 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
+        <InlineAlert tone="success">
           {{
             accepted: "Passt – die heutige Einheit bleibt genau so im Plan.",
             worse:
@@ -376,13 +360,17 @@ export default async function DashboardPage({
               "Heute bleibt trainingsfrei. Die restliche Woche wurde anhand deiner echten Zeitfenster neu geplant.",
           }[query.saved] ?? "Plan wurde angepasst."}
           {query.goal === "met" ? " Dein Wochenziel ist bereits erreicht." : ""}
-        </div>
+        </InlineAlert>
       )}
       {query.error && (
-        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-950 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200">
+        <InlineAlert tone="danger">
           {query.error}
-        </div>
+        </InlineAlert>
       )}
+
+      <div className="mb-4 mt-4 sm:mb-6">
+        <DashboardCheckIn readiness={readiness} decision={decision} workoutTitle={primaryWorkout?.title ?? null} />
+      </div>
 
       <section className="card mb-4 p-5 sm:mb-6 sm:p-6" aria-labelledby="primary-sport-week">
         <div className="flex items-center gap-3">
@@ -394,18 +382,22 @@ export default async function DashboardPage({
             <h2 id="primary-sport-week" className="mt-1 text-xl font-black">{dashboard.weekTitle}</h2>
           </div>
         </div>
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {dashboard.metrics.map((metric) => (
-            <div key={metric.label} className="min-w-0 rounded-2xl bg-slate-50/80 p-4 dark:bg-white/[.04]">
-              <Metric label={metric.label} value={metric.value} />
+            <div key={metric.label} className="min-w-0 rounded-2xl bg-[var(--surface-raised)] p-4">
+              <BloomMetric label={metric.label} value={metric.value} />
             </div>
           ))}
+          <div className="min-w-0 rounded-2xl bg-[var(--surface-raised)] p-4">
+            <BloomMetric label={dashboard.weeklyGoal.label} value={weeklyGoal === null ? "Nicht festgelegt" : dashboard.weeklyGoal.summary} />
+          </div>
         </div>
+        {weeklyGoal !== null && <div className="mt-5"><Progress label={`${dashboard.weeklyGoal.label} · ${Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`} value={progress} /></div>}
         {dashboard.metrics[0].value === "–" && <p className="mt-3 text-sm text-[var(--muted)]">{dashboard.emptyText}</p>}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-12">
-        <article className="cut-corner rise-in relative order-2 overflow-hidden bg-[#0b2145] p-5 text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] sm:p-8 xl:order-2 xl:col-span-7">
+      <section className="grid gap-4">
+        <article className="rise-in relative overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-[#4a4a4a] via-[#5b424c] to-[#8e4585] p-5 text-white shadow-[0_24px_60px_rgba(74,44,63,.24)] sm:p-8">
           <div className="aurora-drift pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-blue-400/20 blur-3xl" />
           <div className="aurora-drift pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-cyan-300/15 blur-3xl" style={{ animationDelay: "-6s" }} />
           <div
@@ -551,110 +543,11 @@ export default async function DashboardPage({
             )}
           </div>
         </article>
-
-        <article className="cut-corner rise-in relative order-1 flex flex-col items-center overflow-hidden bg-[#0b2145] p-6 text-center text-white shadow-[0_24px_60px_rgba(9,31,68,.32)] xl:order-1 xl:col-span-5 xl:row-span-2 xl:justify-center">
-          <div className="aurora-drift pointer-events-none absolute -left-16 -top-16 size-72 rounded-full bg-cyan-300/20 blur-3xl" style={{ animationDelay: "-3s" }} />
-          <div className="aurora-drift pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-blue-400/20 blur-3xl" style={{ animationDelay: "-11s" }} />
-          <p className="eyebrow relative text-blue-200/60">{dashboard.weeklyGoal.label} · adaptiv</p>
-          <div
-            className="glow-ring-lg relative mt-5 grid size-48 shrink-0 place-items-center rounded-full sm:size-56"
-            style={{
-              background: `conic-gradient(from -90deg, var(--cyan), var(--accent) ${progress * 3.6}deg, rgba(255,255,255,.12) 0deg)`,
-            }}
-          >
-            <div className="grid size-[85%] place-items-center rounded-full bg-[#0b2145]">
-              <span className="font-display font-data text-[3.4rem] leading-none sm:text-[4rem]">
-                {weeklyGoal === null ? "–" : `${Math.round(progress)}%`}
-              </span>
-            </div>
-          </div>
-          <h2 className="font-data relative mt-5 text-2xl font-black tracking-tight sm:text-3xl">
-            {weeklyGoal === null ? "Kein Wochenziel" : dashboard.weeklyGoal.summary}
-          </h2>
-          <p className="relative mt-1 text-xs text-blue-200/50">
-            {weeklyGoal === null
-              ? <Link href="/plan#planning-rules" className="font-bold text-blue-100">Wochenziel in den Planungsregeln festlegen →</Link>
-              : <>Noch {Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km · Korridor {weeklyRecommendation.lowerKm}–{weeklyRecommendation.upperKm}</>}
-          </p>
-          {weeklyGoal !== null && <div className="relative mt-6 grid w-full grid-cols-2 gap-3 border-t border-white/10 pt-5">
-            <div>
-              <p className="text-[.62rem] font-black uppercase tracking-[.08em] text-blue-200/45">
-                {dashboard.longLabel}
-              </p>
-              <p className="font-data mt-1 text-lg font-black">
-                ca. {weeklyRecommendation.longRideTargetKm} km
-              </p>
-            </div>
-            <div>
-              <p className="text-[.62rem] font-black uppercase tracking-[.08em] text-blue-200/45">
-                {dashboard.windowLabel}
-              </p>
-              <p className="font-data mt-1 text-lg font-black">
-                {weeklyRecommendation.availableRideDays} Tage
-              </p>
-            </div>
-          </div>}
-        </article>
-
-        <article className="card order-3 p-5 xl:order-3 xl:col-span-7 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
-                <DashboardIcon name="pulse" />
-                </span>
-                <div>
-                  <p className="text-xs font-bold text-[var(--muted)]">
-                    Tagesform
-                  </p>
-                  <h2 className="text-xl font-black">
-                    {readinessLabels[readiness.status]}
-                    {readiness.score !== null ? ` · ${readiness.score}` : ""}
-                  </h2>
-                </div>
-              </div>
-              <span
-                className={`mt-2 size-2.5 rounded-full ${readiness.status === "green" ? "bg-emerald-500 shadow-[0_0_12px_#34d399]" : readiness.status === "yellow" ? "bg-amber-400 shadow-[0_0_12px_#fbbf24]" : readiness.status === "red" ? "bg-rose-500 shadow-[0_0_12px_#fb7185]" : "bg-slate-300"}`}
-              />
-            </div>
-            <div className="mt-5 grid grid-cols-3 gap-3 border-t border-[var(--line)] pt-4">
-              <Metric
-                label="Schlaf"
-                value={sleepLabel(readiness.metric?.asleepMinutes ?? 0)}
-              />
-              <Metric
-                label="Nacht-HF"
-                value={
-                  readiness.metric?.sleepingAverageHeartRate
-                    ? `${Math.round(readiness.metric.sleepingAverageHeartRate)} bpm`
-                    : "–"
-                }
-              />
-              <Metric
-                label="HRV"
-                value={
-                  readiness.metric?.hrvSdnnMs
-                    ? `${Math.round(readiness.metric.hrvSdnnMs)} ms`
-                    : "–"
-                }
-              />
-            </div>
-            <div className="mt-4 flex gap-2">
-              <Link href="/plan" className="secondary-button flex-1">
-                Check-in
-              </Link>
-              <Link
-                href="/progress"
-                aria-label="Erholungsverlauf öffnen"
-                className="secondary-button px-4"
-              >
-                Verlauf
-              </Link>
-            </div>
-          </article>
       </section>
 
       <section className="mt-4 grid gap-4 sm:mt-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,.8fr)]">
         <div className="grid content-start gap-4">
+          <SectionHeader title="Timeline" description="Heute und die nächsten drei Tage – kompakt und in Reihenfolge." />
           <article className="card overflow-hidden" id="training-details">
             <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-5 py-4 sm:px-6">
               <div className="flex items-center gap-3">
@@ -868,6 +761,8 @@ export default async function DashboardPage({
         </div>
 
         <aside className="grid content-start gap-4">
+          <DashboardRecoverySummary readiness={readiness} />
+
           {dashboard.showFueling && <article className="card p-5 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-cyan-50 text-cyan-700">

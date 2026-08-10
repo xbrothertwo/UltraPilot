@@ -2,7 +2,7 @@ import { PageHeading } from "@/components/page-heading";
 import { isDemoMode } from "@/lib/demo-data";
 import { getTrainingProfile } from "@/lib/training-profile";
 import { getHeartRateZones, getPaceZones, getPowerZones } from "@/lib/training-zones";
-import { saveTrainingSettings } from "./actions";
+import { saveTrainingSettings } from "@/app/settings/actions";
 import { HealthShortcutSetup } from "@/components/health-shortcut-setup";
 import { AccountDataExport } from "@/components/account-data-export";
 import { AccountDeletion } from "@/components/account-deletion";

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { DashboardMissionSelection } from "@/lib/dashboard-view-model";
 import type { MissionControl } from "@/lib/mission-control";
 import type { PrimarySportResolution } from "@/lib/planning/data";
+import type { ReadinessResult } from "@/lib/recovery-readiness";
 
 export function DashboardPrimarySportError({
   resolution,
@@ -72,6 +73,51 @@ export function DashboardMissionSummary({
       )}
       <Link href="/mission" className="mt-4 inline-flex text-sm font-black text-violet-600">
         Mission öffnen →
+      </Link>
+    </article>
+  );
+}
+
+export function DashboardRecoverySummary({ readiness }: { readiness: ReadinessResult }) {
+  const metric = readiness.metric;
+  const sleep = metric?.asleepMinutes
+    ? `${Math.floor(metric.asleepMinutes / 60)} h ${metric.asleepMinutes % 60} min`
+    : "–";
+
+  return (
+    <article className="card p-5 sm:p-6" data-testid="dashboard-recovery-summary">
+      <div>
+        <p className="text-xs font-bold text-[var(--muted)]">Recovery &amp; Load</p>
+        <h2 className="mt-1 text-lg font-black">Erholung im Blick</h2>
+      </div>
+      {metric ? (
+        <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-[var(--line)] pt-4">
+          <div className="min-w-0">
+            <dt className="text-xs text-[var(--muted)]">Schlaf</dt>
+            <dd className="font-data mt-1 break-words font-bold text-[var(--ink)]">{sleep}</dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs text-[var(--muted)]">Nacht-HF</dt>
+            <dd className="font-data mt-1 break-words font-bold text-[var(--ink)]">
+              {metric.sleepingAverageHeartRate
+                ? `${Math.round(metric.sleepingAverageHeartRate)} bpm`
+                : "–"}
+            </dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs text-[var(--muted)]">HRV</dt>
+            <dd className="font-data mt-1 break-words font-bold text-[var(--ink)]">
+              {metric.hrvSdnnMs ? `${Math.round(metric.hrvSdnnMs)} ms` : "–"}
+            </dd>
+          </div>
+        </dl>
+      ) : (
+        <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
+          Noch keine Schlaf-, Herzfrequenz- oder HRV-Daten für heute.
+        </p>
+      )}
+      <Link href="/progress" className="mt-4 inline-flex text-sm font-black text-[var(--accent)]">
+        Recovery-Verlauf öffnen →
       </Link>
     </article>
   );

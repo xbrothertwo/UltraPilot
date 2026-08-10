@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import type { ReactNode } from "react";
 import { signOut } from "@/app/auth/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -39,10 +40,10 @@ type AppNavigationProps = {
 
 const links: NavigationLink[] = [
   { href: "/dashboard", label: "Heute", icon: "today" },
-  { href: "/plan", label: "Trainingsplan", icon: "plan" },
+  { href: "/plan", label: "Plan", icon: "plan" },
   { href: "/activities", label: "Aktivitäten", icon: "activities" },
-  { href: "/mission", label: "Mission", icon: "mission" },
   { href: "/progress", label: "Fortschritt", icon: "progress" },
+  { href: "/mission", label: "Missionen", icon: "mission" },
   { href: "/nutrition", label: "Verpflegung", icon: "nutrition" },
   { href: "/notifications", label: "Benachrichtigungen", icon: "bell", soon: true },
 ];
@@ -139,22 +140,63 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const DESKTOP_MEDIA_QUERY = "(min-width: 64rem)";
+
+function subscribeToDesktopBreakpoint(callback: () => void): () => void {
+  if (typeof window.matchMedia !== "function") return () => undefined;
+  const media = window.matchMedia(DESKTOP_MEDIA_QUERY);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getDesktopBreakpoint(): boolean {
+  return typeof window.matchMedia === "function"
+    && window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
+}
+
+function useDesktopNavigation(): boolean | null {
+  return useSyncExternalStore(
+    subscribeToDesktopBreakpoint,
+    getDesktopBreakpoint,
+    () => null,
+  );
+}
+
+export function SidebarNavigation({ active, children }: { active: boolean; children: ReactNode }) {
+  return (
+    <aside aria-hidden={!active} inert={!active} data-testid="desktop-navigation" className="fixed inset-y-0 left-0 z-30 hidden w-[15rem] flex-col overflow-hidden border-r border-[var(--line)] bg-[var(--shell)] text-[var(--ink)] lg:flex">
+      {children}
+    </aside>
+  );
+}
+
+export function MobileNavigation({ active, children }: { active: boolean; children: ReactNode }) {
+  return (
+    <nav aria-label="Mobile Hauptnavigation" aria-hidden={!active} inert={!active} data-testid="mobile-navigation" className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-[var(--line)] bg-[var(--shell)]/94 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_var(--shadow-color)] backdrop-blur-2xl lg:hidden">
+      {children}
+    </nav>
+  );
+}
+
 export function AppNavigation({
   configured,
   userEmail,
   missionGoal,
 }: AppNavigationProps) {
   const pathname = usePathname();
+  const desktop = useDesktopNavigation();
+  const desktopActive = desktop === true;
+  const mobileActive = desktop === false;
   const [moreOpen, setMoreOpen] = useState(false);
   const findLink = (href: string) => links.find((link) => link.href === href)!;
   const mobileMainLinks = [
     findLink("/dashboard"),
     findLink("/plan"),
-    findLink("/mission"),
+    findLink("/activities"),
+    findLink("/progress"),
   ];
   const mobileMoreLinks: NavigationLink[] = [
-    findLink("/progress"),
-    findLink("/activities"),
+    findLink("/mission"),
     findLink("/nutrition"),
     findLink("/notifications"),
     { href: "/settings", label: "Einstellungen", icon: "settings" },
@@ -196,33 +238,32 @@ export function AppNavigation({
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[18rem] flex-col overflow-hidden border-r border-white/8 bg-[#07162d] text-white lg:flex">
-        <div className="aurora-drift pointer-events-none absolute -left-32 -top-28 size-96 rounded-full bg-blue-500/25 blur-3xl" />
-        <div className="aurora-drift pointer-events-none absolute -bottom-48 -right-40 size-96 rounded-full bg-cyan-400/15 blur-3xl" style={{ animationDelay: "-8s" }} />
+      <SidebarNavigation active={desktopActive}>
+        <div className="pointer-events-none absolute -left-32 -top-28 size-80 rounded-full bg-[var(--brand-blossom)]/25 blur-3xl" />
         <div className="relative flex h-full flex-col p-5">
           <Link
             href="/dashboard"
             className="flex items-center gap-3 rounded-2xl px-2 py-3"
           >
-            <span className="grid size-11 place-items-center rounded-[.95rem] bg-gradient-to-br from-blue-400 to-blue-700 text-sm font-black tracking-tight text-white shadow-[0_10px_24px_rgba(37,99,235,.35)]">
+            <span className="grid size-11 place-items-center rounded-[.95rem] bg-gradient-to-br from-[var(--brand-blossom)] to-[var(--accent)] text-sm font-black tracking-tight text-white shadow-sm">
               UP
             </span>
             <span>
               <strong className="font-display block text-[1.08rem]">
                 UltraPilot
               </strong>
-              <span className="mt-0.5 block text-[.59rem] font-bold uppercase tracking-[.2em] text-blue-200/55">
-                Personal Endurance OS
+              <span className="mt-0.5 block text-[.65rem] font-semibold text-[var(--muted)]">
+                Train smart. Bloom strong.
               </span>
             </span>
           </Link>
 
-          <div className="cut-corner-sm mt-7 border border-white/8 bg-white/[.045] p-3.5">
+          <div className="mt-7 rounded-2xl border border-[var(--line)] bg-[var(--surface-raised)] p-3.5">
             <div className="flex items-center justify-between">
-              <span className="text-[.62rem] font-black uppercase tracking-[.17em] text-blue-200/50">
+              <span className="text-[.68rem] font-bold text-[var(--muted)]">
                 Ausdauer-Mission
               </span>
-              <span className="size-2 rounded-full bg-cyan-300 shadow-[0_0_14px_#67e8f9]" />
+              <span className="size-2 rounded-full bg-[var(--success)]" />
             </div>
             <p
               className="font-display mt-2 truncate text-sm"
@@ -231,21 +272,21 @@ export function AppNavigation({
               {missionHeadline}
             </p>
 
-            <p className="mt-1 text-xs text-slate-300/55">{missionSubline}</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">{missionSubline}</p>
           </div>
 
           <nav aria-label="Hauptnavigation" className="mt-7 space-y-1">
-            <p className="mb-2 px-3 text-[.58rem] font-black uppercase tracking-[.2em] text-slate-400/55">
+            <p className="mb-2 px-3 text-[.68rem] font-bold text-[var(--muted)]">
               Cockpit
             </p>
-            {links.map((link) => {
+            {links.filter((link) => ["/dashboard", "/plan", "/activities", "/progress", "/mission"].includes(link.href)).map((link) => {
               const active = isActive(pathname, link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-gradient-to-r from-blue-600 to-blue-500 font-bold text-white shadow-[0_10px_26px_rgba(37,99,235,.4)]" : "font-medium text-slate-300/70 hover:bg-white/[.055] hover:text-white"}`}
+                  aria-current={desktopActive && active ? "page" : undefined}
+                  className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition ${active ? "bg-[var(--shell-active)] font-bold text-[var(--accent-dark)]" : "font-medium text-[var(--muted)] hover:bg-[var(--shell-hover)] hover:text-[var(--ink)]"}`}
                 >
                   <Icon name={link.icon} />
                   <span className="min-w-0 flex-1 truncate">{link.label}</span>
@@ -254,7 +295,7 @@ export function AppNavigation({
                       Bald
                     </span>
                   ) : active ? (
-                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-cyan-200 shadow-[0_0_8px_#67e8f9]" />
+                    <span className="ml-auto size-1.5 shrink-0 rounded-full bg-[var(--accent)]" />
                   ) : null}
                 </Link>
               );
@@ -263,27 +304,27 @@ export function AppNavigation({
 
           <Link
             href="/activities/upload"
-            className="cut-corner-sm relative mt-6 flex min-h-12 items-center justify-center gap-2 bg-gradient-to-br from-white to-blue-50 px-4 text-sm font-black text-[#0b2b61] shadow-[0_12px_28px_rgba(37,99,235,.28)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(37,99,235,.38)]"
+            className="relative mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-raised)] px-4 text-sm font-bold text-[var(--ink)] transition hover:border-[var(--accent)]"
           >
             <Icon name="plus" /> Aktivität importieren
           </Link>
 
-          <div className="mt-auto border-t border-white/8 pt-4">
+          <div className="mt-auto border-t border-[var(--line)] pt-4">
             <div className="flex items-center gap-2">
               <Link
                 href="/settings"
-                className={`flex flex-1 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm ${pathname.startsWith("/settings") ? "bg-white/10 font-bold text-white" : "text-slate-300/60 hover:text-white"}`}
+                className={`flex flex-1 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm ${pathname.startsWith("/settings") ? "bg-[var(--shell-active)] font-bold text-[var(--accent-dark)]" : "text-[var(--muted)] hover:text-[var(--ink)]"}`}
               >
                 <Icon name="settings" /> Einstellungen
               </Link>
-              <ThemeToggle className="grid size-9 shrink-0 place-items-center rounded-xl text-slate-300/60 transition hover:bg-white/10 hover:text-white" />
+              <ThemeToggle className="grid size-10 shrink-0 place-items-center rounded-xl text-[var(--muted)] transition hover:bg-[var(--shell-hover)] hover:text-[var(--ink)]" />
             </div>
             {configured &&
               (userEmail ? (
                 <form action={signOut}>
                   <button
                     type="submit"
-                    className="mt-2 w-full truncate px-3.5 py-2 text-left text-xs text-slate-400/55 hover:text-white"
+                    className="mt-2 w-full truncate px-3.5 py-2 text-left text-xs text-[var(--muted)] hover:text-[var(--ink)]"
                     title={`${userEmail} abmelden`}
                   >
                     {userEmail} · Abmelden
@@ -292,72 +333,42 @@ export function AppNavigation({
               ) : (
                 <Link
                   href="/login"
-                  className="mt-2 block px-3.5 py-2 text-xs font-bold text-blue-200"
+                  className="mt-2 block px-3.5 py-2 text-xs font-bold text-[var(--accent)]"
                 >
                   Anmelden
                 </Link>
               ))}
           </div>
         </div>
-      </aside>
+      </SidebarNavigation>
 
-      <header className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-blue-950/6 bg-[var(--surface-strong)]/88 px-4 py-2.5 backdrop-blur-2xl dark:border-white/8 lg:hidden">
+      <header aria-hidden={!mobileActive} inert={!mobileActive} className="mobile-safe-header sticky top-0 z-30 flex items-center justify-between border-b border-[var(--line)] bg-[var(--shell)]/92 px-4 py-2.5 backdrop-blur-2xl lg:hidden">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 font-black tracking-[-.03em] text-[var(--ink)]"
         >
-          <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-xs text-white shadow-md shadow-blue-500/20">
+          <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-[var(--brand-blossom)] to-[var(--accent)] text-xs text-white shadow-sm">
             UP
           </span>
           UltraPilot
         </Link>
         <div className="flex items-center gap-1.5">
-          <span className="rounded-full border border-blue-200/70 bg-[var(--accent-soft)] px-3 py-1.5 text-[.6rem] font-black uppercase tracking-[.14em] text-blue-700 dark:border-white/10 dark:text-blue-200">
-            Endurance OS
-          </span>
-          <ThemeToggle className="grid size-8 shrink-0 place-items-center rounded-full text-[var(--ink-soft)] hover:bg-[var(--accent-soft)]" />
+          <ThemeToggle className="grid size-11 shrink-0 place-items-center rounded-full text-[var(--ink-soft)] hover:bg-[var(--accent-soft)]" />
         </div>
       </header>
 
-      <nav
-        aria-label="Mobile Hauptnavigation"
-        className="mobile-safe-nav fixed inset-x-2 bottom-2 z-40 grid grid-cols-5 items-end rounded-[1.4rem] border border-blue-950/8 bg-[var(--surface-strong)]/92 px-1.5 pb-1.5 pt-1 text-[var(--ink)] shadow-[0_18px_50px_rgba(20,48,89,.2)] backdrop-blur-2xl dark:border-white/8 lg:hidden"
-      >
-        {mobileMainLinks.slice(0, 2).map((link) => {
+      <MobileNavigation active={mobileActive}>
+        {mobileMainLinks.map((link) => {
           const active = isActive(pathname, link.href);
           return (
             <Link
               key={link.href}
               href={link.href}
-              aria-current={active ? "page" : undefined}
-              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200" : "text-slate-500 dark:text-slate-400"}`}
+              aria-current={mobileActive && active ? "page" : undefined}
+              className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-[var(--shell-active)] text-[var(--accent-dark)]" : "text-[var(--muted)]"}`}
             >
               <Icon name={link.icon} />
-              <span>{link.href === "/plan" ? "Plan" : link.label}</span>
-            </Link>
-          );
-        })}
-        <Link
-          href="/activities/upload"
-          aria-label="Aktivität importieren"
-          className="group -mt-6 flex min-w-0 flex-col items-center gap-1 text-[.64rem] font-black text-blue-700"
-        >
-          <span className="grid size-14 place-items-center rounded-full border-[5px] border-[#f3f7fc] bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-[0_10px_24px_rgba(37,99,235,.35)] transition group-active:scale-95">
-            <Icon name="plus" className="size-6" />
-          </span>
-          <span>Import</span>
-        </Link>
-        {mobileMainLinks.slice(2).map((link) => {
-          const active = isActive(pathname, link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={active ? "page" : undefined}
-              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold transition ${active ? "bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200" : "text-slate-500 dark:text-slate-400"}`}
-            >
-              <Icon name={link.icon} />
-              <span>Mission</span>
+              <span>{link.label}</span>
             </Link>
           );
         })}
@@ -366,12 +377,12 @@ export function AppNavigation({
           aria-expanded={moreOpen}
           aria-controls="mobile-more-menu"
           onClick={() => setMoreOpen(true)}
-          className={`flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold ${moreActive ? "bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200" : "text-slate-500 dark:text-slate-400"}`}
+          className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[.64rem] font-bold ${moreActive ? "bg-[var(--shell-active)] text-[var(--accent-dark)]" : "text-[var(--muted)]"}`}
         >
           <Icon name="more" />
           <span>Mehr</span>
         </button>
-      </nav>
+      </MobileNavigation>
 
       {moreOpen ? (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -427,6 +438,10 @@ export function AppNavigation({
                 );
               })}
             </div>
+            <ThemeToggle
+              showLabel
+              className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 text-sm font-bold text-[var(--ink)]"
+            />
             {configured ? (
               <div className="mt-4 border-t border-[var(--line)] pt-4">
                 {userEmail ? (

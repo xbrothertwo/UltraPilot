@@ -1,13 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { AppNavigation } from "@/components/app-navigation";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
-import { getCurrentUser } from "@/lib/supabase/auth";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import {
-  defaultPlanningGoalSummary,
-  getPlanningGoalSummary,
-} from "@/lib/planning/data";
+import { getThemeInitScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: { default: "UltraPilot", template: "%s · UltraPilot" },
@@ -28,22 +22,16 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#07162d" },
-    { media: "(prefers-color-scheme: dark)", color: "#060b18" },
+    { media: "(prefers-color-scheme: light)", color: "#fffafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#242124" },
   ],
 };
 
-const themeInitScript = `(function(){try{var s=localStorage.getItem("ultrapilot-theme");var t=s==="dark"||s==="light"?s:(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`;
+const themeInitScript = getThemeInitScript();
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const configured = isSupabaseConfigured();
-  const user = configured ? await getCurrentUser() : null;
-  const missionGoal =
-    configured && user
-      ? await getPlanningGoalSummary()
-      : defaultPlanningGoalSummary;
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
@@ -51,14 +39,7 @@ export default async function RootLayout({
       </head>
       <body>
         <ServiceWorkerRegistration />
-        <AppNavigation
-          configured={configured}
-          userEmail={user?.email ?? null}
-          missionGoal={missionGoal}
-        />
-        <main className="mobile-safe-main min-h-screen px-4 pb-28 pt-5 sm:px-6 sm:pt-7 lg:ml-[18rem] lg:px-10 lg:pb-14 lg:pt-10 xl:px-14">
-          <div className="mx-auto max-w-[92rem]">{children}</div>
-        </main>
+        {children}
       </body>
     </html>
   );
