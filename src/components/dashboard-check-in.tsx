@@ -14,7 +14,7 @@ export function DashboardCheckIn({ readiness, decision, workoutTitle }: { readin
   const completed = readiness.checkin !== null;
   return (
     <section data-testid="daily-check-in" className="card relative overflow-hidden p-5 sm:p-7">
-      <div className="pointer-events-none absolute -right-12 -top-14 size-44 rounded-full bg-[var(--brand-mint)]/60 blur-3xl" />
+      <div className="pointer-events-none absolute -right-12 -top-14 size-44 rounded-full bg-[var(--checkin-accent)]/60 blur-3xl" />
       <div className="relative">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
