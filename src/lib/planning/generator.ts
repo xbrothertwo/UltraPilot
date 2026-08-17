@@ -150,7 +150,13 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   if (!available.length) return { workouts: [], targetDistanceKm: 0, ruleSummary: `Keine freien Zeitfenster von mindestens ${minimumMinutes} Minuten.` };
   const weeklyRecent = input.recentFourWeekDistanceKm / 4;
   const targetDistanceKm = rounded(Math.max(0, input.weeklyGoalKm));
-  if (targetDistanceKm === 0) return { workouts: [], targetDistanceKm: 0, ruleSummary: "Das Wochenziel ist durch absolvierte und manuell geplante Kilometer bereits abgedeckt." };
+  if (targetDistanceKm === 0 && input.strengthVariants.length === 0) {
+    return {
+      workouts: [],
+      targetDistanceKm: 0,
+      ruleSummary: "Es sind keine offenen Ausdauer- oder Krafteinheiten zu planen.",
+    };
+  }
   const fallbackSpeedKmh = primarySport === "running" ? 8 : 22;
   const referenceSpeedKmh =
   input.recentAverageSpeedKmh &&
@@ -162,7 +168,9 @@ export function generateDeterministicWeek(input: GeneratorInput): { workouts: Ge
   // fit, not as a default — see the fallback check on gymCandidates below.
   const pairCrossTraining = primarySport === "running" && input.easyRunWithCrossTraining === true;
   const reservedStrengthDays = Math.min(input.strengthVariants.length, Math.max(0, available.length - 1));
-  const requestedEnduranceCount = primarySport === "running" ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3)) : 3;
+  const requestedEnduranceCount = targetDistanceKm > 0
+    ? Math.max(1, Math.min(7, input.runningSessionsPerWeek ?? 3))
+    : 0;
   const enduranceCount = Math.min(requestedEnduranceCount, available.length - reservedStrengthDays);
   const selected = spacedDays(available, enduranceCount, input.workdayMaxMinutes, input.preferredCyclingDate);
   const distances = distributeDistance(targetDistanceKm, enduranceCount, input.longRideTargetKm);
@@ -229,12 +237,15 @@ const unplannedDistanceKm = rounded(
   Math.max(0, targetDistanceKm - plannedDistanceKm),
 );
 
-const distanceSummary =
-  unplannedDistanceKm > 0
+const distanceSummary = targetDistanceKm === 0
+  ? "Keine Ausdauer-Distanz offen."
+  : unplannedDistanceKm > 0
     ? `${plannedDistanceKm.toLocaleString("de-DE")} km wurden eingeplant; ${unplannedDistanceKm.toLocaleString("de-DE")} km bleiben wegen der verfügbaren Trainingszeit offen.`
     : `${targetDistanceKm.toLocaleString("de-DE")} km wurden vollständig verteilt.`;
 
-const sessionSummary =
+const sessionSummary = targetDistanceKm === 0
+  ? "keine Ausdauereinheit"
+  :
   primarySport === "running"
     ? `${adjustedEndurance.length} Laufeinheiten`
     : `${adjustedEndurance.length} Radeinheiten`;
@@ -244,6 +255,6 @@ return {
     a.scheduledDate.localeCompare(b.scheduledDate),
   ),
   targetDistanceKm,
-  ruleSummary: `${distanceSummary} Geplant wurden ${sessionSummary}; die längste Einheit liegt im größten freien Fenster und meidet den Tag nach Kraft oder Volleyball. Arbeitstage sind auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Tage neben Kraft oder Volleyball erhalten keine Tempoeinheit.`,
+  ruleSummary: `${distanceSummary} Geplant wurden ${sessionSummary} und ${gym.length} ${gym.length === 1 ? "Krafteinheit" : "Krafteinheiten"}; die längste Ausdauereinheit liegt im größten freien Fenster und meidet den Tag nach Kraft oder Volleyball. Arbeitstage sind auf ${input.workdayMaxMinutes} Minuten begrenzt. Rote Readiness-Tage werden freigehalten; gelbe Tage und Tage neben Kraft oder Volleyball erhalten keine Tempoeinheit.`,
 };
 }

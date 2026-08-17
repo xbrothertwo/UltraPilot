@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
+import { hasCompletedOnboarding } from "@/lib/onboarding";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { hasCompletedOnboarding } from "@/lib/onboarding";
-import { OnboardingWizard } from "@/components/onboarding-wizard";
 
 export const metadata = { title: "Willkommen" };
 export const dynamic = "force-dynamic";

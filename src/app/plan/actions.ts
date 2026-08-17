@@ -210,12 +210,7 @@ target_year: optionalInteger(
   2100,
 ),
 
-event_distance_km: optionalInteger(
-  formData,
-  "eventDistance",
-  1,
-  100000,
-),
+event_distance_km: optionalPlanNumber(formData, "eventDistance", 100000),
 
 event_elevation_meters: optionalInteger(
   formData,
@@ -925,19 +920,24 @@ export async function makeTodayWorkoutEasy(formData: FormData) {
 }
 
 export async function generateWeeklyPlan(formData: FormData) {
+  const firstRun = formData.get("firstRun") === "true";
   const dashboardActionValue = formData.get("dashboardAction");
   const dashboardAction =
     dashboardActionValue === "shift" || dashboardActionValue === "pause"
       ? dashboardActionValue
       : null;
   const dashboardWorkoutId = formData.get("workoutId");
-  let destination = dashboardAction
+  let destination = firstRun
+    ? "/dashboard?firstPlan=ready"
+    : dashboardAction
     ? `/dashboard?saved=${dashboardAction}`
     : planDestination(formData, "generated=1");
+  let generatedWeek: string | null = null;
   try {
     const iso = (date: Date) =>
       new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
     const week = dateValue(formData.get("week"));
+    generatedWeek = week;
     const start = new Date(`${week}T12:00:00`);
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
@@ -1244,22 +1244,34 @@ export async function generateWeeklyPlan(formData: FormData) {
           !needsExtraCaution &&
           !events.some((event) => event.eventKind === "work_night"),
         occupied:
+          !planning.profile.availableWeekdays.includes(date.getDay() || 7) ||
           key < today ||
           (dashboardAction !== null && key < tomorrow) ||
           activityDates.has(key) ||
           hasBlockingWorkoutOnDate(preservedWorkouts, key, canPair),
       };
     });
-    const recommendationDays = dashboardAction
+    const recommendationDaysBase = dashboardAction
       ? days.map((day) =>
           day.date === today
             ? { ...day, availableMinutes: 0, readiness: "red" as const }
             : day,
         )
       : days;
+    const recommendationDays = recommendationDaysBase.map((day) => ({
+      ...day,
+      availableMinutes: planning.profile.availableWeekdays.includes(
+        new Date(`${day.date}T12:00:00Z`).getUTCDay() || 7,
+      )
+        ? day.availableMinutes
+        : 0,
+    }));
     const weeklyRecommendation = recommendWeeklyTarget({
       primarySport,
-      runningSessionsPerWeek: planning.profile.runningSessionsPerWeek,
+      runningSessionsPerWeek:
+        primarySport === "running"
+          ? planning.profile.runningSessionsPerWeek
+          : planning.profile.cyclingSessionsPerWeek,
       referenceGoalKm: planning.profile.weeklyDistanceGoalKm,
       days: recommendationDays,
       recentFourWeekDistanceKm: recentDistanceKm,
@@ -1302,7 +1314,7 @@ export async function generateWeeklyPlan(formData: FormData) {
           `Plan und Aktivität konnten nicht verknüpft werden: ${error.message}`,
         );
     }
-    if (remainingDistanceKm === 0) {
+    if (remainingDistanceKm === 0 && strengthVariants.length === 0) {
       const summary = `Das Wochenziel von ${weeklyGoalKm.toLocaleString("de-DE")} km ist durch ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} absolvierte und ${retainedPlannedDistance.toLocaleString("de-DE", { maximumFractionDigits: 1 })} beibehaltene geplante Kilometer bereits vollständig abgedeckt.`;
       const { data: completedGeneration, error } = await supabase
         .from("training_plan_generations")
@@ -1362,12 +1374,17 @@ export async function generateWeeklyPlan(formData: FormData) {
             throw new Error(removalError.message);
           }
         }
-        destination = planDestination(formData, "goal=met");
+        destination = firstRun
+          ? `/dashboard?firstPlan=empty&planWeek=${week}`
+          : planDestination(formData, "goal=met");
       }
     } else {
       const generated = generateDeterministicWeek({
         primarySport,
-        runningSessionsPerWeek: planning.profile.runningSessionsPerWeek,
+        runningSessionsPerWeek:
+          primarySport === "running"
+            ? planning.profile.runningSessionsPerWeek
+            : planning.profile.cyclingSessionsPerWeek,
         easyRunWithCrossTraining: planning.profile.easyRunWithCrossTraining,
         days,
         weeklyGoalKm: remainingDistanceKm,
@@ -1383,7 +1400,7 @@ export async function generateWeeklyPlan(formData: FormData) {
       });
       if (!generated.workouts.length)
         throw new Error(
-          "Das offene Wochenziel kann nicht verteilt werden: Es fehlen freie Zeitfenster von mindestens 45 Minuten.",
+          "Dein erster Plan konnte noch nicht verteilt werden: An den gewählten Trainingstagen fehlt ein ausreichend großes freies Zeitfenster.",
         );
       if (
         dashboardAction === "shift" &&
@@ -1417,7 +1434,9 @@ export async function generateWeeklyPlan(formData: FormData) {
             ? ` Wegen Kalender, Tagesform oder Blockphase wird dein gespeichertes Wochenziel von ${planning.profile.weeklyDistanceGoalKm} km für diese Woche auf ${weeklyGoalKm} km reduziert.`
             : ` Der Plan hält sich an dein gespeichertes Wochenziel von ${weeklyGoalKm} km.`;
 
-      const summary = `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${retainedPlannedDistance.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km beibehalten geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${goalContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`;
+      const summary = weeklyGoalKm > 0
+        ? `Wochenziel ${weeklyGoalKm.toLocaleString("de-DE")} km: ${completedDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km bereits absolviert, ${retainedPlannedDistance.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km beibehalten geplant und die offenen ${remainingDistanceKm.toLocaleString("de-DE", { maximumFractionDigits: 1 })} km automatisch verteilt.${goalContext}${blockContext}${increaseWarning}${loadProtection}${shiftRuleContext}`
+        : `${generated.workouts.filter((workout) => workout.sportType === "strength").length} Krafteinheiten wurden anhand deiner verfügbaren Trainingstage automatisch eingeplant.${loadProtection}${shiftRuleContext}`;
 
       const caution =
         "Verschiebe oder kürze Einheiten bei ungewöhnlicher Müdigkeit, Schmerzen oder unerwarteter Zusatzbelastung. UltraPilot erstellt keine medizinischen Diagnosen.";
@@ -1504,14 +1523,18 @@ export async function generateWeeklyPlan(formData: FormData) {
           );
         }
       }
-      destination = dashboardAction
+      destination = firstRun
+        ? `/dashboard?firstPlan=ready&generated=${generated.workouts.length}&planWeek=${week}`
+        : dashboardAction
         ? `/dashboard?saved=${dashboardAction}`
         : planDestination(formData, `generated=${generated.workouts.length}`);
     }
     revalidatePath("/plan");
     revalidatePath("/dashboard");
   } catch (error) {
-    destination = dashboardAction
+    destination = firstRun
+      ? `/dashboard?firstPlan=error${generatedWeek ? `&planWeek=${generatedWeek}` : ""}&error=${encodeURIComponent(error instanceof Error ? error.message : "Der erste Wochenplan konnte nicht erstellt werden.")}`
+      : dashboardAction
       ? `/dashboard?error=${encodeURIComponent(error instanceof Error ? error.message : "Wochenplan konnte nicht angepasst werden.")}`
       : planDestination(
           formData,

@@ -34,8 +34,8 @@ const profile: ExportTableSpec[] = [
 ];
 
 const training: ExportTableSpec[] = [
-  { key: "goals", table: "training_goals", ownerField: "user_id", orderBy: "user_id", selectFields: ["user_id", "event_name", "target_year", "target_date", "event_distance_km", "event_elevation_meters", "support_mode", "weekly_distance_goal_km", "created_at", "updated_at"] },
-  { key: "preferences", table: "training_preferences", ownerField: "user_id", orderBy: "user_id", selectFields: ["user_id", "before_late_shift_allowed", "after_night_shift_allowed", "workday_max_session_minutes", "gym_summer_sessions", "gym_winter_sessions", "indoor_cycling_available_from", "strength_plan", "primary_sport", "running_sessions_per_week", "easy_run_with_cross_training", "updated_at"] },
+  { key: "goals", table: "training_goals", ownerField: "user_id", orderBy: "user_id", selectFields: ["user_id", "goal_type", "event_name", "target_year", "target_date", "event_distance_km", "event_elevation_meters", "target_time_seconds", "support_mode", "weekly_distance_goal_km", "created_at", "updated_at"] },
+  { key: "preferences", table: "training_preferences", ownerField: "user_id", orderBy: "user_id", selectFields: ["user_id", "primary_sport", "selected_sports", "sport_priority", "current_weekly_distance_km", "running_sessions_per_week", "cycling_sessions_per_week", "volleyball_sessions_per_week", "easy_run_with_cross_training", "before_late_shift_allowed", "after_night_shift_allowed", "workday_max_session_minutes", "available_weekdays", "gym_summer_sessions", "gym_winter_sessions", "gym_experience", "gym_equipment", "indoor_cycling_available_from", "strength_plan", "updated_at"] },
   { key: "scheduleCodeMappings", table: "schedule_code_mappings", ownerField: "user_id", orderBy: "code", selectFields: ["user_id", "code", "event_kind", "updated_at"] },
 ];
 

@@ -187,10 +187,20 @@ export default async function PlanPage({
     readinessByDate,
     profile.beforeLateShiftAllowed,
     profile.afterNightShiftAllowed,
-  );
+  ).map((day) => ({
+    ...day,
+    availableMinutes: profile.availableWeekdays.includes(
+      new Date(`${day.date}T12:00:00Z`).getUTCDay() || 7,
+    )
+      ? day.availableMinutes
+      : 0,
+  }));
   const weeklyRecommendation = recommendWeeklyTarget({
     primarySport: profile.primarySport,
-    runningSessionsPerWeek: profile.runningSessionsPerWeek,
+    runningSessionsPerWeek:
+      profile.primarySport === "running"
+        ? profile.runningSessionsPerWeek
+        : profile.cyclingSessionsPerWeek,
     referenceGoalKm: profile.weeklyDistanceGoalKm,
     days: targetDays,
     recentFourWeekDistanceKm: recentDistanceKm,
@@ -205,9 +215,9 @@ export default async function PlanPage({
   return (
     <>
       <PageHeading
-        eyebrow={`Trainingskalender · ${profile.primarySport === "running" ? "Laufen" : "Radfahren"}`}
+        eyebrow={profile.selectedSports.length > 1 ? "Trainingskalender · Hybrid" : "Trainingskalender"}
         title="Deine Woche. Dein echtes Leben."
-        description={`Plane ${profile.primarySport === "running" ? "Läufe" : "Radtraining"} um Arbeit und Termine herum, verschiebe Einheiten und vergleiche Planung mit dem tatsächlich absolvierten Training.`}
+        description="Alle Sportarten, Termine und Erholungstage in einer gemeinsamen, alltagstauglichen Woche."
       />
       {query.saved && (
         <p className="mb-5 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-bold text-emerald-900">
@@ -366,11 +376,27 @@ export default async function PlanPage({
           />
           <Summary
             label="Planungsziel"
-            value={`${effectiveWeeklyGoal} km`}
-            detail={`${Math.max(0, effectiveWeeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`}
+            value={effectiveWeeklyGoal > 0 ? `${effectiveWeeklyGoal} km` : `${activeWorkouts.length} Einheiten`}
+            detail={effectiveWeeklyGoal > 0
+              ? `${Math.max(0, effectiveWeeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`
+              : "frequenzbasiert"}
           />
         </dl>
       </section>
+
+      {activeWorkouts.length === 0 && (
+        <section className="card mb-4 p-5 sm:p-6">
+          <p className="eyebrow">Noch nichts eingeplant</p>
+          <h2 className="mt-2 text-xl font-black">Erstelle diese Woche erneut aus deinen Regeln.</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+            UltraPilot nutzt deine verfügbaren Tage, gewünschte Frequenz und das gespeicherte Ausgangsniveau. Wenn kein Zeitfenster passt, erhältst du eine konkrete Erklärung.
+          </p>
+          <form action={generateWeeklyPlan} className="mt-4">
+            <input type="hidden" name="week" value={week} />
+            <button type="submit" className="primary-button">Plan erneut erstellen</button>
+          </form>
+        </section>
+      )}
 
       <TrainingCalendar
         primarySport={profile.primarySport}
@@ -552,6 +578,7 @@ export default async function PlanPage({
                 className={inputClass}
                 name="eventDistance"
                 type="number"
+                step="any"
                 min="1"
                 max="100000"
                 placeholder="optional"
@@ -592,6 +619,7 @@ export default async function PlanPage({
                 className={inputClass}
                 name="weeklyDistance"
                 type="number"
+                step="0.1"
                 min="0"
                 defaultValue={profile.weeklyDistanceGoalKm}
               />

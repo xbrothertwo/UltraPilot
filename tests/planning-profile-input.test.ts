@@ -11,4 +11,7 @@ describe("planning profile input", () => {
   it("keeps normal saving with an explicit goal compatible", () => {
     expect(validatePrimarySportAndWeeklyGoal({ currentPrimarySport: "cycling", submittedPrimarySport: "cycling", submittedWeeklyGoal: "125" })).toEqual({ primarySport: "cycling", weeklyGoalKm: 125 });
   });
+  it("preserves a decimal first-run planning target", () => {
+    expect(validatePrimarySportAndWeeklyGoal({ currentPrimarySport: "running", submittedPrimarySport: "running", submittedWeeklyGoal: "8.5" })).toEqual({ primarySport: "running", weeklyGoalKm: 8.5 });
+  });
 });

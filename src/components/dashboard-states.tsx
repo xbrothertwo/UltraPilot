@@ -38,16 +38,22 @@ function missionDate(value: string): string {
 export function DashboardMissionSummary({
   selection,
   control,
+  fallbackGoal,
 }: {
   selection: DashboardMissionSelection;
   control: MissionControl | null;
+  fallbackGoal?: {
+    name: string | null;
+    targetDate: string | null;
+    distanceKm: number | null;
+  };
 }) {
   const milestone = control?.nextMilestone ?? null;
   return (
     <article className="card p-5 sm:p-6">
       <div className="min-w-0">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-bold text-[var(--muted)]">Deine Ausdauer-Mission</p>
+          <p className="text-xs font-bold text-[var(--muted)]">Dein Trainingsziel</p>
           {control && (
             <span className="text-xs font-black text-violet-600">
               {control.achievedMilestones}/{control.milestones.length}
@@ -57,7 +63,7 @@ export function DashboardMissionSummary({
         <h2 className="mt-1 text-lg font-black">
           {control
             ? milestone?.title ?? "Roadmap vollständig"
-            : selection?.mission.title ?? "Keine aktive Mission"}
+            : selection?.mission.title ?? fallbackGoal?.name ?? "Noch kein konkretes Ziel"}
         </h2>
       </div>
       {milestone && (
@@ -70,6 +76,14 @@ export function DashboardMissionSummary({
       )}
       {!control && selection?.mission.targetDate && (
         <p className="mt-3 text-sm text-[var(--muted)]">Zieldatum: {missionDate(selection.mission.targetDate)}</p>
+      )}
+      {!control && !selection?.mission && fallbackGoal && (
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          {fallbackGoal.distanceKm !== null
+            ? `${fallbackGoal.distanceKm.toLocaleString("de-DE", { maximumFractionDigits: 3 })} km`
+            : "Dein Ziel ist im Planungsprofil gespeichert."}
+          {fallbackGoal.targetDate ? ` · ${missionDate(fallbackGoal.targetDate)}` : ""}
+        </p>
       )}
       <Link href="/mission" className="mt-4 inline-flex text-sm font-black text-violet-600">
         Mission öffnen →

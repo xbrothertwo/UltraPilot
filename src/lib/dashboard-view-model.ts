@@ -175,6 +175,9 @@ function activityItem(activity: Activity): DashboardActivityItem {
 
 export function buildDashboardViewModel(input: {
   primarySport: PrimarySport;
+  selectedSports?: readonly string[];
+  desiredSessionsPerWeek?: number;
+  strengthSessionsPerWeek?: number;
   weeklyGoalKm: number | null;
   weekActivities: Activity[];
   reconciledWorkouts: ReconciledWorkout[];
@@ -193,17 +196,29 @@ export function buildDashboardViewModel(input: {
   const targetKm = typeof input.weeklyGoalKm === "number" && Number.isFinite(input.weeklyGoalKm) && input.weeklyGoalKm > 0 ? input.weeklyGoalKm : null;
   const progressPercent = targetKm === null ? null : Math.min(100, actualKm / targetKm * 100);
   const activeWorkouts = input.reconciledWorkouts.filter((item) => item.effectiveStatus !== "skipped");
+  const gymOnly = input.selectedSports?.length === 1 && input.selectedSports[0] === "strength";
+  const strengthWorkouts = activeWorkouts.filter((item) => item.workout.sportType === "strength");
+  const strengthCompleted = strengthWorkouts.filter((item) => item.effectiveStatus === "completed").length;
 
   return {
     primarySport: input.primarySport,
-    sportLabel: config.sportLabel,
-    sportIcon: config.icon,
-    weekTitle: config.weekTitle,
+    sportLabel: gymOnly ? "Krafttraining" : config.sportLabel,
+    sportIcon: gymOnly ? "strength" : config.icon,
+    weekTitle: gymOnly || (input.selectedSports?.length ?? 0) > 1 ? "Deine Trainingswoche" : config.weekTitle,
     emptyText: config.emptyText,
     longLabel: config.longLabel,
     windowLabel: config.windowLabel,
     savedMessages: { easy: config.easySaved, shift: config.shiftSaved },
-    metrics: [
+    metrics: gymOnly ? [
+      { label: "Krafteinheiten", value: `${strengthWorkouts.length}` },
+      { label: "Absolviert", value: `${strengthCompleted}` },
+      {
+        label: "Trainingszeit",
+        value: strengthWorkouts.length
+          ? formatDuration(strengthWorkouts.reduce((sum, item) => sum + (item.workout.plannedDurationMinutes ?? 0) * 60, 0))
+          : "–",
+      },
+    ] : [
       { label: config.distanceLabel, value: distanceMeters > 0 ? `${number(actualKm)} km` : "–" },
       { label: config.durationLabel, value: movingTimeSeconds > 0 ? formatDuration(movingTimeSeconds) : "–" },
       { label: config.averageLabel, value: averageSpeedKmh === null ? "–" : input.primarySport === "running" ? formatPace(averageSpeedKmh) : `${number(averageSpeedKmh)} km/h` },
@@ -213,11 +228,17 @@ export function buildDashboardViewModel(input: {
       targetKm,
       actualKm,
       progressPercent,
-      summary: targetKm === null ? "Noch kein Wochenziel festgelegt." : `${number(actualKm)} von ${number(targetKm)} km ${config.completedVerb}`,
+      summary: gymOnly
+        ? `${input.strengthSessionsPerWeek ?? strengthWorkouts.length} Krafttrainings pro Woche geplant.`
+        : targetKm === null
+        ? input.desiredSessionsPerWeek && input.desiredSessionsPerWeek > 0
+          ? `${input.desiredSessionsPerWeek} ${input.primarySport === "running" ? "Läufe" : "Radeinheiten"} pro Woche geplant.`
+          : "Noch kein Wochenziel festgelegt."
+        : `${number(actualKm)} von ${number(targetKm)} km ${config.completedVerb}`,
     },
     today: activeWorkouts.filter((item) => item.workout.scheduledDate === input.today).map(workoutItem),
     upcoming: activeWorkouts.filter((item) => item.workout.scheduledDate > input.today).map(workoutItem),
     latestActivities: input.latestActivities.map(activityItem),
-    showFueling: input.primarySport === "cycling",
+    showFueling: !gymOnly && input.primarySport === "cycling",
   };
 }

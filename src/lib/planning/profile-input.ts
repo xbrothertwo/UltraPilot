@@ -17,7 +17,7 @@ export function validatePrimarySportAndWeeklyGoal(input: {
     throw new Error("Das Wochenziel fehlt.");
   }
   const weeklyGoalKm = Number(rawGoal);
-  if (!Number.isInteger(weeklyGoalKm) || weeklyGoalKm < 0 || weeklyGoalKm > 2000) {
+  if (!Number.isFinite(weeklyGoalKm) || weeklyGoalKm < 0 || weeklyGoalKm > 2000) {
     throw new Error("Das Wochenziel ist ungültig.");
   }
   return { primarySport, weeklyGoalKm };

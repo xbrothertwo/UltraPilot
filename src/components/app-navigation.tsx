@@ -223,7 +223,7 @@ export function AppNavigation({
   const missionHeadline =
     missionHeadlineParts.length > 0
       ? missionHeadlineParts.join(" · ")
-      : "Noch kein Ausdauerziel";
+      : "Noch kein Trainingsziel";
 
   const missionSubline =
     missionGoal.targetYear !== null
@@ -269,7 +269,7 @@ export function AppNavigation({
           <div className="mt-7 rounded-2xl border border-[var(--line)] bg-[var(--surface-raised)] p-3.5">
             <div className="flex items-center justify-between">
               <span className="text-[.68rem] font-bold text-[var(--muted)]">
-                Ausdauer-Mission
+                Trainingsziel
               </span>
               <span className="size-2 rounded-full bg-[var(--success)]" />
             </div>

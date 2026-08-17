@@ -37,6 +37,47 @@ describe("effective session capacity", () => {
 });
 
 describe("deterministic weekly planner", () => {
+  it("plans Gym-only weeks even when no endurance distance is open", () => {
+    const result = generateDeterministicWeek({
+      primarySport: "running",
+      runningSessionsPerWeek: 3,
+      days: ["03", "04", "05"].map((day) => ({
+        date: `2026-08-${day}`,
+        availableMinutes: 120,
+        workday: false,
+        occupied: false,
+      })),
+      weeklyGoalKm: 0,
+      recentFourWeekDistanceKm: 0,
+      recentAverageSpeedKmh: null,
+      workdayMaxMinutes: 90,
+      strengthVariants: ["A", "B", "A"],
+    });
+    expect(result.workouts).toHaveLength(3);
+    expect(result.workouts.every((workout) => workout.sportType === "strength")).toBe(true);
+    expect(result.workouts.every((workout) => workout.plannedDistanceKm === null)).toBe(true);
+  });
+
+  it("creates a visible three-run plus three-Gym first week", () => {
+    const result = generateDeterministicWeek({
+      primarySport: "running",
+      runningSessionsPerWeek: 3,
+      days: ["03", "04", "05", "06", "07", "08", "09"].map((day) => ({
+        date: `2026-08-${day}`,
+        availableMinutes: 120,
+        workday: false,
+        occupied: false,
+      })),
+      weeklyGoalKm: 12,
+      recentFourWeekDistanceKm: 0,
+      recentAverageSpeedKmh: null,
+      workdayMaxMinutes: 90,
+      strengthVariants: ["A", "B", "A"],
+    });
+    expect(result.workouts.filter((workout) => workout.sportType === "running")).toHaveLength(3);
+    expect(result.workouts.filter((workout) => workout.sportType === "strength")).toHaveLength(3);
+  });
+
   it("subtracts completed and manually planned distance from the hard weekly goal", () => {
     expect(calculateRemainingWeeklyDistance(125, 35.4, 20)).toBe(69.6);
     expect(calculateRemainingWeeklyDistance(125, 130, 0)).toBe(0);
