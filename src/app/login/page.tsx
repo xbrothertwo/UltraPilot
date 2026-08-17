@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const feedback = getLoginFeedback(params.error, params.notice);
   const configured = isSupabaseConfigured();
-  return <div className="mx-auto max-w-5xl">
+  return <main className="mx-auto min-h-screen max-w-5xl px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-10">
     <section className="relative mb-5 overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-[#07162d] via-[#123a72] to-[#176b98] p-6 text-white shadow-[0_24px_60px_rgba(9,26,51,.2)] sm:p-10">
       <div className="absolute -right-24 -top-28 size-80 rounded-full border-[50px] border-cyan-300/10" />
       <div className="relative max-w-2xl"><p className="text-[.65rem] font-black uppercase tracking-[.22em] text-cyan-200">Personal Endurance OS</p><h1 className="mt-3 text-4xl font-black leading-[1.02] tracking-[-.05em] sm:text-6xl">
@@ -34,7 +34,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <AuthForm title="Willkommen zurück" description="Melde dich in deinem UltraPilot-Cockpit an." action={signIn} submitLabel="Anmelden" primary />
       <AuthForm title="Konto erstellen" description="Starte dein persönliches Trainingsarchiv." action={signUp} submitLabel="Registrieren" registration />
     </div>
-  </div>;
+  </main>;
 }
 
 function AuthForm({ title, description, action, submitLabel, registration = false, primary = false }: { title: string; description: string; action: (formData: FormData) => Promise<void>; submitLabel: string; registration?: boolean; primary?: boolean }) {

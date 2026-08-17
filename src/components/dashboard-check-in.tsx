@@ -31,7 +31,10 @@ export function DashboardCheckIn({ readiness, decision, workoutTitle }: { readin
           {completed ? decision.summary : "Schlaf, Energie und Muskelgefühl machen die heutige Empfehlung persönlicher – kurz, ruhig und ohne Leistungsdruck."}
         </p>
         {completed && workoutTitle && <p className="mt-3 text-sm font-bold text-[var(--ink)]">Als Nächstes: {workoutTitle}</p>}
-        <Link href="/plan" className={completed ? "secondary-button mt-5" : "primary-button mt-5"}>
+        <Link
+          href="/plan?checkin=open#daily-readiness"
+          className={completed ? "secondary-button mt-5" : "primary-button mt-5"}
+        >
           {completed ? "Check-in korrigieren" : "Check-in starten"}
         </Link>
       </div>

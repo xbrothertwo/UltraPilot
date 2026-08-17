@@ -73,6 +73,7 @@ export default async function PlanPage({
     generated?: string;
     goal?: string;
     error?: string;
+    checkin?: string;
   }>;
 }) {
   const query = await searchParams;
@@ -406,7 +407,11 @@ export default async function PlanPage({
         activityLoads={trainingLoad.activities}
       />
 
-      <details className="card mt-4 p-6">
+      <details
+        id="daily-readiness"
+        className="card mt-4 p-6"
+        open={query.checkin === "open"}
+      >
         <summary className="cursor-pointer list-none text-xl font-black">
           Tagesform-Check-in & Trainingsblock{" "}
           <span className="float-right text-[var(--accent)]">+</span>

@@ -32,6 +32,8 @@ describe("app shell route boundaries", () => {
     expect(html).toContain("Passwort vergessen?");
     expect(html).not.toContain("data-testid=\"app-shell\"");
     expect(html).not.toContain("Mobile Hauptnavigation");
+    expect(html.match(/<main/g)).toHaveLength(1);
+    expect(html).toContain('data-scroll-behavior="smooth"');
   });
 
   it("keeps forgot and reset password pages outside app navigation", async () => {
@@ -42,6 +44,8 @@ describe("app shell route boundaries", () => {
     expect(reset).toContain("Neues Passwort festlegen");
     expect(reset).toContain("Neue Reset-Mail anfordern");
     expect(`${forgot}${reset}`).not.toContain("data-testid=\"app-shell\"");
+    expect(forgot.match(/<main/g)).toHaveLength(1);
+    expect(reset.match(/<main/g)).toHaveLength(1);
   });
 
   it.each(["Dashboard", "Plan", "Aktivitäten"])("wraps the protected %s route in AppShell", async (label) => {
