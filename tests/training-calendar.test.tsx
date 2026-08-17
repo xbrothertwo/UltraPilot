@@ -30,6 +30,7 @@ vi.mock("@/app/plan/actions", () => ({
   setPlannedWorkoutStatus: actions.noop,
   shortenPlannedWorkout: actions.noop,
 }));
+vi.mock("@/app/gym/actions", () => ({ startGymWorkout: actions.noop }));
 
 import { TrainingCalendar } from "@/components/training-calendar";
 import type { Activity } from "@/lib/demo-data";
@@ -268,5 +269,17 @@ describe("responsive training calendar", () => {
         "aria-label": `Training am ${days[0]} hinzufügen`,
       }).length,
     ).toBeGreaterThan(0);
+  });
+
+  it("renders gym workouts without fake endurance metrics and opens the logger action", () => {
+    act(() => {
+      renderer = renderCalendar([workout({ id: "gym", sportType: "strength", title: "Lower A", intensity: "strength", plannedDurationMinutes: 65, plannedDistanceKm: 0, gymProgramDayId: "day-a", gymExerciseCount: 6 })]);
+    });
+    const text = allText(renderer);
+    expect(text).toContain("6 Übungen");
+    expect(text).not.toContain("0 km");
+    const openButton = renderer.root.findAllByProps({ "aria-label": "Lower A öffnen, Geplant" })[0];
+    act(() => openButton.props.onClick());
+    expect(allText(renderer)).toContain("Training starten");
   });
 });

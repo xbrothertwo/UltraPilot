@@ -83,6 +83,9 @@ export function buildWorkoutCalendarView(
   if (workout.plannedDurationMinutes !== null) {
     metrics.push(`${workout.plannedDurationMinutes} min`);
   }
+  if (workout.sportType === "strength" && workout.gymExerciseCount !== null && workout.gymExerciseCount !== undefined) {
+    metrics.push(`${workout.gymExerciseCount} Übungen`);
+  }
   if (
     workout.plannedDistanceKm !== null &&
     (workout.sportType === "cycling" || workout.sportType === "running")

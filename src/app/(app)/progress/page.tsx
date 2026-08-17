@@ -12,6 +12,7 @@ import { buildReadinessRange } from "@/lib/recovery-readiness";
 import { buildRecoveryTrend, summarizeRecovery } from "@/lib/recovery-analysis";
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import type { LoadLevel, LoadMethod } from "@/lib/training-load";
+import { getGymHistory } from "@/lib/gym/data";
 
 export const metadata = { title: "Fortschritt" };
 export const dynamic = "force-dynamic";
@@ -39,7 +40,7 @@ export default async function ProgressPage({ searchParams }: Props) {
   const query = await searchParams;
   const days: 7 | 28 | 90 = query.days === "7" ? 7 : query.days === "90" ? 90 : 28;
   const range = dateRange(days);
-  const [summary, recovery, loadSummary] = await Promise.all([getDashboardSummary(days), getRecoveryData(range[0], range.at(-1)!), getTrainingLoadSummary(days)]);
+  const [summary, recovery, loadSummary, gymHistory] = await Promise.all([getDashboardSummary(days), getRecoveryData(range[0], range.at(-1)!), getTrainingLoadSummary(days), getGymHistory(100)]);
   const readiness = buildReadinessRange(range, recovery.metrics, recovery.checkins);
   const recoveryTrend = buildRecoveryTrend(range, recovery.metrics, readiness);
   const recoverySummary = summarizeRecovery(recoveryTrend);
@@ -61,5 +62,6 @@ export default async function ProgressPage({ searchParams }: Props) {
       <section className="mt-6 grid gap-6 xl:grid-cols-2"><article className="card p-6"><p className="eyebrow">Belastung</p><dl className="mt-5 grid grid-cols-2 gap-5 sm:grid-cols-4"><div><dt className="text-xs text-[var(--muted)]">Ø Herzfrequenz</dt><dd className="mt-1 text-xl font-black">{optional(summary.averageHeartRate, "bpm", 0)}</dd></div>{summary.primarySport === "cycling" ? <><div><dt className="text-xs text-[var(--muted)]">Ø Leistung</dt><dd className="mt-1 text-xl font-black">{optional(summary.averagePower, "W", 0)}</dd></div><div><dt className="text-xs text-[var(--muted)]">TSS</dt><dd className="mt-1 text-xl font-black">{optional(summary.totalTss, "", 0)}</dd></div></> : null}<div><dt className="text-xs text-[var(--muted)]">Ø RPE</dt><dd className="mt-1 text-xl font-black">{optional(summary.averageRpe, "/10")}</dd></div></dl></article><article className="card p-6"><p className="eyebrow">Versorgung</p><dl className="mt-5 grid grid-cols-3 gap-4"><div><dt className="text-xs text-[var(--muted)]">Carbs</dt><dd className="mt-1 text-xl font-black">{optional(summary.carbohydratesPerHour, "g/h")}</dd></div><div><dt className="text-xs text-[var(--muted)]">Flüssigkeit</dt><dd className="mt-1 text-xl font-black">{optional(summary.fluidPerHour, "ml/h", 0)}</dd></div><div><dt className="text-xs text-[var(--muted)]">Natrium</dt><dd className="mt-1 text-xl font-black">{optional(summary.sodiumPerHour, "mg/h", 0)}</dd></div></dl></article></section>
       {(summary.heartRateZones || summary.powerZones) && <section className="card mt-6 p-6"><h2 className="text-xl font-black">Zeit in Trainingszonen</h2><p className="mt-1 text-sm text-[var(--muted)]">Aus vorhandenen Rohsamples; Messlücken über 10 Sekunden zählen nicht.</p><div className="mt-6 grid gap-8 xl:grid-cols-2">{summary.heartRateZones && <ZoneDistribution title="Herzfrequenz" unit="bpm" zones={summary.heartRateZones} />}{summary.powerZones && <ZoneDistribution title="Leistung" unit="W" zones={summary.powerZones} />}</div></section>}
     </>}
+    <section className="card mt-8 p-6"><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Gym-Fortschritt</p><h2 className="mt-2 text-xl font-black">Krafttraining im selben Verlauf</h2></div><Link href="/gym/history" className="secondary-button">Gym-History öffnen</Link></div>{gymHistory.length ? <dl className="mt-5 grid grid-cols-3 gap-3"><div className="rounded-xl bg-[var(--surface)] p-3"><dt className="text-xs font-bold text-[var(--muted)]">Sessions</dt><dd className="mt-1 text-2xl font-black">{gymHistory.length}</dd></div><div className="rounded-xl bg-[var(--surface)] p-3"><dt className="text-xs font-bold text-[var(--muted)]">Arbeitssätze</dt><dd className="mt-1 text-2xl font-black">{gymHistory.reduce((sum, session) => sum + session.workingSets, 0)}</dd></div><div className="rounded-xl bg-[var(--surface)] p-3"><dt className="text-xs font-bold text-[var(--muted)]">Übungen</dt><dd className="mt-1 text-2xl font-black">{gymHistory.reduce((sum, session) => sum + session.exerciseCount, 0)}</dd></div></dl> : <p className="mt-4 text-sm text-[var(--muted)]">Noch keine abgeschlossenen Gym-Sessions in diesem Konto.</p>}</section>
   </>;
 }

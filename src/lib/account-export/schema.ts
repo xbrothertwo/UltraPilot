@@ -1,6 +1,6 @@
 import packageMetadata from "../../../package.json";
 
-export const ACCOUNT_EXPORT_SCHEMA_VERSION = 1;
+export const ACCOUNT_EXPORT_SCHEMA_VERSION = 2;
 export const ACCOUNT_EXPORT_FORMAT = "ultrapilot-account-export";
 export const MAX_EXPORT_UNCOMPRESSED_BYTES = 250 * 1024 * 1024;
 export const EXPORT_PAGE_SIZE = 100;
@@ -13,12 +13,13 @@ export type ExportAreaFile =
   | "planning.json"
   | "recovery.json"
   | "nutrition.json"
-  | "missions.json";
+  | "missions.json"
+  | "gym.json";
 
 export type ExportTableSpec = {
   key: string;
   table: string;
-  ownerField: "id" | "user_id";
+  ownerField: "id" | "user_id" | "owner_id";
   orderBy: string;
   selectFields: readonly string[];
   exportFields?: readonly string[];
@@ -49,7 +50,7 @@ const activities: ExportTableSpec[] = [
 
 const planning: ExportTableSpec[] = [
   { key: "calendarEvents", table: "calendar_events", ownerField: "user_id", orderBy: "id", selectFields: ["id", "user_id", "event_key", "title", "event_kind", "starts_at", "ends_at", "all_day", "source", "imported_at"] },
-  { key: "plannedWorkouts", table: "planned_workouts", ownerField: "user_id", orderBy: "id", selectFields: ["id", "user_id", "scheduled_date", "sport_type", "title", "description", "intensity", "planned_duration_minutes", "planned_distance_km", "status", "linked_activity_id", "source", "generation_id", "locked", "personal_note", "preferred_start_time", "target_heart_rate_zone", "target_power_zone", "created_at", "updated_at"] },
+  { key: "plannedWorkouts", table: "planned_workouts", ownerField: "user_id", orderBy: "id", selectFields: ["id", "user_id", "scheduled_date", "sport_type", "title", "description", "intensity", "planned_duration_minutes", "planned_distance_km", "status", "linked_activity_id", "source", "generation_id", "locked", "personal_note", "preferred_start_time", "target_heart_rate_zone", "target_power_zone", "gym_program_day_id", "gym_schedule_key", "created_at", "updated_at"] },
   { key: "planGenerations", table: "training_plan_generations", ownerField: "user_id", orderBy: "id", selectFields: ["id", "user_id", "week_start", "summary", "caution", "used_ai", "deterministic_snapshot", "created_at"] },
 ];
 
@@ -71,6 +72,17 @@ const missions: ExportTableSpec[] = [
   { key: "trainingBlockWeeks", table: "training_block_weeks", ownerField: "user_id", orderBy: "id", parent: "training_block", parentField: "block_id", selectFields: ["id", "block_id", "user_id", "week_number", "week_start", "phase", "target_distance_km", "long_ride_target_km", "tempo_session_target", "purpose"] },
 ];
 
+const gym: ExportTableSpec[] = [
+  { key: "customExercises", table: "gym_exercises", ownerField: "owner_id", orderBy: "id", selectFields: ["id", "owner_id", "name", "primary_muscle", "secondary_muscles", "muscle_group", "secondary_muscle_groups", "tracking_type", "exercise_type", "movement_pattern", "laterality", "notes", "active", "created_at", "updated_at"] },
+  { key: "favorites", table: "gym_exercise_favorites", ownerField: "user_id", orderBy: "exercise_id", selectFields: ["user_id", "exercise_id", "created_at"] },
+  { key: "programs", table: "gym_programs", ownerField: "user_id", orderBy: "id", selectFields: ["id", "user_id", "name", "description", "goal", "training_days_per_week", "start_date", "end_date", "active", "archived_at", "created_at", "updated_at"] },
+  { key: "programDays", table: "gym_program_days", ownerField: "user_id", orderBy: "id", selectFields: ["id", "program_id", "user_id", "name", "position", "estimated_duration_minutes", "notes", "created_at", "updated_at"] },
+  { key: "programExercises", table: "gym_program_exercises", ownerField: "user_id", orderBy: "id", selectFields: ["id", "program_day_id", "user_id", "exercise_id", "position", "working_sets", "rep_min", "rep_max", "target_seconds", "target_distance_meters", "target_rir", "target_rpe", "rest_seconds", "start_weight_kg", "load_increment_kg", "notes", "warmup_note", "created_at", "updated_at"] },
+  { key: "sessions", table: "gym_sessions", ownerField: "user_id", orderBy: "id", selectFields: ["id", "user_id", "program_id", "program_day_id", "planned_workout_id", "name", "status", "started_at", "ended_at", "duration_seconds", "notes", "created_at", "updated_at"] },
+  { key: "sessionExercises", table: "gym_session_exercises", ownerField: "user_id", orderBy: "id", selectFields: ["id", "session_id", "user_id", "exercise_id", "program_exercise_id", "position", "exercise_name_snapshot", "tracking_type_snapshot", "target_sets", "target_rep_min", "target_rep_max", "target_rir", "target_rpe", "rest_seconds", "notes_snapshot", "skipped", "created_at", "updated_at"] },
+  { key: "sets", table: "gym_sets", ownerField: "user_id", orderBy: "id", selectFields: ["id", "client_key", "session_exercise_id", "user_id", "set_number", "set_type", "weight_kg", "repetitions", "duration_seconds", "distance_meters", "load_mode", "rir", "rpe", "completed", "completed_at", "created_at", "updated_at"] },
+];
+
 export const ACCOUNT_EXPORT_FILES: ReadonlyArray<{ file: ExportAreaFile; specs: readonly ExportTableSpec[] }> = [
   { file: "profile.json", specs: profile },
   { file: "training.json", specs: training },
@@ -79,9 +91,10 @@ export const ACCOUNT_EXPORT_FILES: ReadonlyArray<{ file: ExportAreaFile; specs: 
   { file: "recovery.json", specs: recovery },
   { file: "nutrition.json", specs: nutrition },
   { file: "missions.json", specs: missions },
+  { file: "gym.json", specs: gym },
 ];
 
-export const ACCOUNT_EXPORT_AREAS = ["profile", "training", "activities", "planning", "recovery", "nutrition", "missions", "originalFiles"] as const;
+export const ACCOUNT_EXPORT_AREAS = ["profile", "training", "activities", "planning", "recovery", "nutrition", "missions", "gym", "originalFiles"] as const;
 
 export type MissingExportFile = {
   activityFileId: string;

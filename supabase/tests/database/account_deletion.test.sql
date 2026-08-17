@@ -87,6 +87,8 @@ with expected(table_name) as (values
   ('planned_workouts'), ('training_plan_generations'), ('missions'), ('training_blocks'),
   ('training_block_weeks'), ('apple_health_daily_metrics'), ('daily_readiness_checkins'),
   ('health_shortcut_tokens')
+  , ('gym_exercises'), ('gym_exercise_favorites'), ('gym_programs'), ('gym_program_days')
+  , ('gym_program_exercises'), ('gym_sessions'), ('gym_session_exercises'), ('gym_sets')
 ), cascaded as (
   select c.relname as table_name
   from pg_constraint fk

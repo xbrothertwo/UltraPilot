@@ -41,6 +41,7 @@ import {
 } from "@/lib/recovery-readiness";
 import { getTrainingLoadSummary } from "@/lib/training-load-data";
 import { getTrainingProfile } from "@/lib/training-profile";
+import { getActiveGymSession } from "@/lib/gym/data";
 import {
   formatHeartRateTarget,
   getHeartRateZones,
@@ -140,6 +141,7 @@ export default async function DashboardPage({
     trainingProfile,
     nutrition,
     missions,
+    activeGymSession,
   ] = await Promise.all([
     getPlanningData({ from: rangeStart, until: rangeEnd }),
     getPlannedWorkouts(weekStart, previewEnd),
@@ -150,6 +152,7 @@ export default async function DashboardPage({
     getTrainingProfile(),
     getNutritionLibrary(),
     getMissions(),
+    getActiveGymSession(),
   ]);
 
   if (planning.primarySport.status !== "valid") {
@@ -831,7 +834,7 @@ export default async function DashboardPage({
             </Link>
           </article>}
 
-          {strengthProgress && (
+          {(strengthProgress || activeGymSession) && (
             <article className="card p-5 sm:p-6">
               <div className="flex items-start gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
@@ -842,7 +845,7 @@ export default async function DashboardPage({
                     Kraft · diese Woche
                   </p>
                   <h2 className="mt-0.5 text-xl font-black">
-                    {strengthProgress.completed} / {strengthProgress.planned}{" "}
+                    {strengthProgress?.completed ?? 0} / {strengthProgress?.planned ?? 0}{" "}
                     <span className="text-base font-bold text-[var(--muted)]">
                       Einheiten
                     </span>
@@ -850,15 +853,17 @@ export default async function DashboardPage({
                 </div>
               </div>
               <p className="mt-4 text-sm text-[var(--muted)]">
-                {nextStrengthWorkout
+                {activeGymSession
+                  ? `${activeGymSession.name} läuft und ist serverseitig gespeichert.`
+                  : nextStrengthWorkout
                   ? `Nächste Einheit: ${nextStrengthWorkout.title} · ${nextStrengthWorkout.scheduledDate === todayKey ? "heute" : dayLabel(nextStrengthWorkout.scheduledDate)}`
                   : "Keine weitere Kraft-Einheit diese Woche geplant."}
               </p>
               <Link
-                href="/plan"
+                href={activeGymSession ? `/gym/workout/${activeGymSession.id}` : "/plan"}
                 className="mt-4 inline-flex text-sm font-black text-[var(--accent)]"
               >
-                Trainingsplan öffnen →
+                {activeGymSession ? "Training fortsetzen →" : "Trainingsplan öffnen →"}
               </Link>
             </article>
           )}

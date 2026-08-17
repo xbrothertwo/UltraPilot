@@ -11,6 +11,7 @@ import {
   setPlannedWorkoutStatus,
   shortenPlannedWorkout,
 } from "@/app/plan/actions";
+import { startGymWorkout } from "@/app/gym/actions";
 import type { PrimarySport } from "@/lib/sports";
 import {
   explainWorkoutPlan,
@@ -554,7 +555,17 @@ export function WorkoutDetailPanel({
             ) : null}
 
             {workout.sportType === "strength" ? (
-              <StrengthWorkoutDetails title={workout.title} />
+              <>
+                <StrengthWorkoutDetails title={workout.title} />
+                <section className="mt-5 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+                  <p className="text-xs font-black uppercase tracking-wider text-[var(--muted)]">Gym-Workout</p>
+                  <p className="mt-2 text-sm text-[var(--ink-soft)]">{workout.gymExerciseCount !== null && workout.gymExerciseCount !== undefined ? `${workout.gymExerciseCount} Übungen aus dem verknüpften Programmtag.` : "Starte die Einheit im mobilen Gym-Logger."}</p>
+                  <form action={startGymWorkout} className="mt-3">
+                    <input type="hidden" name="plannedWorkoutId" value={workout.id} />
+                    <button className="primary-button w-full">Training starten</button>
+                  </form>
+                </section>
+              </>
             ) : null}
 
             <SportTargets
