@@ -15,7 +15,7 @@ export default async function ResetPasswordPage() {
     && claimsResult.data?.claims?.sub
     && hasRecoveryAuthentication(claimsResult.data.claims),
   );
-  return <div className="mx-auto max-w-lg py-8 sm:py-14">
+  return <main className="mx-auto min-h-screen max-w-lg px-4 py-8 sm:px-6 sm:py-14">
     <p className="eyebrow">Konto wiederherstellen</p>
     <h1 className="mt-2 text-3xl font-black tracking-tight">Neues Passwort festlegen</h1>
     {hasRecoverySession ? <>
@@ -25,5 +25,5 @@ export default async function ResetPasswordPage() {
       <p role="alert" className="text-sm leading-6 text-red-900">Dieser Link ist ungültig oder abgelaufen. Bitte fordere eine neue Reset-Mail an.</p>
       <Link href="/auth/forgot-password" className="primary-button mt-5 inline-flex">Neue Reset-Mail anfordern</Link>
     </div>}
-  </div>;
+  </main>;
 }
