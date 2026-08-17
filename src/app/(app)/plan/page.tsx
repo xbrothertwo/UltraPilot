@@ -5,6 +5,7 @@ import { TrainingCalendar } from "@/components/training-calendar";
 import { RecoveryPanel } from "@/components/recovery-panel";
 import { TrainingBlockOverview } from "@/components/training-block-overview";
 import { WeeklyTargetCard } from "@/components/weekly-target-card";
+import { PlanContextStrip } from "@/components/plan/plan-context-strip";
 import { getActivities } from "@/lib/activities";
 import { defaultPlanningProfile, getPlanningData } from "@/lib/planning/data";
 import {
@@ -37,16 +38,6 @@ export const metadata = { title: "Plan" };
 export const dynamic = "force-dynamic";
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-[var(--line)] bg-white px-3 py-2.5";
-const sportLabels: Record<string, string> = {
-  cycling: "Rad",
-  running: "Lauf",
-  strength: "Kraft",
-  volleyball: "Volleyball",
-  mobility: "Mobility",
-  recovery: "Regeneration",
-  other: "Sonstiges",
-};
-
 function isoDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -155,8 +146,6 @@ export default async function PlanPage({
   );
   const todayKey = isoDate(new Date());
   const todayReadiness = readiness.find((item) => item.date === todayKey);
-  const todayWorkoutItem =
-    reconciled.find((item) => item.workout.scheduledDate === todayKey) ?? null;
   const remainingWorkouts = activeWorkouts.length - completedPlans;
   const warnings = reconciled
     .filter(
@@ -170,6 +159,7 @@ export default async function PlanPage({
         `${item.workout.title} am ${new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" }).format(new Date(`${item.workout.scheduledDate}T12:00:00`))} liegt an einem Tag mit roter Tagesform.`,
     );
   const selectedBlockWeek = blockWeekForDate(trainingBlock, week);
+  const contextBlockWeek = blockWeekForDate(currentBlock, week);
   const recentCutoff = new Date(start);
   recentCutoff.setDate(recentCutoff.getDate() - 28);
   const recentPrimary = allActivities.filter(
@@ -299,43 +289,32 @@ export default async function PlanPage({
         </form>
       )}
 
-      {todayReadiness && (
-        <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider ${todayReadiness.status === "green" ? "bg-emerald-100 text-emerald-950" : todayReadiness.status === "yellow" ? "bg-amber-100 text-amber-950" : todayReadiness.status === "red" ? "bg-rose-100 text-rose-950" : "bg-slate-100 text-slate-700"}`}
-          >
-            {todayReadiness.status === "unknown"
-              ? "Tagesform offen"
-              : `Tagesform ${todayReadiness.status}${todayReadiness.score !== null ? ` · ${todayReadiness.score}` : ""}`}
-          </span>
-          <span className="font-bold text-[var(--muted)]">
-            Heute:{" "}
-            {todayWorkoutItem
-              ? `${todayWorkoutItem.workout.title} · ${sportLabels[todayWorkoutItem.workout.sportType] ?? todayWorkoutItem.workout.sportType}${todayWorkoutItem.workout.plannedDurationMinutes ? ` · ${todayWorkoutItem.workout.plannedDurationMinutes} min` : ""}`
-              : "kein Training geplant"}
-          </span>
-        </p>
-      )}
+      <PlanContextStrip
+        readiness={todayReadiness}
+        block={currentBlock}
+        blockWeek={contextBlockWeek}
+        week={week}
+      />
 
       <section className="card mb-4 flex flex-col gap-4 p-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/plan?week=${isoDate(previous)}`}
             aria-label="Vorherige Woche"
-            className="grid size-10 place-items-center rounded-xl border border-[var(--line)] bg-white font-black"
+            className="grid size-10 place-items-center rounded-xl border border-[var(--line)] bg-[var(--surface)] font-black"
           >
             ←
           </Link>
           <Link
             href="/plan"
-            className="rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 text-sm font-bold"
+            className="rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2.5 text-sm font-bold"
           >
             Heute
           </Link>
           <Link
             href={`/plan?week=${isoDate(next)}`}
             aria-label="Nächste Woche"
-            className="grid size-10 place-items-center rounded-xl border border-[var(--line)] bg-white font-black"
+            className="grid size-10 place-items-center rounded-xl border border-[var(--line)] bg-[var(--surface)] font-black"
           >
             →
           </Link>
@@ -355,7 +334,7 @@ export default async function PlanPage({
             <input type="hidden" name="week" value={week} />
             <button
               type="submit"
-              className="rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-black text-white shadow-sm hover:bg-[var(--accent-dark)]"
+              className="primary-button"
             >
               ✦{" "}
               {activities.length
@@ -364,7 +343,7 @@ export default async function PlanPage({
             </button>
           </form>
         </div>
-        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           <Summary
             label="Geplant"
             value={`${Math.round(plannedMinutes)} min`}
