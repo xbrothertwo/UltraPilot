@@ -82,7 +82,38 @@ npm run typecheck  # TypeScript strict
 npm test           # Vitest einmalig
 npm run build      # Production Build
 npm start          # Production Server
+npm run gym:library:validate # Gym-CSV deterministisch prüfen (keine DB-Schreiboperation)
+npm run gym:library:import   # Globale Exercise Library idempotent importieren
 ```
+
+## Gym v1: Migration und Exercise Library
+
+Gym verwendet den bestehenden Bloom-Plan und `planned_workouts`; Programme, Sessions und Sets liegen in eigenen, RLS-geschützten Tabellen. Die globale Library basiert ausschließlich auf `data/gym/Uebungsdatenbank_UltraPilot_Gym_v1.csv` (245 Übungen). `src/lib/gym/exercise-library.generated.json` ist eine deterministisch erzeugte Demo-/Build-Kopie und wird mit `npm run gym:library:generate` aktualisiert.
+
+Deployment-Reihenfolge für eine bestehende Installation:
+
+1. `supabase/migrations/202608170001_gym_training_v1.sql` im Supabase SQL Editor ausführen. Nicht zuerst den App-Code deployen, da dieser die neuen Tabellen und Spalten liest.
+2. Lokal `npm run gym:library:validate` ausführen. Erwartet werden `245` Datensätze, `0` Duplikate und `78` Datensätze mit `Review_Status=prüfen`.
+3. Den Import ausschließlich in einer lokalen Shell mit serverseitigen Umgebungsvariablen starten:
+
+```powershell
+$env:NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY="server-only-service-role-key"
+npm.cmd run gym:library:import
+Remove-Item Env:SUPABASE_SERVICE_ROLE_KEY
+```
+
+Der Service-Role-Key wird nicht in `.env.example`, im Browser oder im Repository gespeichert. Der Import verwendet `external_id` (`EX-0001`) als stabilen Schlüssel, aktualisiert vorhandene globale Übungen, ersetzt normalisierte Equipment-Zuordnungen und archiviert globale CSV-Übungen, die in einem späteren Stand fehlen. Custom Exercises, Programme und History werden dabei nicht verändert.
+
+Kontrolle nach dem Import im Supabase SQL Editor:
+
+```sql
+select count(*) as exercises from public.gym_exercises where source = 'ultrapilot_csv';
+select count(*) as active_exercises from public.gym_exercises where source = 'ultrapilot_csv' and active;
+select count(*) as review_required from public.gym_exercises where source = 'ultrapilot_csv' and review_status = 'prüfen';
+```
+
+Erwartet: `245`, `245`, `78`. Ein späteres CSV-Update ersetzt die Datei, läuft zuerst durch `npm run gym:library:validate` und wird danach mit demselben Importbefehl eingespielt. Der Import ist wiederholbar und löscht keine historische Session.
 
 ## Berechnungsregeln des GPX-Parsers
 

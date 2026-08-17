@@ -51,6 +51,8 @@ describe("account data export", () => {
       "calendar_events", "planned_workouts", "training_plan_generations",
       "missions", "training_blocks", "training_block_weeks",
       "apple_health_daily_metrics", "daily_readiness_checkins", "health_shortcut_tokens",
+      "gym_exercises", "gym_exercise_favorites", "gym_programs", "gym_program_days",
+      "gym_program_exercises", "gym_sessions", "gym_session_exercises", "gym_sets",
     ].sort();
     const configuredTables = ACCOUNT_EXPORT_FILES.flatMap((area) => area.specs.map((spec) => spec.table)).sort();
     expect(configuredTables).toEqual(expectedTables);
@@ -65,7 +67,7 @@ describe("account data export", () => {
 
     expect(response.headers.get("content-type")).toBe("application/zip");
     expect(response.headers.get("content-disposition")).toBe('attachment; filename="ultrapilot-export-2026-08-10.zip"');
-    expect(zip.json("manifest.json")).toMatchObject({ schemaVersion: 1, includedAreas: [...ACCOUNT_EXPORT_AREAS] });
+    expect(zip.json("manifest.json")).toMatchObject({ schemaVersion: 2, includedAreas: [...ACCOUNT_EXPORT_AREAS] });
     for (const area of ACCOUNT_EXPORT_FILES) expect(() => zip.json(area.file)).not.toThrow();
   });
 

@@ -1,0 +1,6678 @@
+{
+  "generatedAt": null,
+  "source": "Uebungsdatenbank_UltraPilot_Gym_v1.csv",
+  "sha256": "9bffece4ec769c92b0e5178c39af0103760338afc1d0b582ca39fab270b92b6c",
+  "records": [
+    {
+      "externalId": "EX-0001",
+      "name": "Bankdrücken",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [
+        "Brustpresse",
+        "einarmige Maschinenpresse",
+        "flach/leicht negativ"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0002",
+      "name": "Schrägbankdrücken",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [
+        "Schrägbrustpresse",
+        "verschiedene Bankwinkel"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0003",
+      "name": "Negativbankdrücken",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [
+        "Negativ-Brustpresse"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0004",
+      "name": "Liegestütz",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Klimmzugstange",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Klimmzugstange",
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "Defizit",
+        "einarmig unterstützt",
+        "erhöht",
+        "Füße erhöht",
+        "gewichtet",
+        "Griffe",
+        "klassisch"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0005",
+      "name": "Dips",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [
+        "M. triceps brachii"
+      ],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [
+        "Trizeps"
+      ],
+      "equipment": [
+        "Bank",
+        "Dipstangen",
+        "Maschine",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Bank",
+        "Dipstangen",
+        "Maschine",
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "Brustfokus",
+        "gewichtet",
+        "Trizepsfokus",
+        "unterstützt"
+      ],
+      "aliases": [
+        "Dips mit Brustfokus",
+        "Dips mit Trizepsfokus"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0006",
+      "name": "Brust-Fly",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine",
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "flach/schräg/negativ",
+        "Pec-Deck"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_push",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0007",
+      "name": "Kabel-Crossover",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einarmig",
+        "hoch nach tief",
+        "horizontal",
+        "tief nach hoch"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0008",
+      "name": "Svend Press / Plate Press",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Hantelscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0009",
+      "name": "Pullover",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [
+        "M. latissimus dorsi"
+      ],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [
+        "Rücken"
+      ],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Brustfokus"
+      ],
+      "aliases": [
+        "Pullover mit Brustfokus"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0010",
+      "name": "Landmine Press",
+      "primaryMuscle": "M. pectoralis major",
+      "secondaryMuscles": [
+        "M. deltoideus Pars clavicularis"
+      ],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [
+        "Schulter"
+      ],
+      "equipment": [
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Langhantel"
+      ],
+      "variations": [
+        "beidarmig",
+        "Brustfokus",
+        "einarmig",
+        "kniend",
+        "stehend"
+      ],
+      "aliases": [
+        "Landmine Press mit Brustfokus"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "vertical_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0011",
+      "name": "Scapular Push-up / Push-up Plus",
+      "primaryMuscle": "M. pectoralis minor",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bank",
+        "Bodenschutzmatte",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Bank",
+        "Bodenschutzmatte",
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "gewichtet",
+        "Wand"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0012",
+      "name": "Serratus-/Scapula-Dip",
+      "primaryMuscle": "M. pectoralis minor",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Dipstangen"
+      ],
+      "sourceEquipment": [
+        "Dipstangen"
+      ],
+      "variations": [
+        "Dipmaschine",
+        "Stütz auf Bank"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0013",
+      "name": "Gerader Armzug nach unten mit Schulterblattdepression",
+      "primaryMuscle": "M. pectoralis minor",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Widerstandsband"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0014",
+      "name": "Isometrische Schulterblattdepression im Stütz",
+      "primaryMuscle": "M. pectoralis minor",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Dipstangen",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Dipstangen",
+        "Klimmzugstange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0015",
+      "name": "Überkopf-Pulldown mit gestreckten Armen",
+      "primaryMuscle": "M. pectoralis minor",
+      "secondaryMuscles": [],
+      "muscleGroup": "Brust",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0016",
+      "name": "Seitheben",
+      "primaryMuscle": "M. deltoideus Pars acromialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "einarmig",
+        "Lean-away",
+        "sitzend/stehend",
+        "Widerstandsband"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_abduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0017",
+      "name": "Aufrechtes Rudern",
+      "primaryMuscle": "M. deltoideus Pars acromialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "SZ-Stange"
+      ],
+      "variations": [
+        "breiter Griff"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "shoulder_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0018",
+      "name": "Schulterdrücken mit abduzierten Armen",
+      "primaryMuscle": "M. deltoideus Pars acromialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [
+        "Arnold Press"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "vertical_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0019",
+      "name": "High Incline Lateral Raise",
+      "primaryMuscle": "M. deltoideus Pars acromialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0020",
+      "name": "Lu Raise",
+      "primaryMuscle": "M. deltoideus Pars acromialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Hantelscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0021",
+      "name": "Iron Cross Hold",
+      "primaryMuscle": "M. deltoideus Pars acromialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Klimmzugstange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "shoulder_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0022",
+      "name": "Frontheben",
+      "primaryMuscle": "M. deltoideus Pars clavicularis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "variations": [
+        "alternierend/einarmig",
+        "Band",
+        "Hantelscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0023",
+      "name": "Schulterdrücken",
+      "primaryMuscle": "M. deltoideus Pars clavicularis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [
+        "Arnold Press",
+        "Landmine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "vertical_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0024",
+      "name": "Schrägbankdrücken mit hohem Winkel",
+      "primaryMuscle": "M. deltoideus Pars clavicularis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0025",
+      "name": "Reverse-Grip Bench Press",
+      "primaryMuscle": "M. deltoideus Pars clavicularis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0026",
+      "name": "Cable Y-Raise nach vorn",
+      "primaryMuscle": "M. deltoideus Pars clavicularis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Bank-gestützt",
+        "beidarmig",
+        "einarmig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0027",
+      "name": "Reverse Fly",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "brustgestützt",
+        "Reverse-Pec-Deck"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_retraction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0028",
+      "name": "Face Pull",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "mit Außenrotation",
+        "Seil",
+        "verschiedene Zughöhen"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_retraction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0029",
+      "name": "Rear-Delt Row",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "breite Ellenbogenführung",
+        "brustgestützt"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0030",
+      "name": "High Row mit breiten Ellenbogen",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Plate-loaded Maschine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0031",
+      "name": "Rear-Delt Swing",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Bauchlage/Schrägbank"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0032",
+      "name": "W-Raise / Prone W",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_retraction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0033",
+      "name": "Reverse Cable Crossover",
+      "primaryMuscle": "M. deltoideus Pars spinalis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Schulter",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einarmig",
+        "stehend",
+        "vorgebeugt"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_retraction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0034",
+      "name": "Bizepscurl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "SZ-Stange"
+      ],
+      "variations": [
+        "stehend/sitzend"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0035",
+      "name": "Schrägbankcurl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0036",
+      "name": "Scottcurl / Preachercurl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "SZ-Stange"
+      ],
+      "variations": [
+        "einarmig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0037",
+      "name": "Spider Curl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "SZ-Stange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0038",
+      "name": "Bayesian Curl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "einarmig/beidarmig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0039",
+      "name": "Konzentrationscurl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0040",
+      "name": "Drag Curl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0041",
+      "name": "Klimmzug",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [
+        "M. brachialis",
+        "M. latissimus dorsi"
+      ],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [
+        "Bizeps/Armbeuger",
+        "Rücken"
+      ],
+      "equipment": [
+        "Eigengewicht",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht",
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "breit/eng",
+        "gewichtet",
+        "Neutralgriff",
+        "Obergriff",
+        "Untergriff",
+        "unterstützt"
+      ],
+      "aliases": [
+        "Chin-up mit Untergriff",
+        "Klimmzug / Chin-up",
+        "Neutralgriff-Klimmzug"
+      ],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0042",
+      "name": "Supinationscurl",
+      "primaryMuscle": "M. biceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0043",
+      "name": "Hammercurl",
+      "primaryMuscle": "M. brachialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "Seil am Kabel"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0044",
+      "name": "Reverse Curl",
+      "primaryMuscle": "M. brachialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0045",
+      "name": "Cross-body Hammercurl",
+      "primaryMuscle": "M. brachialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0046",
+      "name": "Zottman Curl",
+      "primaryMuscle": "M. brachialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0047",
+      "name": "Preacher Hammercurl",
+      "primaryMuscle": "M. brachialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Seil/Kabelzug"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0048",
+      "name": "Trizepsdrücken am Kabel",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einarmig",
+        "Seil",
+        "Stange",
+        "Untergriff",
+        "V-Griff"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0049",
+      "name": "Überkopf-Trizepsstrecken",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "SZ-Stange"
+      ],
+      "variations": [
+        "Band",
+        "ein-/beidarmig",
+        "Seil"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0050",
+      "name": "French Press / Skull Crusher",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "SZ-Stange"
+      ],
+      "variations": [
+        "flach/schräg/negativ"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0051",
+      "name": "Enges Bankdrücken",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0052",
+      "name": "Diamond Push-up",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "erhöht",
+        "gewichtet"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0053",
+      "name": "JM Press",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0054",
+      "name": "Tate Press",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_push",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0055",
+      "name": "Kickback",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_extension",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0056",
+      "name": "Bodyweight Triceps Extension",
+      "primaryMuscle": "M. triceps brachii",
+      "secondaryMuscles": [],
+      "muscleGroup": "Trizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bank",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Bank",
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "Langhantel im Rack",
+        "TRX"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "elbow_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0057",
+      "name": "Handgelenkcurl in Flexion",
+      "primaryMuscle": "M. flexor carpi radialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "einarmig/beidarmig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0058",
+      "name": "Radialdeviation des Handgelenks",
+      "primaryMuscle": "M. flexor carpi radialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Kurzhantel/Hammer"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0059",
+      "name": "Wrist-Roller in Flexionsrichtung",
+      "primaryMuscle": "M. flexor carpi radialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Wrist Roller"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Kabelgerät",
+        "Seilrolle"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Wrist Roller; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0060",
+      "name": "Hebel-Curl mit radialer Abweichung",
+      "primaryMuscle": "M. flexor carpi radialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Hebel/Hammer"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Hammer/Macebell",
+        "Kurzhantel einseitig beladen"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Hebel/Hammer; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0061",
+      "name": "Isometrischer Handgelenk-Flexionshalt",
+      "primaryMuscle": "M. flexor carpi radialis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0062",
+      "name": "Ulnardeviation des Handgelenks",
+      "primaryMuscle": "M. flexor carpi ulnaris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Kurzhantel/Hammer"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0063",
+      "name": "Hebelbewegung zur Ulnarseite",
+      "primaryMuscle": "M. flexor carpi ulnaris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Hebel/Hammer"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Hammer/Macebell",
+        "Kurzhantel einseitig beladen"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Hebel/Hammer"
+    },
+    {
+      "externalId": "EX-0064",
+      "name": "Isometrischer Handgelenk-Flexionshalt mit Ulnardeviation",
+      "primaryMuscle": "M. flexor carpi ulnaris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0065",
+      "name": "Seilklettern / Seilziehen",
+      "primaryMuscle": "M. brachioradialis",
+      "secondaryMuscles": [
+        "M. latissimus dorsi"
+      ],
+      "muscleGroup": "Bizeps/Armbeuger",
+      "secondaryMuscleGroups": [
+        "Rücken"
+      ],
+      "equipment": [
+        "Seil"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Klettern",
+        "Schlitten-Seilzug",
+        "Schlittenzug",
+        "sitzend",
+        "sitzender Seilzug",
+        "stehend"
+      ],
+      "aliases": [
+        "Rope Climb / Seilziehen",
+        "Seil-Klettern / Rope Pull"
+      ],
+      "trackingType": "distance_time",
+      "exerciseType": "isolation",
+      "movementPattern": "grip",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Seil; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0066",
+      "name": "Fingerextension gegen Widerstand",
+      "primaryMuscle": "M. extensor digitorum",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Finger-Extensor-Trainer",
+        "Gummiband um Finger",
+        "Therapieknete"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0067",
+      "name": "Reverse Wrist Curl",
+      "primaryMuscle": "M. extensor digitorum",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0068",
+      "name": "Wrist-Roller in Extensionsrichtung",
+      "primaryMuscle": "M. extensor digitorum",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Wrist Roller"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Kabelgerät",
+        "Seilrolle"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Wrist Roller; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0069",
+      "name": "Fingeröffnung im Reiskübel",
+      "primaryMuscle": "M. extensor digitorum",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Reiskübel"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Reis/Sand",
+        "verschiedene Handpositionen"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Reiskübel; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0070",
+      "name": "Isometrische Fingerextension",
+      "primaryMuscle": "M. extensor digitorum",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft",
+        "Therapieknete"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband"
+    },
+    {
+      "externalId": "EX-0071",
+      "name": "Kleinfingerextension gegen Widerstand",
+      "primaryMuscle": "M. extensor digiti minimi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Gummiband",
+        "Mini-Band",
+        "Therapieknete"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0072",
+      "name": "Kleinfinger-Abspreizen und Strecken in Therapieknete",
+      "primaryMuscle": "M. extensor digiti minimi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Therapieknete"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "elastisches Band",
+        "Knete"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Therapieknete; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0073",
+      "name": "Reverse Wrist Curl mit betonter Ulnarseite",
+      "primaryMuscle": "M. extensor digiti minimi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0074",
+      "name": "Isometrische Kleinfingerextension",
+      "primaryMuscle": "M. extensor digiti minimi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "wrist_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband"
+    },
+    {
+      "externalId": "EX-0075",
+      "name": "Ulnardeviation in Handgelenkextension",
+      "primaryMuscle": "M. extensor carpi ulnaris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Kurzhantel/Hammer"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0076",
+      "name": "Hebelbewegung zur Ulnarseite in Pronationsstellung",
+      "primaryMuscle": "M. extensor carpi ulnaris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Hebel/Hammer"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einseitig beladene Kurzhantel",
+        "Hammer/Macebell"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Hebel/Hammer"
+    },
+    {
+      "externalId": "EX-0077",
+      "name": "Isometrische Handgelenkextension mit Ulnardeviation",
+      "primaryMuscle": "M. extensor carpi ulnaris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "wrist_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0078",
+      "name": "Unterarm-Supination gegen Widerstand",
+      "primaryMuscle": "M. supinator",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Kurzhantel/Hammer",
+        "Unterarmtrainer"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0079",
+      "name": "Hebel-Supination mit Hammer",
+      "primaryMuscle": "M. supinator",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Hebel/Hammer"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einseitig beladene Kurzhantel",
+        "Macebell"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Hebel/Hammer; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0080",
+      "name": "Isometrische Supination",
+      "primaryMuscle": "M. supinator",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0081",
+      "name": "Zottman Curl mit kontrollierter Supination",
+      "primaryMuscle": "M. supinator",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0082",
+      "name": "Unterarm-Pronation gegen Widerstand",
+      "primaryMuscle": "M. pronator teres",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Kurzhantel/Hammer",
+        "Unterarmtrainer"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0083",
+      "name": "Hebel-Pronation mit Hammer",
+      "primaryMuscle": "M. pronator teres",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Hebel/Hammer"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einseitig beladene Kurzhantel",
+        "Macebell"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Hebel/Hammer; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0084",
+      "name": "Isometrische Pronation",
+      "primaryMuscle": "M. pronator teres",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0085",
+      "name": "Zottman Curl mit kontrollierter Pronation",
+      "primaryMuscle": "M. pronator teres",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0086",
+      "name": "Pronations-Wrist-Roller",
+      "primaryMuscle": "M. pronator teres",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Wrist Roller"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Seilrolle",
+        "Unterarmgerät"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "forearm_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Wrist Roller; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0087",
+      "name": "Shrug",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse",
+        "Trap(Hex) Bar"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse",
+        "Trap(Hex) Bar"
+      ],
+      "variations": [
+        "einarmig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_elevation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0088",
+      "name": "Farmer Carry",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Trap(Hex) Bar"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Trap(Hex) Bar"
+      ],
+      "variations": [
+        "einarmiger Suitcase Carry",
+        "Farmers Handles"
+      ],
+      "aliases": [],
+      "trackingType": "weight_distance",
+      "exerciseType": "carry",
+      "movementPattern": "carry",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0089",
+      "name": "High Row",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "brustgestützt"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0090",
+      "name": "Y-Raise",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Schrägbank"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Schrägbank"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0091",
+      "name": "Scapular Pull-up",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "unterstützt"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0092",
+      "name": "Overhead Carry",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "variations": [
+        "ein-/beidarmig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_distance",
+      "exerciseType": "carry",
+      "movementPattern": "carry",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0093",
+      "name": "Rack Pull",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Multipresse",
+        "Trap(Hex) Bar"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Multipresse",
+        "Trap(Hex) Bar"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0094",
+      "name": "Scapular Row / Kelso Shrug",
+      "primaryMuscle": "M. trapezius",
+      "secondaryMuscles": [
+        "MM. rhomboidei"
+      ],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [
+        "Rücken"
+      ],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [],
+      "aliases": [
+        "Kelso Shrug / Scapular Row"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "shoulder_elevation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0095",
+      "name": "Latzug",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "breit",
+        "einarmig",
+        "eng",
+        "Maschine/Kabelzug",
+        "neutral",
+        "Untergriff"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm|Maschine"
+    },
+    {
+      "externalId": "EX-0096",
+      "name": "Gerader Armzug / Straight-arm Pulldown",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "Seil/Stange"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "vertical_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0097",
+      "name": "Langhantelrudern mit Lat-Fokus",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "klassisch",
+        "Pendlay",
+        "Untergriff",
+        "Yates Row"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Langhantel"
+    },
+    {
+      "externalId": "EX-0098",
+      "name": "Einarmiges Rudern",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Landmine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0099",
+      "name": "Kabelrudern mit engem Griff",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "einarmig",
+        "neutral",
+        "Untergriff"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm|Maschine"
+    },
+    {
+      "externalId": "EX-0100",
+      "name": "T-Bar Row mit engem Griff",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "brustgestützt",
+        "Landmine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0101",
+      "name": "Meadows Row",
+      "primaryMuscle": "M. latissimus dorsi",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "Landmine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0102",
+      "name": "Rudern mit Schulterblattretraktion",
+      "primaryMuscle": "MM. rhomboidei",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0103",
+      "name": "Brustgestütztes Rudern",
+      "primaryMuscle": "MM. rhomboidei",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "T-Bar"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0104",
+      "name": "Band Pull-apart",
+      "primaryMuscle": "MM. rhomboidei",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Obergriff",
+        "Untergriff",
+        "verschiedene Zughöhen"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_retraction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0105",
+      "name": "Prone T-Raise",
+      "primaryMuscle": "MM. rhomboidei",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "shoulder_retraction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0106",
+      "name": "Seal Row",
+      "primaryMuscle": "MM. rhomboidei",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rücken",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "horizontal_pull",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0107",
+      "name": "Kreuzheben",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Trap(Hex) Bar"
+      ],
+      "sourceEquipment": [
+        "Trap(Hex) Bar"
+      ],
+      "variations": [
+        "Block Pull",
+        "Defizit",
+        "konventionell",
+        "Sumo"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0108",
+      "name": "Rumänisches Kreuzheben",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [
+        "einbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0109",
+      "name": "Good Morning",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Multipresse",
+        "Safety Bar"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Multipresse",
+        "Safety Bar"
+      ],
+      "variations": [
+        "Band",
+        "sitzend/stehend"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0110",
+      "name": "Rückenstrecken / Hyperextension",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "45°",
+        "gewichtet",
+        "GHD",
+        "horizontal"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "trunk_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0111",
+      "name": "Reverse Hyperextension",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bank",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Bank",
+        "Maschine"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "trunk_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0112",
+      "name": "Jefferson Curl",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "trunk_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0113",
+      "name": "Bird Dog mit Last",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "stability",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Bewegungsmuster fachlich prüfen; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0114",
+      "name": "Superman / Prone Back Extension",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band",
+        "Gewichtsscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "trunk_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0115",
+      "name": "Zercher Carry",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Sandbag"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Sandbag"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_distance",
+      "exerciseType": "carry",
+      "movementPattern": "carry",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0116",
+      "name": "Front Squat mit aufrechter Rumpfspannung",
+      "primaryMuscle": "M. erector spinae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Rückenstrecker",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Langhantel",
+        "Safety Bar"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Langhantel",
+        "Safety Bar"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0117",
+      "name": "Crunch",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte",
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte",
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "gewichtet"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0118",
+      "name": "Sit-up",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "gewichtet",
+        "GHD",
+        "Negativbank"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0119",
+      "name": "Reverse Crunch",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bank",
+        "Bodenschutzmatte",
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Bank",
+        "Bodenschutzmatte",
+        "Single Kabelturm"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_or_bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0120",
+      "name": "Beinheben",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "gestreckt/angewinkelt",
+        "hängend",
+        "liegend"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0121",
+      "name": "Ab-Wheel Rollout",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "Ab-Wheel",
+        "kniend/stehend"
+      ],
+      "aliases": [],
+      "trackingType": "weight_or_bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "anti_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0122",
+      "name": "Body Saw",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "TRX",
+        "Unterarme"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "core",
+      "movementPattern": "anti_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0123",
+      "name": "Hollow Body Hold",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Gewicht über Kopf"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "anti_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0124",
+      "name": "Plank",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "gewichtet",
+        "klassisch",
+        "Long-lever",
+        "RKC"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "anti_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Bodenschutzmatte"
+    },
+    {
+      "externalId": "EX-0125",
+      "name": "Dead Bug",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "anti_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0126",
+      "name": "Dragon Flag",
+      "primaryMuscle": "M. rectus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bank"
+      ],
+      "sourceEquipment": [
+        "Bank"
+      ],
+      "variations": [
+        "regressiv",
+        "Stange"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "anti_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0127",
+      "name": "Russian Twist",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Medizinball"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Medizinball"
+      ],
+      "variations": [
+        "Hantelscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0128",
+      "name": "Woodchopper",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "hoch-tief",
+        "horizontal",
+        "Kabelzug/Band",
+        "tief-hoch"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0129",
+      "name": "Seitbeuge",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kettlebell",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kettlebell",
+        "Kurzhantel",
+        "Maschine"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "lateral_flexion",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0130",
+      "name": "Side Plank",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Copenhagen-Variante",
+        "gewichtet",
+        "Hüftheben",
+        "klassisch"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "anti_lateral_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Bodenschutzmatte"
+    },
+    {
+      "externalId": "EX-0131",
+      "name": "Pallof Press",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "kniend/stehend",
+        "Overhead"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "anti_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0132",
+      "name": "Suitcase Carry",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Farmers Handle"
+      ],
+      "aliases": [],
+      "trackingType": "weight_distance",
+      "exerciseType": "carry",
+      "movementPattern": "carry",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0133",
+      "name": "Bicycle Crunch",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_rotation",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0134",
+      "name": "Landmine Rotation",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Langhantel"
+      ],
+      "variations": [
+        "Full Contact Twist",
+        "kniend",
+        "stehend"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0135",
+      "name": "Hanging Knee Raise mit Rotation",
+      "primaryMuscle": "M. obliquus externus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Klimmzugstange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "core",
+      "movementPattern": "trunk_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0136",
+      "name": "Dead Bug mit diagonaler Last",
+      "primaryMuscle": "M. obliquus internus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "anti_rotation",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0137",
+      "name": "Bird Dog mit diagonaler Last",
+      "primaryMuscle": "M. obliquus internus abdominis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Core",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "core",
+      "movementPattern": "stability",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Bewegungsmuster fachlich prüfen; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0138",
+      "name": "Hip Thrust",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [
+        "Band",
+        "einbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0139",
+      "name": "Glute Bridge",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "einbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0140",
+      "name": "Kniebeuge",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Multipresse",
+        "Safety Bar",
+        "Sandbag"
+      ],
+      "sourceEquipment": [
+        "Multipresse",
+        "Safety Bar",
+        "Sandbag"
+      ],
+      "variations": [
+        "Back Squat",
+        "Front Squat",
+        "Goblet"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0141",
+      "name": "Bulgarian Split Squat",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0142",
+      "name": "Ausfallschritt",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Defizit",
+        "gehend",
+        "Langhantel/Kurzhantel",
+        "rückwärts",
+        "seitlich",
+        "vorwärts"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Kurzhantel|Langhantel"
+    },
+    {
+      "externalId": "EX-0143",
+      "name": "Step-up",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "variations": [
+        "Bank/Box",
+        "hoher Step"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0144",
+      "name": "45-Grad-Hyperextension mit Glute-Fokus",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht",
+        "Langhantel"
+      ],
+      "variations": [
+        "Band",
+        "Hantelscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0145",
+      "name": "Kabel Pull-through",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "Seil"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Single Kabelturm"
+    },
+    {
+      "externalId": "EX-0146",
+      "name": "Reverse Lunge aus erhöhtem Stand",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0147",
+      "name": "Kickback / Hüftextension",
+      "primaryMuscle": "M. gluteus maximus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "Vierfüßler"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_extension",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0148",
+      "name": "Hüftabduktion",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "Seitenlage",
+        "stehend"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_abduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0149",
+      "name": "Lateral Band Walk",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Mini-Band an Knie/Knöchel/Fuß",
+        "Monster Walk"
+      ],
+      "aliases": [],
+      "trackingType": "distance_time",
+      "exerciseType": "stability",
+      "movementPattern": "hip_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0150",
+      "name": "Side Plank mit Hüftabduktion",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "hip_abduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0151",
+      "name": "Pelvic Drop / Hip Hike",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Gewicht",
+        "Stufe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "stability",
+      "movementPattern": "hip_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0152",
+      "name": "Einbeinige Kniebeuge",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Box Squat",
+        "Pistol Squat",
+        "Skater Squat",
+        "TRX-unterstützt"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    },
+    {
+      "externalId": "EX-0153",
+      "name": "Step-down",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "lateral",
+        "verschiedene Höhen",
+        "vorwärts"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    },
+    {
+      "externalId": "EX-0154",
+      "name": "Einbeiniges rumänisches Kreuzheben",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [
+        "M. semimembranosus"
+      ],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [
+        "Hamstrings"
+      ],
+      "equipment": [
+        "Single Kabelturm",
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "variations": [],
+      "aliases": [
+        "Einbeiniges Kreuzheben",
+        "Single-leg Romanian Deadlift"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0155",
+      "name": "Copenhagen Side Plank",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Bank"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "dynamisch",
+        "kurzer/langer Hebel"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "hip_abduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Bank; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0156",
+      "name": "Seitlicher Step-up",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [
+        "M. tensor fasciae latae"
+      ],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [
+        "Hüfte/Hüftbeuger"
+      ],
+      "equipment": [
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Box/Bank",
+        "Lateral / seitlich"
+      ],
+      "aliases": [
+        "Lateral Step-up",
+        "Side Step-up"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0157",
+      "name": "Curtsy Lunge",
+      "primaryMuscle": "M. gluteus medius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Langhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0158",
+      "name": "Innenrotationsbetonte Hüftabduktion",
+      "primaryMuscle": "M. gluteus minimus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Gesäß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Seitenlage"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_abduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0159",
+      "name": "Hüftadduktion",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Adduktorenmaschine",
+        "Band",
+        "Seitenlage"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_adduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0160",
+      "name": "Copenhagen Adduction / Copenhagen Plank",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Bank"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "dynamisch/isometrisch",
+        "kurzer/langer Hebel"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "hip_adduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Bank"
+    },
+    {
+      "externalId": "EX-0161",
+      "name": "Sumo-Kniebeuge",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0162",
+      "name": "Sumo-Kreuzheben",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Langhantel",
+        "Trap(Hex) Bar"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Langhantel",
+        "Trap(Hex) Bar"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0163",
+      "name": "Seitlicher Ausfallschritt",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "Landmine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0164",
+      "name": "Cossack Squat",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Eigengewicht",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Eigengewicht",
+        "Langhantel"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0165",
+      "name": "Adductor Slide",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "Handtuch"
+      ],
+      "aliases": [],
+      "trackingType": "weight_or_bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_adduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0166",
+      "name": "Ball Squeeze / isometrische Adduktion",
+      "primaryMuscle": "M. adductor longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Ball"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Ball",
+        "Block",
+        "Pilates-Ring"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "hip_adduction",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Ball"
+    },
+    {
+      "externalId": "EX-0167",
+      "name": "Breitbeinige Beinpresse",
+      "primaryMuscle": "M. adductor magnus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "45°",
+        "einbeinig",
+        "horizontal"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Maschine"
+    },
+    {
+      "externalId": "EX-0168",
+      "name": "Hip Thrust mit breitem Stand",
+      "primaryMuscle": "M. adductor magnus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0169",
+      "name": "Stehende Hüftflexion mit Adduktion",
+      "primaryMuscle": "M. pectineus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0170",
+      "name": "Ball Squeeze mit Hüftflexion",
+      "primaryMuscle": "M. pectineus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Ball"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Ball/Pilates-Ring",
+        "sitzend oder Rückenlage"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_adduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Ball; Tracking-Typ fachlich prüfen; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0171",
+      "name": "Diagonaler Kniehub",
+      "primaryMuscle": "M. pectineus",
+      "secondaryMuscles": [
+        "M. sartorius"
+      ],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [
+        "Hüfte/Hüftbeuger"
+      ],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Hüftflexion-Abduktion-Außenrotation",
+        "Knöchelgewicht",
+        "stehend"
+      ],
+      "aliases": [
+        "Diagonal Knee Drive",
+        "Diagonal Knee Drive / Hüftflexion-Abduktion-Außenrotation"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0172",
+      "name": "Beinbeuger mit adduziertem Bein",
+      "primaryMuscle": "M. gracilis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Adduktoren",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine",
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Maschine",
+        "Bodenschutzmatte"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0173",
+      "name": "Hüftflexion im Stand",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0174",
+      "name": "Hängendes Knieheben",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Klimmzugstange"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0175",
+      "name": "Liegendes Beinheben",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bank",
+        "Bodenschutzmatte",
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Bank",
+        "Bodenschutzmatte",
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Knöchelgewichte"
+      ],
+      "aliases": [],
+      "trackingType": "weight_or_bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0176",
+      "name": "Seated Leg Lift / Pike Compression",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte",
+        "Dipstangen"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte",
+        "Dipstangen"
+      ],
+      "variations": [
+        "Gewichte an Füßen"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0177",
+      "name": "Mountain Climber",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "Band",
+        "TRX"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "conditioning",
+      "movementPattern": "hip_flexion",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0178",
+      "name": "Marching Hip Flexion",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band um Füße",
+        "stehend/Rückenlage"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0179",
+      "name": "Reverse Squat am Kabel",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0180",
+      "name": "Step-up mit Kniehub",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [
+        "M. sartorius"
+      ],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [
+        "Hüfte/Hüftbeuger"
+      ],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Bank/Box",
+        "Box/Bank",
+        "Kniehub / Knee Drive"
+      ],
+      "aliases": [
+        "Step-up mit Knee Drive"
+      ],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "alternating",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0181",
+      "name": "L-Sit",
+      "primaryMuscle": "M. iliopsoas",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Dipstangen",
+        "Klimmzugstange"
+      ],
+      "sourceEquipment": [
+        "Dipstangen",
+        "Klimmzugstange"
+      ],
+      "variations": [
+        "tuck/gestreckt"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0182",
+      "name": "Curtsy Lunge mit Kniehub",
+      "primaryMuscle": "M. sartorius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Kurzhantel",
+        "Eigengewicht"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0183",
+      "name": "Clamshell mit Hüftflexion",
+      "primaryMuscle": "M. sartorius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "Knöchelgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "stability",
+      "movementPattern": "hip_abduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0184",
+      "name": "Figure-4 Leg Lift",
+      "primaryMuscle": "M. sartorius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0185",
+      "name": "Cross-body Mountain Climber",
+      "primaryMuscle": "M. sartorius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "TRX"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "conditioning",
+      "movementPattern": "hip_flexion",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0186",
+      "name": "Schneidersitz-Hüftflexion gegen Widerstand",
+      "primaryMuscle": "M. sartorius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0187",
+      "name": "Beinpresse",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "45°",
+        "einbeinig",
+        "horizontal",
+        "verschiedene Fußpositionen",
+        "vertikal"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Maschine"
+    },
+    {
+      "externalId": "EX-0188",
+      "name": "Beinstrecker",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "einbeinig/beidbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0189",
+      "name": "Hack Squat",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "Landmine Hack Squat",
+        "Pendulum Squat"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0190",
+      "name": "Sissy Squat",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht",
+        "Maschine"
+      ],
+      "variations": [
+        "belastet",
+        "Hackenschmidt"
+      ],
+      "aliases": [],
+      "trackingType": "weight_or_bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "knee_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0191",
+      "name": "Spanish Squat",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Gurt"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "knee_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0192",
+      "name": "Reverse Nordic Curl",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Band",
+        "gewichtet"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_extension",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0193",
+      "name": "Cyclist Squat / Fersen erhöhte Kniebeuge",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Multipresse"
+      ],
+      "variations": [],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0194",
+      "name": "Wall Sit",
+      "primaryMuscle": "M. quadriceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Quadrizeps",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "einbeinig",
+        "Gewichtsscheibe"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "squat",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0195",
+      "name": "Hüftabduktion mit leichter Hüftflexion",
+      "primaryMuscle": "M. tensor fasciae latae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "Seitenlage"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_abduction",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0196",
+      "name": "Stehende Hüftflexion-Abduktion",
+      "primaryMuscle": "M. tensor fasciae latae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0197",
+      "name": "Einbeiniger Wall Sit mit Abduktionsdruck",
+      "primaryMuscle": "M. tensor fasciae latae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Ball an Wand",
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "squat",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0198",
+      "name": "Lateral Step-down",
+      "primaryMuscle": "M. tensor fasciae latae",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hüfte/Hüftbeuger",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Gewicht",
+        "Stufe"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "lunge",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    },
+    {
+      "externalId": "EX-0199",
+      "name": "Beinbeuger",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm",
+        "Maschine"
+      ],
+      "variations": [
+        "Band",
+        "einbeinig",
+        "liegend",
+        "sitzend",
+        "stehend"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0200",
+      "name": "Nordic Hamstring Curl",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "Bandunterstützung",
+        "gewichtet"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0201",
+      "name": "Glute-Ham Raise",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "GHD"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "GHD",
+        "Nordic-Bank",
+        "unterstützt"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: GHD"
+    },
+    {
+      "externalId": "EX-0202",
+      "name": "Swiss-Ball Leg Curl",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Gymnastikball"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "beidbeinig",
+        "einbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Gymnastikball"
+    },
+    {
+      "externalId": "EX-0203",
+      "name": "Slider Leg Curl",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Bodenschutzmatte"
+      ],
+      "sourceEquipment": [
+        "Bodenschutzmatte"
+      ],
+      "variations": [
+        "beid-/einbeinig",
+        "Handtuch"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "knee_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0204",
+      "name": "Kettlebell Swing",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0205",
+      "name": "45-Grad-Hyperextension mit Hamstring-Fokus",
+      "primaryMuscle": "M. biceps femoris",
+      "secondaryMuscles": [],
+      "muscleGroup": "Hamstrings",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Langhantel"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht",
+        "Langhantel"
+      ],
+      "variations": [
+        "Scheibe"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "hip_hinge",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0206",
+      "name": "Dorsalflexion gegen Widerstand",
+      "primaryMuscle": "M. tibialis anterior",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Gewicht am Fuß",
+        "Tib-Bar"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0207",
+      "name": "Tibialis Raise",
+      "primaryMuscle": "M. tibialis anterior",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "an Wand",
+        "auf Keil",
+        "einbeinig",
+        "Tib-Bar"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0208",
+      "name": "Fersengang / Heel Walk",
+      "primaryMuscle": "M. tibialis anterior",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "mit Gewichtsweste",
+        "rückwärts",
+        "vorwärts"
+      ],
+      "aliases": [],
+      "trackingType": "distance_time",
+      "exerciseType": "isolation",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0209",
+      "name": "Toe Raise im Sitzen",
+      "primaryMuscle": "M. tibialis anterior",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht",
+        "Maschine"
+      ],
+      "variations": [
+        "Gewicht auf Vorfuß"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0210",
+      "name": "Dorsalflexion mit Inversion",
+      "primaryMuscle": "M. tibialis anterior",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0211",
+      "name": "Isometrischer Dorsalflexionshalt",
+      "primaryMuscle": "M. tibialis anterior",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "weight_time",
+      "exerciseType": "isometric",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0212",
+      "name": "Zehenextension II–V gegen Widerstand",
+      "primaryMuscle": "M. extensor digitorum longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "Therapieknete",
+        "Zehen-Extensor-Trainer"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "toe_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0213",
+      "name": "Dorsalflexion mit Eversion",
+      "primaryMuscle": "M. extensor digitorum longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelmanschette"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0214",
+      "name": "Tibialis Raise mit aktiver Zehenstreckung",
+      "primaryMuscle": "M. extensor digitorum longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "Tib-Bar",
+        "Wand"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0215",
+      "name": "Fersengang mit angehobenen Zehen",
+      "primaryMuscle": "M. extensor digitorum longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Gewichtsweste",
+        "rückwärts",
+        "vorwärts"
+      ],
+      "aliases": [],
+      "trackingType": "distance_time",
+      "exerciseType": "isolation",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0216",
+      "name": "Isometrische Zehenextension II–V",
+      "primaryMuscle": "M. extensor digitorum longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterarme",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "toe_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband"
+    },
+    {
+      "externalId": "EX-0217",
+      "name": "Großzehenextension gegen Widerstand",
+      "primaryMuscle": "M. extensor hallucis longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "manuelle Gegenkraft",
+        "Mini-Band",
+        "Therapieknete"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "toe_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0218",
+      "name": "Dorsalflexion mit betonter Großzehenextension",
+      "primaryMuscle": "M. extensor hallucis longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelmanschette"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0219",
+      "name": "Tibialis Raise mit aktiv angehobener Großzehe",
+      "primaryMuscle": "M. extensor hallucis longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "Tib-Bar",
+        "Wand"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0220",
+      "name": "Fersengang mit angehobener Großzehe",
+      "primaryMuscle": "M. extensor hallucis longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "rückwärts",
+        "vorwärts"
+      ],
+      "aliases": [],
+      "trackingType": "distance_time",
+      "exerciseType": "isolation",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0221",
+      "name": "Isometrische Großzehenextension",
+      "primaryMuscle": "M. extensor hallucis longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "toe_extension",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband"
+    },
+    {
+      "externalId": "EX-0222",
+      "name": "Sitzendes Wadenheben",
+      "primaryMuscle": "M. soleus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [
+        "einbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0223",
+      "name": "Wadenheben mit gebeugtem Knie",
+      "primaryMuscle": "M. soleus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Beinpresse",
+        "Smith Machine"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0224",
+      "name": "Soleus Raise an der Wand",
+      "primaryMuscle": "M. soleus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [
+        "Eigengewicht"
+      ],
+      "variations": [
+        "einbeinig",
+        "Zusatzgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0225",
+      "name": "Bent-knee Calf Raise auf Stufe",
+      "primaryMuscle": "M. soleus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Gewichtsweste"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0226",
+      "name": "Isometrischer Soleus-Halt",
+      "primaryMuscle": "M. soleus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "gebeugtes Knie",
+        "Wand/Beinpresse",
+        "Zusatzgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "plantar_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    },
+    {
+      "externalId": "EX-0227",
+      "name": "Schlittenziehen rückwärts mit Plantarflexionsfokus",
+      "primaryMuscle": "M. soleus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Schlitten"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Laufband ausgeschaltet",
+        "Schlitten"
+      ],
+      "aliases": [],
+      "trackingType": "weight_distance",
+      "exerciseType": "conditioning",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Schlitten"
+    },
+    {
+      "externalId": "EX-0228",
+      "name": "Fußeversion gegen Widerstand",
+      "primaryMuscle": "M. peroneus longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band",
+        "Knöchelmanschette"
+      ],
+      "aliases": [],
+      "trackingType": "reps_only",
+      "exerciseType": "isolation",
+      "movementPattern": "ankle_eversion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0229",
+      "name": "Wadenheben mit Eversions-/Druckfokus auf ersten Strahl",
+      "primaryMuscle": "M. peroneus longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Beinpresse",
+        "einbeinig",
+        "stehend"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0230",
+      "name": "Einbeiniger Balance-Hold mit Eversionskontrolle",
+      "primaryMuscle": "M. peroneus longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Balance-Pad",
+        "Bosu",
+        "Gewicht"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "ankle_eversion",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    },
+    {
+      "externalId": "EX-0231",
+      "name": "Lateral Step / Side Walk auf Vorfuß",
+      "primaryMuscle": "M. peroneus longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "Gewichtsweste"
+      ],
+      "aliases": [],
+      "trackingType": "distance_time",
+      "exerciseType": "isolation",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0232",
+      "name": "Eversions-Isometrie",
+      "primaryMuscle": "M. peroneus longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Widerstandsband"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "manuelle Gegenkraft",
+        "Wand"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "ankle_eversion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Widerstandsband"
+    },
+    {
+      "externalId": "EX-0233",
+      "name": "Heel Raise mit Ball zwischen Fersen und Druck über Großzehenballen",
+      "primaryMuscle": "M. peroneus longus",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht",
+        "Ball"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "stehend",
+        "Stufe",
+        "Zusatzgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht|Ball; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0234",
+      "name": "Eversion mit leichter Dorsalflexion",
+      "primaryMuscle": "M. peroneus brevis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Single Kabelturm"
+      ],
+      "sourceEquipment": [
+        "Single Kabelturm"
+      ],
+      "variations": [
+        "Band"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "dorsiflexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0235",
+      "name": "Einbeiniger Balance-Hold mit lateraler Stabilisation",
+      "primaryMuscle": "M. peroneus brevis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Balance-Pad",
+        "Bosu",
+        "Gewicht"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "ankle_eversion",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    },
+    {
+      "externalId": "EX-0236",
+      "name": "Lateral Step-down mit Fußgewölbekontrolle",
+      "primaryMuscle": "M. peroneus brevis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Stufe",
+        "Zusatzgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "bodyweight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "ankle_eversion",
+      "laterality": "unilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Klassifikation fachlich gegen gewünschte Library-Logik prüfen"
+    },
+    {
+      "externalId": "EX-0237",
+      "name": "Seitlicher Vorfußgang",
+      "primaryMuscle": "M. peroneus brevis",
+      "secondaryMuscles": [],
+      "muscleGroup": "Unterschenkel/Fuß",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "Band",
+        "Gewichtsweste"
+      ],
+      "aliases": [],
+      "trackingType": "distance_time",
+      "exerciseType": "isolation",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0238",
+      "name": "Stehendes Wadenheben",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "sourceEquipment": [
+        "Kurzhantel",
+        "Langhantel",
+        "Maschine",
+        "Multipresse"
+      ],
+      "variations": [
+        "einbeinig"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0239",
+      "name": "Wadenheben an der Beinpresse",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "45°",
+        "einbeinig",
+        "horizontal"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "compound",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Maschine"
+    },
+    {
+      "externalId": "EX-0240",
+      "name": "Donkey Calf Raise",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Maschine"
+      ],
+      "sourceEquipment": [
+        "Maschine"
+      ],
+      "variations": [
+        "Hüftgurt",
+        "Partner/Gewicht"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0241",
+      "name": "Calf Raise auf Stufe mit gestrecktem Knie",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Gewichtsweste"
+      ],
+      "aliases": [],
+      "trackingType": "weight_reps",
+      "exerciseType": "isolation",
+      "movementPattern": "plantar_flexion",
+      "laterality": "variable",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0242",
+      "name": "Pogo Jumps / Ankle Hops",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "beidbeinig",
+        "einbeinig",
+        "vorwärts/seitlich"
+      ],
+      "aliases": [],
+      "trackingType": "time_or_reps",
+      "exerciseType": "plyometric",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0243",
+      "name": "Seilspringen",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Springseil"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "beidbeinig",
+        "einbeinig",
+        "wechselnd"
+      ],
+      "aliases": [],
+      "trackingType": "time_or_reps",
+      "exerciseType": "conditioning",
+      "movementPattern": "locomotion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Springseil; Tracking-Typ fachlich prüfen"
+    },
+    {
+      "externalId": "EX-0244",
+      "name": "Farmer Walk auf Zehenspitzen",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "sourceEquipment": [
+        "Kettlebell",
+        "Kurzhantel"
+      ],
+      "variations": [
+        "Farmers Handles"
+      ],
+      "aliases": [],
+      "trackingType": "weight_distance",
+      "exerciseType": "carry",
+      "movementPattern": "carry",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "auto_ok",
+      "reviewNote": null
+    },
+    {
+      "externalId": "EX-0245",
+      "name": "Isometrischer Wadenhalt mit gestrecktem Knie",
+      "primaryMuscle": "M. gastrocnemius",
+      "secondaryMuscles": [],
+      "muscleGroup": "Waden",
+      "secondaryMuscleGroups": [],
+      "equipment": [
+        "Eigengewicht"
+      ],
+      "sourceEquipment": [],
+      "variations": [
+        "beidbeinig",
+        "einbeinig",
+        "Zusatzgewicht"
+      ],
+      "aliases": [],
+      "trackingType": "time",
+      "exerciseType": "isometric",
+      "movementPattern": "plantar_flexion",
+      "laterality": "bilateral",
+      "active": true,
+      "reviewStatus": "prüfen",
+      "reviewNote": "Equipment ergänzt: Eigengewicht"
+    }
+  ]
+}

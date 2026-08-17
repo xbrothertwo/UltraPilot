@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "gym:library:validate": "node scripts/gym-exercise-library.mjs",
+    "gym:library:generate": "node scripts/gym-exercise-library.mjs --generate",
+    "gym:library:import": "node scripts/gym-exercise-library.mjs --apply"
   },
   "dependencies": {
     "@garmin/fitsdk": "^21.208.0",

@@ -20,6 +20,8 @@ export type PlannedWorkout = {
   preferredStartTime: string | null;
   targetHeartRateZone: string | null;
   targetPowerZone: string | null;
+  gymProgramDayId?: string | null;
+  gymExerciseCount?: number | null;
 };
 
 export type PlanGeneration = { summary: string; caution: string | null; createdAt: string };
@@ -29,8 +31,14 @@ export async function getPlannedWorkouts(from: string, until: string): Promise<P
   await requireUser();
   const supabase = await createClient();
   if (!supabase) return [];
-  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,personal_note,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id,locked,preferred_start_time,target_heart_rate_zone,target_power_zone").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
+  const { data, error } = await supabase.from("planned_workouts").select("id,scheduled_date,sport_type,title,description,personal_note,intensity,planned_duration_minutes,planned_distance_km,status,linked_activity_id,source,generation_id,locked,preferred_start_time,target_heart_rate_zone,target_power_zone,gym_program_day_id").gte("scheduled_date", from).lte("scheduled_date", until).order("scheduled_date");
   if (error) return [];
+  const gymDayIds = [...new Set((data ?? []).flatMap((row) => row.gym_program_day_id ? [row.gym_program_day_id] : []))];
+  const { data: gymExercises } = gymDayIds.length
+    ? await supabase.from("gym_program_exercises").select("program_day_id").in("program_day_id", gymDayIds)
+    : { data: [] };
+  const gymCounts = new Map<string, number>();
+  for (const row of gymExercises ?? []) gymCounts.set(row.program_day_id, (gymCounts.get(row.program_day_id) ?? 0) + 1);
   return (data ?? []).map((row) => ({
     id: row.id,
     scheduledDate: row.scheduled_date,
@@ -49,6 +57,8 @@ export async function getPlannedWorkouts(from: string, until: string): Promise<P
     preferredStartTime: typeof row.preferred_start_time === "string" ? row.preferred_start_time.slice(0, 5) : null,
     targetHeartRateZone: row.target_heart_rate_zone,
     targetPowerZone: row.target_power_zone,
+    gymProgramDayId: row.gym_program_day_id,
+    gymExerciseCount: row.gym_program_day_id ? gymCounts.get(row.gym_program_day_id) ?? 0 : null,
   }));
 }
 

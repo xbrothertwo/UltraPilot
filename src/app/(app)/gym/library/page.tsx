@@ -1,0 +1,21 @@
+import { createCustomExercise } from "@/app/gym/actions";
+import { ExerciseLibrary } from "@/components/gym/exercise-library";
+import { PageHeading } from "@/components/page-heading";
+import { isDemoMode } from "@/lib/demo-data";
+import { getExerciseLibrary } from "@/lib/gym/data";
+import { gymTrackingTypes } from "@/lib/gym/types";
+
+export const metadata = { title: "Exercise Library" };
+export const dynamic = "force-dynamic";
+type Props = { searchParams: Promise<{ custom?: string; error?: string; saved?: string }> };
+
+export default async function GymLibraryPage({ searchParams }: Props) {
+  const query = await searchParams;
+  const exercises = await getExerciseLibrary();
+  const equipment = [...new Set(exercises.flatMap((exercise) => exercise.equipment))].sort((a, b) => a.localeCompare(b, "de"));
+  return <><PageHeading eyebrow="Gym · Bibliothek" title="Die richtige Übung in Sekunden." description="Suche nach Namen, Alias oder Variation und filtere die globale Library nach Muskel, Equipment und Bewegungsmuster." />
+    {query.error ? <p role="alert" className="mb-4 rounded-xl bg-[var(--danger-soft)] p-3 text-sm font-bold text-[var(--danger)]">{query.error}</p> : null}
+    {query.custom === "open" ? <section id="custom-exercise" className="card mb-5 p-5"><div><p className="eyebrow">Eigene Übung</p><h2 className="mt-2 text-xl font-black">Custom Exercise anlegen</h2></div><form action={createCustomExercise} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="text-xs font-bold">Name<input name="name" required maxLength={160} className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3"/></label><label className="text-xs font-bold">Muskelgruppe<input name="muscleGroup" required maxLength={100} className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3"/></label><label className="text-xs font-bold">Konkreter Muskel optional<input name="primaryMuscle" maxLength={160} className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3"/></label><label className="text-xs font-bold">Equipment<select name="equipment" className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3"><option value="">Keins / Sonstiges</option>{equipment.map((item) => <option key={item}>{item}</option>)}</select></label><label className="text-xs font-bold">Tracking-Typ<select name="trackingType" className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3">{gymTrackingTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label className="text-xs font-bold">Übungstyp<select name="exerciseType" className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3">{["compound","isolation","core","carry","isometric","plyometric","conditioning","stability"].map((item) => <option key={item}>{item}</option>)}</select></label><label className="text-xs font-bold">Bewegungsmuster optional<input name="movementPattern" maxLength={100} className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3"/></label><label className="text-xs font-bold">Seitenmodus<select name="laterality" className="mt-1 min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3"><option value="bilateral">bilateral</option><option value="unilateral">unilateral</option><option value="alternating">alternating</option><option value="variable">variable</option></select></label><label className="text-xs font-bold sm:col-span-2 lg:col-span-3">Eigene Notizen<textarea name="notes" maxLength={2000} rows={2} className="mt-1 w-full rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3"/></label><button disabled={isDemoMode} className="primary-button self-end disabled:opacity-50">{isDemoMode ? "Nach Migration verfügbar" : "Übung speichern"}</button></form></section> : null}
+    {exercises.length ? <ExerciseLibrary exercises={exercises} demoMode={isDemoMode}/> : <section className="card p-10 text-center"><h2 className="text-xl font-black">Exercise Library noch nicht importiert</h2><p className="mt-2 text-sm text-[var(--muted)]">Führe zuerst die Gym-Migration und danach den validierten CSV-Import aus.</p></section>}
+  </>;
+}

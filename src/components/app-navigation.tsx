@@ -14,6 +14,7 @@ type IconName =
   | "progress"
   | "activities"
   | "nutrition"
+  | "gym"
   | "settings"
   | "plus"
   | "more"
@@ -43,6 +44,7 @@ const links: NavigationLink[] = [
   { href: "/plan", label: "Plan", icon: "plan" },
   { href: "/activities", label: "Aktivitäten", icon: "activities" },
   { href: "/progress", label: "Fortschritt", icon: "progress" },
+  { href: "/gym", label: "Gym", icon: "gym" },
   { href: "/mission", label: "Missionen", icon: "mission" },
   { href: "/nutrition", label: "Verpflegung", icon: "nutrition" },
   { href: "/notifications", label: "Benachrichtigungen", icon: "bell", soon: true },
@@ -91,6 +93,11 @@ function Icon({
     nutrition: (
       <>
         <path d="M6 3v6a4 4 0 0 0 8 0V3M6 6h8M10 13v4" />
+      </>
+    ),
+    gym: (
+      <>
+        <path d="M3 8v4M6 6v8M14 6v8M17 8v4M6 10h8" />
       </>
     ),
     settings: (
@@ -196,6 +203,7 @@ export function AppNavigation({
     findLink("/progress"),
   ];
   const mobileMoreLinks: NavigationLink[] = [
+    findLink("/gym"),
     findLink("/mission"),
     findLink("/nutrition"),
     findLink("/notifications"),
@@ -279,7 +287,7 @@ export function AppNavigation({
             <p className="mb-2 px-3 text-[.68rem] font-bold text-[var(--muted)]">
               Cockpit
             </p>
-            {links.filter((link) => ["/dashboard", "/plan", "/activities", "/progress", "/mission"].includes(link.href)).map((link) => {
+            {links.filter((link) => ["/dashboard", "/plan", "/activities", "/progress", "/gym", "/mission"].includes(link.href)).map((link) => {
               const active = isActive(pathname, link.href);
               return (
                 <Link
