@@ -13,6 +13,7 @@ describe("prominent dashboard check-in", () => {
     expect(html).toContain("Daily Check-in");
     expect(html).toContain("Wie fühlst du dich heute?");
     expect(html).toContain("Check-in starten");
+    expect(html).toContain('/plan?checkin=open#daily-readiness');
     expect(html).toContain('data-testid="daily-check-in"');
   });
 
@@ -24,5 +25,6 @@ describe("prominent dashboard check-in", () => {
     expect(html).toContain(decision.summary);
     expect(html).toContain("Als Nächstes: Lockerer Lauf");
     expect(html).toContain("Check-in korrigieren");
+    expect(html).toContain('/plan?checkin=open#daily-readiness');
   });
 });
