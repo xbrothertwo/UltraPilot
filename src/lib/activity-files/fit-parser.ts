@@ -5,6 +5,11 @@ import type { ActivityStream, ParsedActivityFile, SensorSample, StreamType } fro
 const MOVING_THRESHOLD_MPS = 0.5;
 export const FIT_PARSER_VERSION = "fit-v1";
 
+function detectedSport(value: unknown): "cycling" | "running" | null {
+  if (value === "cycling" || value === "running") return value;
+  return null;
+}
+
 function validNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
@@ -117,5 +122,10 @@ export function parseFit(bytes: Uint8Array, source: ActivityStream["source"] = "
     makeStream("speed", "mps", speed, source),
     makeStream("altitude", "meter", altitude, source),
   ].filter((value): value is ActivityStream => value !== null);
-  return { metrics, streams, fileType: "fit" };
+  return {
+    metrics,
+    streams,
+    fileType: "fit",
+    detectedSportType: detectedSport(session?.sport),
+  };
 }

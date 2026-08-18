@@ -1,6 +1,6 @@
 import type { SubjectiveFeedback } from "@/lib/activity-journal";
 import type { NutritionSummary } from "@/lib/nutrition-analysis";
-import type { PlanComparison } from "@/lib/planning/reconciliation";
+import { isPlanComparisonClose, type PlanComparison } from "@/lib/planning/reconciliation";
 import type { PlannedWorkout } from "@/lib/planning/workouts";
 import { buildFuelingPreparation } from "./daily-cockpit";
 import { compareLoadToPlan, type ActivityLoad } from "./training-load";
@@ -24,9 +24,8 @@ function planSignal(workout: PlannedWorkout | null, comparison: PlanComparison |
   const loadComparison = compareLoadToPlan(load?.points ?? null, workout.intensity, workout.plannedDurationMinutes);
   if (loadComparison.comparison === "higher") return { label: "Soll / Ist", value: "Härter als geplant", detail: `Gemessene Last ${load?.points?.toLocaleString("de-DE", { maximumFractionDigits: 0 })} UPL · Soll etwa ${loadComparison.expectedPoints?.toLocaleString("de-DE", { maximumFractionDigits: 0 })} UPL.`, tone: "warning" };
   if (loadComparison.comparison === "lower") return { label: "Soll / Ist", value: "Leichter als geplant", detail: `Distanz ${signed(comparison.distanceDeltaKm, "km")} · Dauer ${signed(comparison.durationDeltaMinutes, "min")}.`, tone: "info" };
-  const closeDistance = comparison.distanceRatio === null || (comparison.distanceRatio >= .85 && comparison.distanceRatio <= 1.15);
-  const closeDuration = comparison.durationRatio === null || (comparison.durationRatio >= .85 && comparison.durationRatio <= 1.15);
-  return { label: "Soll / Ist", value: closeDistance && closeDuration ? "Plan getroffen" : "Umfang abweichend", detail: `Distanz ${signed(comparison.distanceDeltaKm, "km")} · Dauer ${signed(comparison.durationDeltaMinutes, "min")}.`, tone: closeDistance && closeDuration ? "good" : "info" };
+  const planClose = isPlanComparisonClose(comparison);
+  return { label: "Soll / Ist", value: planClose ? "Plan getroffen" : "Umfang abweichend", detail: `Distanz ${signed(comparison.distanceDeltaKm, "km")} · Dauer ${signed(comparison.durationDeltaMinutes, "min")}.`, tone: planClose ? "good" : "info" };
 }
 
 function signed(value: number | null, unit: string): string {

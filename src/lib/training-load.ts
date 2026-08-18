@@ -19,6 +19,7 @@ export type PlannedLoadComparison = "lower" | "as_planned" | "higher" | "unavail
 
 const HEART_RATE_WEIGHTS = [0.4, 0.8, 1.2, 1.6, 2];
 const PLANNED_INTENSITY_POINTS_PER_MINUTE: Record<string, number> = { recovery: 0.4, easy: 0.6, endurance: 0.8, tempo: 1.2, threshold: 1.6, vo2: 2 };
+export const PERSONAL_LOAD_REFERENCE_MIN_ACTIVITIES = 5;
 
 function rounded(value: number, digits = 1): number {
   const factor = 10 ** digits;
@@ -68,7 +69,7 @@ function calculateSingleLoad(activity: Activity, feedback: LoadFeedback | undefi
 
 function personalLevel(points: number | null, previous: number[]): LoadLevel {
   if (points === null) return "unavailable";
-  if (previous.length < 5) return absoluteLevel(points);
+  if (previous.length < PERSONAL_LOAD_REFERENCE_MIN_ACTIVITIES) return absoluteLevel(points);
   const sorted = [...previous].sort((a, b) => a - b);
   const lightBoundary = sorted[Math.floor((sorted.length - 1) * 0.35)];
   const highBoundary = sorted[Math.floor((sorted.length - 1) * 0.75)];

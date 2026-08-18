@@ -100,12 +100,14 @@ export const defaultPlanningProfile: PlanningProfile = {
 export type PlanningGoalSummary = {
   eventName: string | null;
   targetYear: number | null;
+  targetDate: string | null;
   eventDistanceKm: number | null;
 };
 
 export const defaultPlanningGoalSummary: PlanningGoalSummary = {
   eventName: null,
   targetYear: null,
+  targetDate: null,
   eventDistanceKm: null,
 };
 
@@ -122,7 +124,7 @@ export async function getPlanningGoalSummary(): Promise<PlanningGoalSummary> {
 
   const { data, error } = await supabase
     .from("training_goals")
-    .select("event_name,target_year,event_distance_km")
+    .select("event_name,target_year,target_date,event_distance_km")
     .maybeSingle();
 
   if (error || !data) {
@@ -132,6 +134,7 @@ export async function getPlanningGoalSummary(): Promise<PlanningGoalSummary> {
   return {
     eventName: data.event_name ?? null,
     targetYear: data.target_year ?? null,
+    targetDate: data.target_date ?? null,
     eventDistanceKm:
       data.event_distance_km === null || data.event_distance_km === undefined
         ? null

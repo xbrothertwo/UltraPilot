@@ -202,6 +202,7 @@ export default async function DashboardPage({
     todayItems[0] ??
     null;
   const primaryWorkout = primaryItem?.workout ?? null;
+  const completedActivity = primaryItem?.effectiveStatus === "completed" ? primaryItem.activity : null;
   const readiness = buildReadinessRange(
     [todayKey],
     recovery.metrics,
@@ -580,7 +581,7 @@ export default async function DashboardPage({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-[.65rem] font-black uppercase tracking-[.15em] text-blue-100/50">
-                      Heute geplant
+                      {completedActivity ? "Heute absolviert" : "Heute geplant"}
                     </p>
                     {primaryWorkout && (
                       <span className="rounded-full bg-white/10 px-2.5 py-1 text-[.65rem] font-bold text-blue-50">
@@ -592,7 +593,10 @@ export default async function DashboardPage({
                     {primaryWorkout?.title ?? "Kein Training"}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold text-blue-50/75">
-                    {primaryWorkout ? (
+                    {completedActivity ? <>
+                      <span>{Math.round(completedActivity.movingTimeSeconds / 60)} min tatsächlich</span>
+                      {completedActivity.distanceMeters > 0 && <span>{(completedActivity.distanceMeters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km tatsächlich</span>}
+                    </> : primaryWorkout ? (
                       <>
                         <span>
                           {primaryWorkout.plannedDurationMinutes
@@ -613,10 +617,10 @@ export default async function DashboardPage({
                 </div>
               </div>
               <Link
-                href={primaryWorkout ? "#training-details" : "/plan"}
+                href={completedActivity ? `/activities/${completedActivity.id}` : primaryWorkout ? "#training-details" : "/plan"}
                 className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-white px-4 py-2 text-sm font-black text-[#0b2145] transition hover:bg-blue-50"
               >
-                {primaryWorkout ? "Einheit ansehen" : "Plan öffnen"}{" "}
+                {completedActivity ? "Aktivität ansehen" : primaryWorkout ? "Einheit ansehen" : "Plan öffnen"}{" "}
                 <span className="ml-2" aria-hidden>
                   →
                 </span>
@@ -707,8 +711,8 @@ export default async function DashboardPage({
             <div className="p-4 sm:p-6">
               {primaryWorkout ? (
                 <details
-                  open
-                  className="group rounded-2xl border border-blue-100 bg-blue-50/55 p-4 dark:border-blue-400/20 dark:bg-blue-400/10"
+                  open={!completedActivity}
+                  className={`group rounded-2xl border p-4 ${completedActivity ? "border-emerald-200 bg-emerald-50/60 dark:border-emerald-400/20 dark:bg-emerald-400/10" : "border-blue-100 bg-blue-50/55 dark:border-blue-400/20 dark:bg-blue-400/10"}`}
                 >
                   <summary className="flex list-none items-center gap-3">
                     <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-600 text-white">
@@ -718,7 +722,7 @@ export default async function DashboardPage({
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-[.65rem] font-black uppercase tracking-wider text-blue-600">
-                        Training · flexibel
+                        {completedActivity ? "Training · abgeschlossen" : "Training · flexibel"}
                       </p>
                       <p className="truncate font-black text-[var(--ink)]">
                         {primaryWorkout.title}
@@ -732,7 +736,7 @@ export default async function DashboardPage({
                     </span>
                   </summary>
                   <div className="mt-4 border-t border-blue-100 pt-4">
-                    {strength ? (
+                    {completedActivity ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-4"><Metric label="Geplant" value={`${primaryWorkout.plannedDistanceKm ?? "–"} km · ${primaryWorkout.plannedDurationMinutes ?? "–"} min`} /><Metric label="Tatsächlich" value={`${completedActivity.distanceMeters > 0 ? `${(completedActivity.distanceMeters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km · ` : ""}${Math.round(completedActivity.movingTimeSeconds / 60)} min`} /></div> : strength ? (
                       <>
                         <p className="text-sm font-bold text-[var(--muted)]">
                           Einheit {strength.variant} · {strength.focus}
