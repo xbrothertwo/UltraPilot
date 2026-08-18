@@ -39,9 +39,39 @@ describe("dashboard view model", () => {
   });
 
   it("does not invent averages or a weekly goal for empty or invalid values", () => {
-    const result = build("running", [activity("empty", "running", 0, 0)], null);
+    const result = buildDashboardViewModel({
+      primarySport: "running",
+      selectedSports: ["running", "strength"],
+      desiredSessionsPerWeek: 3,
+      weeklyGoalKm: null,
+      weekActivities: [activity("empty", "running", 0, 0)],
+      reconciledWorkouts: [],
+      today: "2026-08-03",
+      latestActivities: [],
+    });
     expect(result.metrics.map((item) => item.value)).toEqual(["–", "–", "–"]);
     expect(result.weeklyGoal).toMatchObject({ targetKm: null, progressPercent: null });
+    expect(result.weeklyGoal.summary).toBe("3 Läufe pro Woche geplant.");
+    expect(result.weekTitle).toBe("Deine Trainingswoche");
+  });
+
+  it("renders Gym-only onboarding without fake running metrics", () => {
+    const strength = activity("strength", "strength", 0, 3600);
+    const result = buildDashboardViewModel({
+      primarySport: "running",
+      selectedSports: ["strength"],
+      strengthSessionsPerWeek: 3,
+      weeklyGoalKm: null,
+      weekActivities: [strength],
+      reconciledWorkouts: [],
+      today: "2026-08-03",
+      latestActivities: [strength],
+    });
+    expect(result.sportLabel).toBe("Krafttraining");
+    expect(result.sportIcon).toBe("strength");
+    expect(result.weeklyGoal.summary).toBe("3 Krafttrainings pro Woche geplant.");
+    expect(result.showFueling).toBe(false);
+    expect(result.metrics.some((metric) => metric.label.includes("Lauf"))).toBe(false);
   });
 
   it.each(["cycling", "running"] as const)("keeps a planned %s workout visible without counting it as completed", (sport) => {

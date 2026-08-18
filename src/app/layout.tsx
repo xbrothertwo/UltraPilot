@@ -5,7 +5,7 @@ import { getThemeInitScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: { default: "UltraPilot", template: "%s · UltraPilot" },
-  description: "Dein persönliches Cockpit für Rad- und Ultracycling-Training",
+  description: "Laufen, Radfahren und Krafttraining in einem Plan – passend zu deinem echten Leben.",
   applicationName: "UltraPilot",
   manifest: "/manifest.webmanifest",
   appleWebApp: {

@@ -117,7 +117,14 @@ const intensityLabels: Record<PlannedWorkout["intensity"], string> = {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; error?: string; goal?: string }>;
+  searchParams: Promise<{
+    saved?: string;
+    error?: string;
+    goal?: string;
+    firstPlan?: "ready" | "empty" | "error";
+    generated?: string;
+    planWeek?: string;
+  }>;
 }) {
   const query = await searchParams;
   if (isSupabaseConfigured() && !(await hasCompletedOnboarding()))
@@ -128,8 +135,14 @@ export default async function DashboardPage({
   const weekStart = berlinWeek.start;
   const weekEnd = berlinWeek.end;
   const previewEnd = addBerlinCalendarDays(todayKey, 3);
-  const rangeStart = berlinWeek.startsAt;
-  const rangeEnd = berlinDayInterval(previewEnd > weekEnd ? previewEnd : weekEnd).endExclusive;
+  const nextWeekStart = addBerlinCalendarDays(weekStart, 7);
+  const requestedPlanWeek = query.planWeek === nextWeekStart ? nextWeekStart : weekStart;
+  const firstPlanWeek = query.firstPlan ? requestedPlanWeek : weekStart;
+  const firstPlanWeekEnd = addBerlinCalendarDays(firstPlanWeek, 6);
+  const workoutRangeStart = firstPlanWeek < weekStart ? firstPlanWeek : weekStart;
+  const workoutRangeEnd = [previewEnd, weekEnd, firstPlanWeekEnd].sort().at(-1)!;
+  const rangeStart = berlinDayInterval(workoutRangeStart).startInclusive;
+  const rangeEnd = berlinDayInterval(workoutRangeEnd).endExclusive;
 
   const [
     planning,
@@ -144,7 +157,7 @@ export default async function DashboardPage({
     activeGymSession,
   ] = await Promise.all([
     getPlanningData({ from: rangeStart, until: rangeEnd }),
-    getPlannedWorkouts(weekStart, previewEnd),
+    getPlannedWorkouts(workoutRangeStart, workoutRangeEnd),
     getActivities(),
     getRecoveryData(todayKey, todayKey),
     getTrainingLoadSummary(28),
@@ -258,10 +271,20 @@ export default async function DashboardPage({
     new Map([[todayKey, readiness.status]]),
     planning.profile.beforeLateShiftAllowed,
     planning.profile.afterNightShiftAllowed,
-  );
+  ).map((day) => ({
+    ...day,
+    availableMinutes: planning.profile.availableWeekdays.includes(
+      new Date(`${day.date}T12:00:00Z`).getUTCDay() || 7,
+    )
+      ? day.availableMinutes
+      : 0,
+  }));
   const weeklyRecommendation = recommendWeeklyTarget({
     primarySport,
-    runningSessionsPerWeek: planning.profile.runningSessionsPerWeek,
+    runningSessionsPerWeek:
+      primarySport === "running"
+        ? planning.profile.runningSessionsPerWeek
+        : planning.profile.cyclingSessionsPerWeek,
     referenceGoalKm: planning.profile.weeklyDistanceGoalKm,
     days: recommendationDays,
     recentFourWeekDistanceKm: recentDistanceKm,
@@ -274,6 +297,12 @@ export default async function DashboardPage({
   });
   const dashboard = buildDashboardViewModel({
     primarySport,
+    selectedSports: planning.profile.selectedSports,
+    desiredSessionsPerWeek:
+      primarySport === "running"
+        ? planning.profile.runningSessionsPerWeek
+        : planning.profile.cyclingSessionsPerWeek,
+    strengthSessionsPerWeek: planning.profile.gymSummerSessions,
     weeklyGoalKm: planning.weeklyGoal.status === "valid" ? weeklyRecommendation.planningTargetKm : null,
     weekActivities,
     reconciledWorkouts: reconciled,
@@ -324,6 +353,34 @@ export default async function DashboardPage({
       (metric) => metric.asleepMinutes > 0,
     ).length,
   });
+  const firstPlanItems = reconciled.filter(
+    (item) =>
+      item.effectiveStatus !== "skipped" &&
+      item.workout.scheduledDate >= firstPlanWeek &&
+      item.workout.scheduledDate <= firstPlanWeekEnd,
+  );
+  const firstPlanCounts = firstPlanItems.reduce(
+    (counts, item) => {
+      counts[item.workout.sportType] = (counts[item.workout.sportType] ?? 0) + 1;
+      return counts;
+    },
+    {} as Partial<Record<PlannedWorkout["sportType"], number>>,
+  );
+  const nextPlanned = reconciled
+    .filter((item) => item.effectiveStatus === "planned" && item.workout.scheduledDate >= todayKey)
+    .sort((a, b) => a.workout.scheduledDate.localeCompare(b.workout.scheduledDate))[0] ?? null;
+  const firstPlanToday = firstPlanItems.find(
+    (item) => item.effectiveStatus !== "skipped" && item.workout.scheduledDate === todayKey,
+  )?.workout ?? null;
+  const nextPlannedWeek = nextPlanned
+    ? berlinWeekRange(dateAtNoon(nextPlanned.workout.scheduledDate)).start
+    : weekStart;
+  const sportSummary = [
+    firstPlanCounts.running ? `${firstPlanCounts.running} ${firstPlanCounts.running === 1 ? "Lauf" : "Läufe"}` : null,
+    firstPlanCounts.cycling ? `${firstPlanCounts.cycling} ${firstPlanCounts.cycling === 1 ? "Radeinheit" : "Radeinheiten"}` : null,
+    firstPlanCounts.strength ? `${firstPlanCounts.strength} ${firstPlanCounts.strength === 1 ? "Krafttraining" : "Krafttrainings"}` : null,
+    firstPlanCounts.volleyball ? `${firstPlanCounts.volleyball}× Volleyball` : null,
+  ].filter((value): value is string => value !== null);
 
   return (
     <>
@@ -371,9 +428,85 @@ export default async function DashboardPage({
         </InlineAlert>
       )}
 
+      {query.firstPlan === "ready" && (
+        <section className="card mb-4 overflow-hidden border-[color-mix(in_srgb,var(--accent)_35%,var(--line))] p-5 sm:mb-6 sm:p-7" aria-labelledby="first-plan-title">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow">Setup abgeschlossen</p>
+              <h2 id="first-plan-title" className="mt-2 text-2xl font-black sm:text-3xl">Dein erster Plan ist bereit.</h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                {sportSummary.length > 0
+                  ? `Diese Woche: ${sportSummary.join(" · ")}.`
+                  : "Deine Regeln sind gespeichert; für diese Woche ist aktuell keine Einheit offen."}
+              </p>
+              <p className="mt-3 text-sm font-bold">
+                {firstPlanToday
+                  ? `Heute: ${firstPlanToday.title}`
+                  : nextPlanned
+                    ? `Heute ist Erholung. Als Nächstes: ${dayLabel(nextPlanned.workout.scheduledDate)} · ${nextPlanned.workout.title}`
+                    : "Heute ist Erholung. Für diese Woche ist keine weitere Einheit offen."}
+              </p>
+              {planning.profile.selectedSports.includes("strength") &&
+                firstPlanCounts.strength &&
+                !workouts.some((workout) => workout.gymProgramDayId) && (
+                  <p className="mt-2 text-xs leading-5 text-[var(--muted)]">
+                    Deine Krafttermine stehen bereits. Wähle im geführten Gym Builder anschließend die konkreten Übungen.
+                  </p>
+                )}
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {planning.profile.selectedSports.includes("strength") &&
+                !workouts.some((workout) => workout.gymProgramDayId) && (
+                  <Link href="/gym/programs/new?guided=1" className="secondary-button">Gym-Plan einrichten</Link>
+                )}
+              <Link href={`/plan?week=${firstPlanWeek}`} className="primary-button">Plan ansehen</Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {(query.firstPlan === "empty" || query.firstPlan === "error") && (
+        <section className="card mb-4 p-5 sm:mb-6 sm:p-6">
+          <p className="eyebrow">Plan braucht noch einen Anlauf</p>
+          <h2 className="mt-2 text-xl font-black">Dein Profil ist sicher gespeichert.</h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+            Prüfe deine verfügbaren Tage oder starte die deterministische Planung erneut. Ein leerer Plan wird nicht als erreichtes Wochenziel ausgegeben.
+          </p>
+          <form action={generateWeeklyPlan} className="mt-4">
+            <input type="hidden" name="week" value={firstPlanWeek} />
+            <input type="hidden" name="firstRun" value="true" />
+            <button type="submit" className="primary-button">Ersten Plan erneut erstellen</button>
+          </form>
+        </section>
+      )}
+
       <div className="mb-4 mt-4 sm:mb-6">
         <DashboardCheckIn readiness={readiness} decision={decision} workoutTitle={primaryWorkout?.title ?? null} />
       </div>
+
+      <section className="card mb-4 flex flex-col gap-4 p-5 sm:mb-6 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="next-up-title">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]">
+            <DashboardIcon name={nextPlanned ? dashboardSportIcon(nextPlanned.workout.sportType) : "calendar"} />
+          </span>
+          <div className="min-w-0">
+            <p className="eyebrow">Als Nächstes</p>
+            <h2 id="next-up-title" className="mt-1 truncate text-lg font-black">
+              {nextPlanned?.workout.title ?? "Noch keine weitere Einheit geplant"}
+            </h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              {nextPlanned ? (
+                <>
+                  {dayLabel(nextPlanned.workout.scheduledDate)}
+                  {nextPlanned.workout.plannedDurationMinutes ? ` · ${nextPlanned.workout.plannedDurationMinutes} min` : ""}
+                  {nextPlanned.workout.plannedDistanceKm !== null ? ` · ${nextPlanned.workout.plannedDistanceKm} km` : ""}
+                </>
+              ) : "Öffne den Plan, um eine neue Woche zu erstellen oder eine Einheit hinzuzufügen."}
+            </p>
+          </div>
+        </div>
+        <Link href={`/plan?week=${nextPlannedWeek}`} className="secondary-button shrink-0">Plan öffnen</Link>
+      </section>
 
       <section className="card mb-4 p-5 sm:mb-6 sm:p-6" aria-labelledby="primary-sport-week">
         <div className="flex items-center gap-3">
@@ -392,7 +525,7 @@ export default async function DashboardPage({
             </div>
           ))}
           <div className="min-w-0 rounded-2xl bg-[var(--surface-raised)] p-4">
-            <BloomMetric label={dashboard.weeklyGoal.label} value={weeklyGoal === null ? "Nicht festgelegt" : dashboard.weeklyGoal.summary} />
+            <BloomMetric label={weeklyGoal === null ? "Trainingsfrequenz" : dashboard.weeklyGoal.label} value={dashboard.weeklyGoal.summary} />
           </div>
         </div>
         {weeklyGoal !== null && <div className="mt-5"><Progress label={`${dashboard.weeklyGoal.label} · ${Math.max(0, weeklyGoal - actualKm).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km offen`} value={progress} /></div>}
@@ -868,7 +1001,15 @@ export default async function DashboardPage({
             </article>
           )}
 
-          <DashboardMissionSummary selection={missionSelection} control={mission} />
+          <DashboardMissionSummary
+            selection={missionSelection}
+            control={mission}
+            fallbackGoal={{
+              name: planning.profile.eventName,
+              targetDate: planning.profile.targetDate,
+              distanceKm: planning.profile.eventDistanceKm,
+            }}
+          />
 
           <article className="card p-5 sm:p-6">
             <div className="flex items-center gap-3">

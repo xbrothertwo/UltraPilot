@@ -154,6 +154,8 @@ describe("responsive training calendar", () => {
   let keydown: ((event: KeyboardEvent) => void) | undefined;
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-17T12:00:00Z"));
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     vi.stubGlobal("window", {
       addEventListener: vi.fn((type: string, listener: (event: KeyboardEvent) => void) => {
@@ -169,6 +171,7 @@ describe("responsive training calendar", () => {
 
   afterEach(() => {
     if (renderer) act(() => renderer.unmount());
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.clearAllMocks();
   });

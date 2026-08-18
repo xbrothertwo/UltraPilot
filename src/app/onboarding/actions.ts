@@ -1,14 +1,17 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { buildOnboardingRpcArguments } from "@/lib/onboarding-input";
+import { generateWeeklyPlan } from "@/app/plan/actions";
+import { buildOnboardingV2RpcArguments } from "@/lib/onboarding-input";
+import { firstPlanningWeekStart } from "@/lib/onboarding-planning";
 import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export async function completeOnboarding(formData: FormData) {
+  let firstPlanWeek = "";
   try {
-    const rpcArguments =
-      buildOnboardingRpcArguments(formData);
+    const rpcArguments = buildOnboardingV2RpcArguments(formData);
+    firstPlanWeek = firstPlanningWeekStart(rpcArguments.p_available_weekdays);
 
     await requireUser();
 
@@ -19,7 +22,7 @@ export async function completeOnboarding(formData: FormData) {
     }
 
     const { error } = await supabase.rpc(
-      "complete_onboarding",
+      "complete_onboarding_v2",
       rpcArguments,
     );
 
@@ -36,5 +39,8 @@ export async function completeOnboarding(formData: FormData) {
     );
   }
 
-  redirect("/dashboard?saved=onboarding");
+  const planForm = new FormData();
+  planForm.set("week", firstPlanWeek);
+  planForm.set("firstRun", "true");
+  await generateWeeklyPlan(planForm);
 }
