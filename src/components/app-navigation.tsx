@@ -30,6 +30,7 @@ type NavigationLink = {
 type NavigationGoal = {
   eventName: string | null;
   targetYear: number | null;
+  targetDate: string | null;
   eventDistanceKm: number | null;
 };
 
@@ -226,9 +227,11 @@ export function AppNavigation({
       : "Noch kein Trainingsziel";
 
   const missionSubline =
-    missionGoal.targetYear !== null
-      ? `Zielkorridor ${missionGoal.targetYear}`
-      : "Zieljahr nicht festgelegt";
+    missionGoal.targetDate
+      ? `Event am ${new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${missionGoal.targetDate}T12:00:00Z`))}`
+      : missionGoal.targetYear !== null
+        ? `Zielkorridor ${missionGoal.targetYear}`
+        : "Eventdatum nicht festgelegt";
 
   useEffect(() => {
     if (!moreOpen) return;

@@ -198,7 +198,7 @@ export async function getActiveGymSession(): Promise<Pick<GymSession, "id" | "na
   return data ? { id: data.id, name: data.name, startedAt: data.started_at, status: data.status } : null;
 }
 
-export type GymHistoryItem = { id: string; name: string; programName: string | null; startedAt: string; durationSeconds: number | null; exerciseCount: number; workingSets: number };
+export type GymHistoryItem = { id: string; name: string; programName: string | null; plannedWorkoutId: string | null; startedAt: string; durationSeconds: number | null; exerciseCount: number; workingSets: number };
 
 export async function getGymHistory(limit = 30, filters: { since?: string; programId?: string; exerciseId?: string } = {}): Promise<GymHistoryItem[]> {
   if (isDemoMode) return [];
@@ -212,14 +212,14 @@ export async function getGymHistory(limit = 30, filters: { since?: string; progr
     sessionIds = [...new Set((matchingExercises ?? []).map((row) => row.session_id))];
     if (!sessionIds.length) return [];
   }
-  let query = supabase.from("gym_sessions").select("id,name,started_at,duration_seconds,gym_programs(name),gym_session_exercises(id,gym_sets(set_type,completed))").eq("user_id", user.id).eq("status", "completed");
+  let query = supabase.from("gym_sessions").select("id,name,planned_workout_id,started_at,duration_seconds,gym_programs(name),gym_session_exercises(id,gym_sets(set_type,completed))").eq("user_id", user.id).eq("status", "completed");
   if (filters.since) query = query.gte("started_at", filters.since);
   if (filters.programId) query = query.eq("program_id", filters.programId);
   if (sessionIds) query = query.in("id", sessionIds);
-  const { data, error } = await query.order("started_at", { ascending: false }).limit(Math.min(100, Math.max(1, limit)));
+  const { data, error } = await query.order("started_at", { ascending: false }).limit(Math.min(500, Math.max(1, limit)));
   if (error) return [];
-  type HistoryRow = { id: string; name: string; started_at: string; duration_seconds: number | null; gym_programs: { name: string } | Array<{ name: string }> | null; gym_session_exercises: Array<{ id: string; gym_sets: Array<{ set_type: string; completed: boolean }> }> };
-  return ((data ?? []) as unknown as HistoryRow[]).map((row) => ({ id: row.id, name: row.name, programName: relatedOne(row.gym_programs)?.name ?? null, startedAt: row.started_at, durationSeconds: row.duration_seconds, exerciseCount: row.gym_session_exercises.length, workingSets: row.gym_session_exercises.flatMap((exercise) => exercise.gym_sets).filter((set) => set.completed && set.set_type !== "warmup").length }));
+  type HistoryRow = { id: string; name: string; planned_workout_id: string | null; started_at: string; duration_seconds: number | null; gym_programs: { name: string } | Array<{ name: string }> | null; gym_session_exercises: Array<{ id: string; gym_sets: Array<{ set_type: string; completed: boolean }> }> };
+  return ((data ?? []) as unknown as HistoryRow[]).map((row) => ({ id: row.id, name: row.name, programName: relatedOne(row.gym_programs)?.name ?? null, plannedWorkoutId: row.planned_workout_id, startedAt: row.started_at, durationSeconds: row.duration_seconds, exerciseCount: row.gym_session_exercises.length, workingSets: row.gym_session_exercises.flatMap((exercise) => exercise.gym_sets).filter((set) => set.completed && set.set_type !== "warmup").length }));
 }
 
 export async function getGymSession(id: string): Promise<GymSession | null> {

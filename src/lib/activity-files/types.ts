@@ -18,6 +18,7 @@ export type ParsedActivityFile = {
   metrics: GpxMetrics;
   streams: ActivityStream[];
   fileType: "gpx" | "fit" | "json";
+  detectedSportType?: "cycling" | "running" | null;
 };
 
 export type MergeResult = {

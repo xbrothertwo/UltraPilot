@@ -8,6 +8,13 @@ export type WorkoutActivityMatch = { workoutId: string; activityId: string; scor
 export type PlanComparison = { distanceDeltaKm: number | null; durationDeltaMinutes: number | null; distanceRatio: number | null; durationRatio: number | null };
 export type ReconciledWorkout = { workout: PlannedWorkout; activity: Activity | null; effectiveStatus: "planned" | "completed" | "skipped"; comparison: PlanComparison | null };
 
+export function isPlanComparisonClose(comparison: PlanComparison | null): boolean {
+  if (!comparison) return true;
+  const closeDistance = comparison.distanceRatio === null || (comparison.distanceRatio >= 0.85 && comparison.distanceRatio <= 1.15);
+  const closeDuration = comparison.durationRatio === null || (comparison.durationRatio >= 0.85 && comparison.durationRatio <= 1.15);
+  return closeDistance && closeDuration;
+}
+
 function activityDateKey(value: string): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
 }

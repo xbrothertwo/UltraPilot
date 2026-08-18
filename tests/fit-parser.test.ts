@@ -40,6 +40,7 @@ describe("FIT parser", () => {
   it("decodes Garmin summary metrics and record streams", () => {
     const parsed = parseFit(createFitFile());
     expect(parsed.fileType).toBe("fit");
+    expect(parsed.detectedSportType).toBe("cycling");
     expect(parsed.metrics.distanceMeters).toBe(600);
     expect(parsed.metrics.elapsedTimeSeconds).toBe(120);
     expect(parsed.metrics.averageSpeedKmh).toBe(18);

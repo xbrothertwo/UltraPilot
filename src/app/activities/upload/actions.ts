@@ -9,6 +9,8 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/supabase/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { getPlannedWorkouts } from "@/lib/planning/workouts";
+import { reconcilePlannedWorkouts, type PlanComparison } from "@/lib/planning/reconciliation";
 
 export type UploadState = {
   status: "idle" | "success" | "partial" | "error" | "unsupported" | "duplicate";
@@ -19,6 +21,8 @@ export type UploadState = {
   heartRateSource?: "primary" | "none" | ActivityStream["source"];
   importedHeartRateSamples?: number;
   results?: UploadResult[];
+  sportType?: UploadSportType;
+  planMatch?: { workoutId: string; workoutTitle: string; comparison: PlanComparison | null } | null;
 };
 
 export type UploadResult = Omit<UploadState, "results">;
@@ -35,7 +39,7 @@ function fileExtension(file: File): string | undefined {
   return file.name.split(".").at(-1)?.toLowerCase();
 }
 
-function validateFile(file: FormDataEntryValue | null, label: string, optional = false, allowedExtensions: string[] = ["gpx", "fit", "tcx"]): File | null {
+function validateFile(file: FormDataEntryValue | null, label: string, optional = false, allowedExtensions: string[] = ["gpx", "fit"]): File | null {
   if (!(file instanceof File) || file.size === 0) {
     if (optional) return null;
     throw new Error(`Bitte wähle ${label} aus.`);
@@ -43,8 +47,17 @@ function validateFile(file: FormDataEntryValue | null, label: string, optional =
   if (file.size > MAX_FILE_SIZE_BYTES) throw new Error(`${label} darf höchstens 20 MB groß sein.`);
   const extension = fileExtension(file);
   if (!extension || !allowedExtensions.includes(extension)) throw new Error(`${label} besitzt kein unterstütztes Dateiformat.`);
-  if (extension === "tcx") throw new Error("Der TCX-Parser folgt in einer späteren Phase.");
   return file;
+}
+
+function localDate(value: string): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
+}
+
+function addDays(key: string, count: number): string {
+  const date = new Date(`${key}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + count);
+  return date.toISOString().slice(0, 10);
 }
 
 function streamRecord(activityId: string, userId: string, stream: ActivityStream) {
@@ -69,7 +82,7 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     const merged = mergeHeartRate(primary, watch);
     const metrics = merged.metrics;
     const mergeMessage = supplement ? `${merged.importedHeartRateSamples} Herzfrequenzwerte aus der Zusatzdatei wurden zeitlich zugeordnet.` : merged.heartRateSource === "primary" ? "Herzfrequenz stammt aus der Hauptdatei." : "Keine Herzfrequenzdatei hinzugefügt.";
-    if (!isSupabaseConfigured()) return { status: "success", fileName: file.name, message: `Dateien wurden im Demo-Modus analysiert. ${mergeMessage}`, metrics, heartRateSource: merged.heartRateSource, importedHeartRateSamples: merged.importedHeartRateSamples };
+    if (!isSupabaseConfigured()) return { status: "success", fileName: file.name, message: `Dateien wurden im Demo-Modus analysiert. ${mergeMessage}`, metrics, sportType, planMatch: null, heartRateSource: merged.heartRateSource, importedHeartRateSamples: merged.importedHeartRateSamples };
 
     const user = await requireUser();
     const supabase = await createClient();
@@ -151,7 +164,35 @@ export async function inspectActivityFile(_previous: UploadState, formData: Form
     revalidatePath("/dashboard");
     revalidatePath("/activities");
     revalidatePath("/plan");
-    return { status: "success", fileName: file.name, message: `${supplement ? "Aktivität und beide Datenquellen" : "Aktivität"} wurden sicher gespeichert. ${mergeMessage}`, metrics, activityId, heartRateSource: merged.heartRateSource, importedHeartRateSamples: merged.importedHeartRateSamples };
+    revalidatePath("/progress");
+    const activity = {
+      id: activityId,
+      userId: user.id,
+      sportType,
+      activityDate: metrics.startTime,
+      title,
+      distanceMeters: metrics.distanceMeters,
+      movingTimeSeconds: Math.round(metrics.movingTimeSeconds),
+      elapsedTimeSeconds: Math.round(metrics.elapsedTimeSeconds),
+      elevationGainMeters: metrics.elevationGainMeters,
+      averageSpeedKmh: metrics.averageSpeedKmh,
+      averageHeartRate: metrics.averageHeartRate,
+      maximumHeartRate: metrics.maximumHeartRate,
+      averagePower: metrics.averagePower,
+      normalizedPower: metrics.normalizedPower,
+      source: activityRecord.source,
+      createdAt: new Date().toISOString(),
+    };
+    const activityDay = localDate(metrics.startTime);
+    let planMatch: UploadState["planMatch"] = null;
+    try {
+      const nearbyWorkouts = await getPlannedWorkouts(addDays(activityDay, -1), addDays(activityDay, 1));
+      const matched = reconcilePlannedWorkouts(nearbyWorkouts, [activity]).find((item) => item.activity?.id === activityId) ?? null;
+      planMatch = matched ? { workoutId: matched.workout.id, workoutTitle: matched.workout.title, comparison: matched.comparison } : null;
+    } catch {
+      // The activity is already stored. A transient plan lookup must never turn a successful import into a retryable error.
+    }
+    return { status: "success", fileName: file.name, message: `${supplement ? "Aktivität und beide Datenquellen" : "Aktivität"} wurden sicher gespeichert. ${mergeMessage}`, metrics, activityId, sportType, planMatch, heartRateSource: merged.heartRateSource, importedHeartRateSamples: merged.importedHeartRateSamples };
   } catch (error) {
     return { status: "error", fileName: file?.name, message: error instanceof Error ? error.message : "Die Aktivitätsdateien konnten nicht verarbeitet werden." };
   }

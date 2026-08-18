@@ -48,22 +48,23 @@ export function ActivityCharts({ streams, nutritionEntries = [], elapsedTimeSeco
 
 function StreamChart({ stream }: { stream: ActivityChartStream }) {
   const config = chartConfig[stream.type];
+  const label = stream.type === "speed" && stream.unit === "min/km" ? "Pace" : config.label;
   const gradientId = `gradient-${stream.type}-${stream.source}`;
   return (
     <article className={`card overflow-hidden p-5 ${stream.type === "heart_rate" || stream.type === "altitude" ? "lg:col-span-2" : ""}`}>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div><h3 className="font-bold">{config.label}</h3><p className="mt-1 text-xs text-[var(--muted)]">{stream.originalSampleCount.toLocaleString("de-DE")} Samples · {Math.round(stream.coveragePercent)} % Zeitabdeckung</p></div>
+        <div><h3 className="font-bold">{label}</h3><p className="mt-1 text-xs text-[var(--muted)]">{stream.originalSampleCount.toLocaleString("de-DE")} Samples · {Math.round(stream.coveragePercent)} % Zeitabdeckung</p></div>
         <span className="rounded-full bg-[#e9f0fb] px-3 py-1 text-xs font-semibold text-[var(--accent-dark)]">{sourceLabels[stream.source]}</span>
       </div>
-      <div className="h-56 w-full" role="img" aria-label={`${config.label} über die verstrichene Zeit, Quelle ${sourceLabels[stream.source]}`}>
+      <div className="h-56 w-full" role="img" aria-label={`${label} über die verstrichene Zeit, Quelle ${sourceLabels[stream.source]}`}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={stream.points} syncId="activity-timeline" syncMethod="value" margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <defs><linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={config.color} stopOpacity={0.28} /><stop offset="95%" stopColor={config.color} stopOpacity={0.02} /></linearGradient></defs>
             <CartesianGrid stroke="#e3ebf6" strokeDasharray="4 4" vertical={false} />
             <XAxis dataKey="elapsedMinutes" type="number" domain={["dataMin", "dataMax"]} tickFormatter={(value) => elapsedLabel(Number(value))} tick={{ fill: "#65758b", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={28} />
             <YAxis width={48} domain={["auto", "auto"]} tick={{ fill: "#65758b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => chartValue(Number(value), stream.unit, config.decimals)} />
-            <Tooltip labelFormatter={(value) => elapsedLabel(Number(value))} formatter={(value) => [`${chartValue(Number(value), stream.unit, config.decimals)} ${stream.unit}`, config.label]} contentStyle={{ border: "1px solid #dce6f2", borderRadius: "12px", boxShadow: "0 8px 24px rgba(35,62,45,.1)" }} />
-            <Area type="monotone" dataKey="value" name={config.label} stroke={config.color} strokeWidth={2} fill={`url(#${gradientId})`} isAnimationActive={false} connectNulls={false} />
+            <Tooltip labelFormatter={(value) => elapsedLabel(Number(value))} formatter={(value) => [`${chartValue(Number(value), stream.unit, config.decimals)} ${stream.unit}`, label]} contentStyle={{ border: "1px solid #dce6f2", borderRadius: "12px", boxShadow: "0 8px 24px rgba(35,62,45,.1)" }} />
+            <Area type="monotone" dataKey="value" name={label} stroke={config.color} strokeWidth={2} fill={`url(#${gradientId})`} isAnimationActive={false} connectNulls={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

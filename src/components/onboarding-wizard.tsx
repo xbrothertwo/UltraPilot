@@ -34,7 +34,7 @@ const dataSources = [
   { value: "garmin", label: "Garmin", hint: "Quelle · Import über FIT oder GPX" },
   { value: "polar", label: "Polar", hint: "Quelle · Import über FIT oder GPX" },
   { value: "apple", label: "Apple Health", hint: "Verbindung über den UltraPilot-Kurzbefehl" },
-  { value: "files", label: "FIT / GPX / TCX", hint: "Dateiimport, keine dauerhafte Verbindung" },
+  { value: "files", label: "FIT / GPX", hint: "Dateiimport, keine dauerhafte Verbindung" },
   { value: "manual", label: "Manuell", hint: "Einheit direkt in UltraPilot erfassen" },
 ];
 

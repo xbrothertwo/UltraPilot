@@ -32,7 +32,7 @@ function navigationProps() {
   return {
     configured: false,
     userEmail: null,
-    missionGoal: { eventName: null, targetYear: null, eventDistanceKm: null },
+    missionGoal: { eventName: null, targetYear: null, targetDate: null, eventDistanceKm: null },
   };
 }
 
