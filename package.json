@@ -11,7 +11,8 @@
     "test": "vitest run",
     "gym:library:validate": "node scripts/gym-exercise-library.mjs",
     "gym:library:generate": "node scripts/gym-exercise-library.mjs --generate",
-    "gym:library:import": "node scripts/gym-exercise-library.mjs --apply"
+    "gym:library:import": "node scripts/gym-exercise-library.mjs --apply",
+    "test-user:reset": "node scripts/reset-test-user.mjs"
   },
   "dependencies": {
     "@garmin/fitsdk": "^21.208.0",

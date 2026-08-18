@@ -86,6 +86,32 @@ npm run gym:library:validate # Gym-CSV deterministisch prüfen (keine DB-Schreib
 npm run gym:library:import   # Globale Exercise Library idempotent importieren
 ```
 
+## Resetting a Customer Journey Test Account
+
+Das lokale Reset-Tool setzt genau einen bereits bestätigten Supabase-Testaccount auf den Zustand vor dem Onboarding zurück. Es ist ausschließlich ein CLI-Script: Es gibt keine öffentliche Route und keine Funktion in der normalen UI. `auth.users`, UUID, E-Mail, Bestätigungsstatus, Passwort und Auth-Identitäten bleiben unverändert.
+
+Benötigt werden `NEXT_PUBLIC_SUPABASE_URL` und ausschließlich serverseitig entweder `SUPABASE_SECRET_KEY` oder `SUPABASE_SERVICE_ROLE_KEY`. Secrets niemals in Client-Code oder Git speichern. In PowerShell können sie temporär in der aktuellen Shell gesetzt werden.
+
+Der Standardaufruf ist immer nur ein Dry Run und zeigt die aufgelöste User-ID sowie die betroffenen Zeilen und Storage-Dateien:
+
+```powershell
+npm.cmd run test-user:reset -- --email jonas@example.com
+```
+
+Erst `--apply` führt den Reset aus:
+
+```powershell
+npm.cmd run test-user:reset -- --email jonas@example.com --apply
+```
+
+Adressen unter `example.com`, `.test` oder mit einem eindeutigen Test-Präfix/-Tag werden als Testaccount erkannt. Für jede andere Adresse ist zusätzlich die bewusste Bestätigung erforderlich:
+
+```powershell
+npm.cmd run test-user:reset -- --email jonas@eigene-domain.de --apply --confirm-test-account
+```
+
+Zurückgesetzt werden Profilwerte und Onboarding, Ziele und Trainingspräferenzen, Kalender und Planungen, Missionen und Trainingsblöcke, Recovery-/Health-Daten, Aktivitäten einschließlich privater Storage-Dateien und Streams, Ernährung sowie alle persönlichen Gym-Favoriten, Übungen, Programme, Sessions und Sets. Globale Gym Exercises, Equipment und sonstige Referenzdaten bleiben erhalten. Das Script bricht bei unbekannten/mehrdeutigen Usern, unbestätigter E-Mail oder einem vorhandenen Account-Deletion-Job ab. Der Ablauf ist deterministisch und wiederholbar; bei einem Infrastrukturfehler kann derselbe Befehl sicher erneut ausgeführt werden.
+
 ## Gym v1: Migration und Exercise Library
 
 Gym verwendet den bestehenden Bloom-Plan und `planned_workouts`; Programme, Sessions und Sets liegen in eigenen, RLS-geschützten Tabellen. Die globale Library basiert ausschließlich auf `data/gym/Uebungsdatenbank_UltraPilot_Gym_v1.csv` (245 Übungen). `src/lib/gym/exercise-library.generated.json` ist eine deterministisch erzeugte Demo-/Build-Kopie und wird mit `npm run gym:library:generate` aktualisiert.
